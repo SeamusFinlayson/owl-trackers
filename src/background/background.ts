@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
-import menuIcon from "../assets/react.svg";
+import menuIcon from "../assets/owl-origami-paper-svgrepo-com.svg";
 
 /**
  * This file represents the background script run when the plugin loads.
@@ -9,8 +9,10 @@ import menuIcon from "../assets/react.svg";
 
 OBR.onReady(async () => {
   fetch("/manifest.json")
-    .then(response => response.json())
-    .then(json => console.log(json["name"] + " - version: " + json["version"]));
+    .then((response) => response.json())
+    .then((json) =>
+      console.log(json["name"] + " - version: " + json["version"]),
+    );
 
   //create player context menu icon
   // OBR.contextMenu.create({
@@ -46,7 +48,7 @@ OBR.onReady(async () => {
     icons: [
       {
         icon: menuIcon,
-        label: "Owl Tracker",
+        label: "Owl Trackers",
         filter: {
           every: [
             { key: "type", value: "IMAGE" },
@@ -62,7 +64,7 @@ OBR.onReady(async () => {
     shortcut: "Shift + S",
     embed: {
       url: "/src/trackerMenu/trackerMenu.html",
-      height: 132,
+      height: 152,
     },
   });
 });

@@ -4,11 +4,15 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   bgColor: number;
 }
 
-export default function BubbleInput({
+export default function BarInput({
   color,
+  value,
+  max,
   inputProps,
 }: {
   color: number;
+  value: number;
+  max: number;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }): JSX.Element {
   const handleFocus = (event: React.FocusEvent<HTMLInputElement, Element>) => {
@@ -43,12 +47,21 @@ export default function BubbleInput({
 
   return (
     <div
-      className={`h-[44px] w-[44px] pb-[2px] pr-[0px] ${backgroundColor} justify-center rounded-full drop-shadow-sm duration-300 focus-within:drop-shadow-lg`}
+      className={`flex h-[44px] w-[100px] flex-row justify-between pb-[2px] pr-[0px] ${backgroundColor} justify-center rounded-xl outline-none -outline-offset-2 outline-white/40 drop-shadow-sm duration-100 focus-within:outline-white/60 focus-within:drop-shadow-lg`}
     >
       <input
+        value={value}
         {...inputProps}
         onFocus={handleFocus}
-        className={`duration-50selection:bl h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[2px] pr-[0px] text-center font-medium  outline-none -outline-offset-2 outline-white/40 focus:bg-black/10 focus:outline-white/60`}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[2px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        placeholder=""
+      ></input>
+      <div className="self-center pb-[1px]">/</div>
+      <input
+        value={max}
+        {...inputProps}
+        onFocus={handleFocus}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[2px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
         placeholder=""
       ></input>
     </div>
