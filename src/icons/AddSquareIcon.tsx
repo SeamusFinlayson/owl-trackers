@@ -1,4 +1,4 @@
-import { IconProps } from "./IconPropsType";
+import { IconProps } from "../components/IconPropsType";
 
 export default function AddSquareIcon(props: IconProps): JSX.Element {
   return (
