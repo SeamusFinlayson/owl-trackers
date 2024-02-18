@@ -1,6 +1,8 @@
 import {
   AttachmentBehavior,
+  Image,
   Item,
+  buildImage,
   buildShape,
   buildText,
 } from "@owlbear-rodeo/sdk";
@@ -27,7 +29,7 @@ const REDUCED_CIRCLE_FONT_SIZE = BUBBLE_DIAMETER - 15;
 const CIRCLE_TEXT_HEIGHT = BUBBLE_DIAMETER + 0;
 
 /** Creates Stat Bubble component items */
-export function createStatBubble(
+export function createTrackerBubble(
   item: Item,
   bounds: { width: number; height: number },
   tracker: Tracker,
@@ -84,6 +86,67 @@ export function createStatBubble(
   return [bubbleShape, bubbleText];
 }
 
+export function createImageBubble(
+  item: Image,
+  bounds: { width: number; height: number },
+  position: { x: number; y: number },
+  color: string,
+  url: string,
+  label: string,
+): Item[] {
+  const bubbleShape = buildShape()
+    .width(bounds.width)
+    .height(BUBBLE_DIAMETER)
+    .shapeType("CIRCLE")
+    .fillColor(color)
+    .fillOpacity(BACKGROUND_OPACITY)
+    .strokeColor(color)
+    .strokeOpacity(0.5)
+    .strokeWidth(0)
+    .position({ x: position.x, y: position.y })
+    .attachedTo(item.id)
+    .layer("ATTACHMENT")
+    .locked(true)
+    .id(`${item.id}-${label}-img-bg`)
+    .visible(item.visible)
+    .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
+    .disableHit(DISABLE_HIT)
+    .build();
+
+  const imageObject = {
+    width: 50,
+    height: 50,
+    mime: "image/png",
+    url: url,
+  };
+
+  const image = buildImage(imageObject, item.grid)
+    .position({
+      x:
+        position.x +
+        (150 - bounds.width) / 2 +
+        bounds.width / 2 -
+        imageObject.width / 4,
+      y:
+        position.y +
+        (150 - bounds.height) / 2 +
+        bounds.height / 2 -
+        imageObject.height / 4,
+    })
+    // .position(position)
+    .attachedTo(item.id)
+    .locked(true)
+    .name(`hide icon`)
+    .id(`${item.id}-${label}-img`)
+    .layer("NOTE")
+    .disableHit(DISABLE_HIT)
+    .visible(item.visible)
+    .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
+    .build();
+
+  return [bubbleShape, image];
+}
+
 // Constants used in createHealthBar()
 const BAR_PADDING = 2;
 const TRACKER_OPACITY = 0.7;
@@ -108,10 +171,7 @@ export function createTrackerBar(
 
   if (tracker.variant !== "value-max") throw "Error";
 
-  let trackerBackgroundColor = "black"; // "#A4A4A4";
-  if (trackersHidden) {
-    trackerBackgroundColor = "black";
-  }
+  const trackerBackgroundColor = "dimgrey"; // "#A4A4A4";
 
   const backgroundShape = buildShape()
     .width(barWidth)
@@ -195,6 +255,10 @@ export function getBubbleItemIds(itemId: string, position: number) {
     `${itemId}-${position}-bubble-bg`,
     `${itemId}-${position}-bubble-text`,
   ];
+}
+
+export function getImageBubbleItemIds(itemId: string, label: string) {
+  return [`${itemId}-${label}-img-bg`, `${itemId}-${label}-img`];
 }
 
 export function getBarItemIds(itemId: string, position: number) {

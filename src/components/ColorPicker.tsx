@@ -11,13 +11,13 @@ export default function ColorPicker({
       <button
         key={i}
         onClick={() => setColorNumber(i)}
-        className="group flex h-[30px] w-[30px] items-center justify-center"
+        className="group flex h-[30px] w-[30px] items-center justify-center outline-none"
       >
         <div
-          className={`h-[24px] w-[24px] rounded-full duration-100 group-hover:h-[30px] group-hover:w-[30px] ${getBackgroundColor(i)} opacity-90`}
+          className={`h-[24px] w-[24px] rounded-full duration-100 group-hover:h-[30px] group-hover:w-[30px] group-focus-visible:h-[30px] group-focus-visible:w-[30px] ${getBackgroundColor(i)} opacity-90`}
         ></div>
         <div
-          className={`absolute h-[24px] w-[24px] rounded-full outline outline-1 -outline-offset-1 outline-white/20 duration-100 group-hover:h-[30px] group-hover:w-[30px] ${getBackgroundColor(i)}`}
+          className={`absolute h-[24px] w-[24px] rounded-full outline outline-1 -outline-offset-1 outline-white/20 duration-100 group-hover:h-[30px] group-hover:w-[30px] group-focus-visible:h-[30px] group-focus-visible:w-[30px] ${getBackgroundColor(i)}`}
         ></div>
       </button>,
     );

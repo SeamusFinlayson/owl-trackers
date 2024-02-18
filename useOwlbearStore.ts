@@ -20,7 +20,7 @@ export const useOwlbearStore = create<OwlbearState>()((set) => ({
   role: "PLAYER",
   sceneReady: false,
   selection: undefined,
-  mode: "DARK",
+  mode: "LIGHT",
 
   setSceneReady: (sceneReady) => set((state) => ({ ...state, sceneReady })),
   setItems: (items) => set((state) => ({ ...state, items })),

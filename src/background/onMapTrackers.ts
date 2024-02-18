@@ -1,13 +1,15 @@
-import OBR, { Image, Item, buildImage, isImage } from "@owlbear-rodeo/sdk";
+import OBR, { Image, Item, isImage } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import {
   BUBBLE_DIAMETER,
   FULL_BAR_HEIGHT,
-  createStatBubble,
+  createTrackerBubble,
   createTrackerBar,
   getBarItemIds,
   getBarTextId,
   getBubbleItemIds,
+  createImageBubble,
+  getImageBubbleItemIds,
 } from "./compoundItemHelpers";
 import {
   HIDDEN_METADATA_ID,
@@ -164,7 +166,7 @@ function getChangedItems(items: Image[]): Image[] {
       deleteItemsArray.push(
         ...Array(MAX_BAR_COUNT)
           .fill(undefined)
-          .map((_, i) => getBarTextId(items[i].id, i)),
+          .map((_, barIndex) => getBarTextId(items[i].id, barIndex)),
       );
       changedItems.push(items[i]);
     } else if (
@@ -211,33 +213,8 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
   // Determine coordinate origin for drawing stats
   const origin = {
     x: item.position.x,
-    y: item.position.y + bounds.height / 2,
+    y: item.position.y,
   };
-
-  const imageUrl = "https://cdn-icons-png.flaticon.com/128/565/565655.png";
-
-  const theImage = {
-    width: 30,
-    height: 30,
-    mime: "image/png",
-    url: imageUrl,
-  };
-
-  const marker = buildImage(theImage, item.grid)
-    .scale({ x: 2, y: 2 })
-    .rotation(1)
-    .position({ x: origin.x, y: origin.y })
-    .attachedTo(item.id)
-    .locked(false)
-    .name(`hide icon`)
-    .id(`${item.id}-not-visible`)
-    .metadata({ [getPluginId("metadata")]: { enabled: true } })
-    .layer("ATTACHMENT")
-    .disableHit(false)
-    .visible(item.visible)
-    .build();
-
-  addItemsArray.push(marker);
 
   // Add bar trackers
   let barCount = 0;
@@ -250,7 +227,7 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
       addItemsArray.push(
         ...createTrackerBar(item, bounds, tracker, trackersHidden, {
           x: origin.x,
-          y: origin.y - barCount * FULL_BAR_HEIGHT,
+          y: origin.y - barCount * FULL_BAR_HEIGHT + bounds.height / 2,
         }),
       );
       barCount++;
@@ -262,8 +239,42 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
     deleteItemsArray.push(...getBarItemIds(item.id, i));
   }
 
+  let bubbleCount = 0;
+  const getBubblePosition = () => {
+    const position = {
+      x:
+        origin.x +
+        2 -
+        bounds.width / 2 +
+        bubbleCount * (BUBBLE_DIAMETER + 2) +
+        BUBBLE_DIAMETER / 2,
+      y:
+        origin.y -
+        2 -
+        BUBBLE_DIAMETER / 2 -
+        barCount * FULL_BAR_HEIGHT +
+        bounds.height / 2,
+    };
+
+    bubbleCount++;
+    return position;
+  };
+
+  if (!trackersHidden) {
+    deleteItemsArray.push(...getImageBubbleItemIds(item.id, "hide"));
+  } else {
+    const hideIndicator = createImageBubble(
+      item,
+      bounds,
+      getBubblePosition(),
+      "black",
+      "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
+      "hide",
+    );
+    addItemsArray.push(...hideIndicator);
+  }
+
   // Add bubble trackers
-  let bubbleCount = 0; // Skipped tracker count
   trackers.map((tracker) => {
     if (tracker.variant !== "value") {
       () => {};
@@ -271,17 +282,8 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
       deleteItemsArray.push(...getBubbleItemIds(item.id, tracker.position));
     } else {
       addItemsArray.push(
-        ...createStatBubble(item, bounds, tracker, {
-          x:
-            origin.x +
-            2 -
-            bounds.width / 2 +
-            bubbleCount * (BUBBLE_DIAMETER + 2) +
-            BUBBLE_DIAMETER / 2,
-          y: origin.y - 2 - BUBBLE_DIAMETER / 2 - barCount * FULL_BAR_HEIGHT,
-        }),
+        ...createTrackerBubble(item, bounds, tracker, getBubblePosition()),
       );
-      bubbleCount++;
     }
   });
 
@@ -323,4 +325,5 @@ function addAllItemAttachmentsToDeleteList(itemId: string) {
   for (let i = 0; i < MAX_BAR_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
   }
+  deleteItemsArray.push(...getImageBubbleItemIds(itemId, "hide"));
 }

@@ -6,8 +6,9 @@ import App from "./App";
 import { getTrackersFromSelection } from "../itemHelpers";
 
 OBR.onReady(async () => {
-  const [theme, metadata] = await Promise.all([
+  const [theme, role, metadata] = await Promise.all([
     OBR.theme.getTheme(),
+    OBR.player.getRole(),
     getTrackersFromSelection(),
   ]);
 
@@ -17,6 +18,7 @@ OBR.onReady(async () => {
     <React.StrictMode>
       <App
         initialMode={theme.mode}
+        initialRole={role}
         initialTrackers={trackers}
         initialHidden={trackersHidden}
       />
