@@ -3,7 +3,7 @@ import { useOwlbearStore } from "../../useOwlbearStore";
 import { useOwlbearStoreSync } from "../../useOwlbearStoreSync";
 import "../index.css";
 import { Tracker } from "../itemHelpers";
-import TrackerMenu from "./TrackerMenu";
+import TrackerMenu from "./TrackerMenu.tsx";
 
 export default function App({
   initialMode,
