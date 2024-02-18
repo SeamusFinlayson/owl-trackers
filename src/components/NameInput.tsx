@@ -16,7 +16,7 @@ export default function NameInput({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       placeholder="Name"
-      className="h-[36px] w-full rounded-md bg-black/10 px-1.5 py-1 outline-none focus:bg-black/25"
+      className="h-[36px] w-full rounded-md bg-black/10 px-1.5 py-1 outline-none duration-100 hover:bg-black/20 focus:bg-black/40"
     ></input>
   );
 }

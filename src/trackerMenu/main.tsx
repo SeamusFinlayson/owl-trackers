@@ -3,12 +3,12 @@ import ReactDOM from "react-dom/client";
 import "../index.css";
 import OBR from "@owlbear-rodeo/sdk";
 import App from "./App";
-import { getMetadataFromItems } from "../itemHelpers";
+import { getTrackersFromSelection } from "../itemHelpers";
 
 OBR.onReady(async () => {
   const [theme, metadata] = await Promise.all([
     OBR.theme.getTheme(),
-    getMetadataFromItems(),
+    getTrackersFromSelection(),
   ]);
 
   const [trackers, trackersHidden] = metadata;

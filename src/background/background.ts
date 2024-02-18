@@ -2,6 +2,7 @@ import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import menuIcon from "../assets/owl-origami-paper-svgrepo-com.svg";
 import { HIDDEN_METADATA_ID } from "../itemHelpers";
+import { initOnMapTrackers } from "./onMapTrackers";
 
 /**
  * This file represents the background script run when the plugin loads.
@@ -68,4 +69,6 @@ OBR.onReady(async () => {
       height: 152,
     },
   });
+
+  initOnMapTrackers();
 });

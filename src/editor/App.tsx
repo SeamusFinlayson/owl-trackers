@@ -11,25 +11,24 @@ import NotVisibleIcon from "../icons/NotVisibleIcon";
 import BarInput from "../components/BarInput";
 import {
   Tracker,
-  TrackerVariant,
-  getMetadataFromItems,
-  writeTrackersHiddenToItem,
-  writeTrackersToItem,
+  addTrackerBar,
+  addTrackerBubble,
+  deleteTracker,
+  getTrackersFromSelection,
+  toggleTrackersHidden,
+  // toggleInlineMath,
+  toggleShowOnMap,
+  updateTrackerField,
 } from "../itemHelpers";
 import OBR from "@owlbear-rodeo/sdk";
 import NameInput from "../components/NameInput.tsx";
 import DeleteIcon from "../icons/DeleteIcon.tsx";
 import ColorPicker from "../components/ColorPicker.tsx";
 import { getPluginId } from "../getPluginId.ts";
+import OnMap from "../icons/OnMap.tsx";
+import NotOnMap from "../icons/NotOnMap.tsx";
+// import MathIcon from "../icons/MathIcon.tsx";
 // import "./temp.css";
-
-const randomColor = () => {
-  return Math.floor(Math.random() * 6);
-};
-
-const createId = () => {
-  return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-};
 
 export default function App({
   initialMode,
@@ -59,183 +58,121 @@ export default function App({
   // console.log(mode);
 
   const [trackersHidden, setTrackersHidden] = useState(initialHidden);
-  const toggleHidden = () => {
-    setTrackersHidden((prev) => {
-      const value = !prev;
-      writeTrackersHiddenToItem(value);
-      return value;
-    });
-  };
-
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
-  const updateTrackers = (
-    updateFunction: (prevTrackers: Tracker[]) => void,
-  ) => {
-    setTrackers((prev) => {
-      const draftTrackers = [...prev];
-      updateFunction(draftTrackers);
-      const sortedTrackers = draftTrackers
-        .filter((value) => value.variant === "value")
-        .sort((a, b) => a.position - b.position);
-      sortedTrackers.push(
-        ...draftTrackers
-          .filter((value) => value.variant === "value-max")
-          .sort((a, b) => a.position - b.position),
-      );
-      writeTrackersToItem(sortedTrackers);
-      return sortedTrackers;
-    });
-  };
 
   useEffect(
     () =>
       OBR.scene.items.onChange((items) =>
-        getMetadataFromItems(items).then(([newTracker, newTrackersHidden]) => {
-          setTrackers(newTracker);
-          setTrackersHidden(newTrackersHidden);
-        }),
+        getTrackersFromSelection(items).then(
+          ([newTracker, newTrackersHidden]) => {
+            setTrackers(newTracker);
+            setTrackersHidden(newTrackersHidden);
+          },
+        ),
       ),
     [],
   );
-
-  let occupiedSpaces = -1;
-  const checkOccupiedSpaces = () => {
-    if (occupiedSpaces !== -1) return occupiedSpaces;
-    let spaces = 0;
-    for (const tracker of trackers) {
-      if (tracker.variant === "value") {
-        spaces += 1;
-      } else {
-        spaces += 2;
-      }
-    }
-    occupiedSpaces = spaces;
-    return spaces;
-  };
-
-  const createPosition = (variant: TrackerVariant) => {
-    return trackers.filter((tracker) => tracker.variant === variant).length;
-  };
-
-  const createBubble = (): Tracker => {
-    return {
-      id: createId(),
-      name: "",
-      variant: "value",
-      position: createPosition("value"),
-      color: randomColor(),
-      value: 0,
-    };
-  };
-
-  const createBar = (): Tracker => {
-    return {
-      id: createId(),
-      name: "",
-      variant: "value-max",
-      position: createPosition("value-max"),
-      color: randomColor(),
-      value: 0,
-      max: 0,
-    };
-  };
-
-  const addTrackerBubble = () => {
-    if (checkOccupiedSpaces() < 8) {
-      updateTrackers((prev) => prev.push(createBubble()));
-    }
-  };
-  const addTrackerBar = () => {
-    if (checkOccupiedSpaces() < 7) {
-      updateTrackers((prev) => prev.push(createBar()));
-    }
-  };
-
-  const updateTrackerField = (
-    id: string,
-    field: "value" | "max" | "name" | "color",
-    content: string | number,
-  ) => {
-    if ((field === "value" || field === "max") && typeof content === "string") {
-      content = Math.trunc(parseFloat(content));
-      if (isNaN(content)) content = 0;
-    }
-    updateTrackers((prevTrackers) => {
-      const index = prevTrackers.findIndex((item) => item.id === id);
-      prevTrackers.splice(index, 1, {
-        ...prevTrackers[index],
-        [field]: content,
-      });
-    });
-  };
-
-  const deleteTracker = (id: string) => {
-    updateTrackers((prevTrackers) => {
-      const index = prevTrackers.findIndex((item) => item.id === id);
-      prevTrackers.splice(index, 1);
-    });
-  };
 
   const generateTrackerOptions = (tracker: Tracker): JSX.Element => {
     return (
       <div
         key={tracker.id}
-        className={`not-tiny:basis-1 grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg bg-[#3d4051]/95 p-1 drop-shadow`}
+        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg bg-[#3d4051]/95 p-1 drop-shadow not-tiny:basis-1`}
       >
         <NameInput
           valueControl={tracker.name}
           inputProps={{
             onBlur: (e) =>
-              updateTrackerField(tracker.id, "name", e.target.value),
+              updateTrackerField(
+                tracker.id,
+                "name",
+                e.target.value,
+                setTrackers,
+              ),
           }}
         ></NameInput>
 
         <IconButton
           Icon={DeleteIcon}
-          onClick={() => deleteTracker(tracker.id)}
+          onClick={() => deleteTracker(tracker.id, setTrackers)}
           rounded="rounded-md"
           padding=""
         ></IconButton>
 
-        <div className="col-span-2 flex w-full justify-stretch">
+        <div className="col-span-2 flex w-full flex-row items-stretch justify-evenly">
           <ColorPicker
             setColorNumber={(content) =>
-              updateTrackerField(tracker.id, "color", content)
+              updateTrackerField(tracker.id, "color", content, setTrackers)
             }
           ></ColorPicker>
+
+          <div className="flex flex-col items-center justify-evenly">
+            {tracker.variant === "value" ? (
+              <BubbleInput
+                key={tracker.id}
+                valueControl={tracker.value}
+                color={tracker.color}
+                inputProps={{
+                  // value: tracker.value,
+                  // onChange: (e) =>
+                  //   handleInputChange(tracker.id, "value", e.target.value),
+                  onBlur: (e) =>
+                    updateTrackerField(
+                      tracker.id,
+                      "value",
+                      e.target.value,
+                      setTrackers,
+                    ),
+                }}
+              ></BubbleInput>
+            ) : (
+              <BarInput
+                key={tracker.id}
+                valueControl={tracker.value}
+                maxControl={tracker.max}
+                color={tracker.color}
+                valueInputProps={{
+                  onBlur: (e) =>
+                    updateTrackerField(
+                      tracker.id,
+                      "value",
+                      e.target.value,
+                      setTrackers,
+                    ),
+                }}
+                maxInputProps={{
+                  onBlur: (e) =>
+                    updateTrackerField(
+                      tracker.id,
+                      "max",
+                      e.target.value,
+                      setTrackers,
+                    ),
+                }}
+              ></BarInput>
+            )}
+            <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">
+              <IconButton
+                Icon={tracker.showOnMap ? OnMap : NotOnMap}
+                onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
+              ></IconButton>
+              {/* <IconButton
+                Icon={MathIcon}
+                onClick={() => toggleInlineMath(tracker.id, setTrackers)}
+              ></IconButton> */}
+            </div>
+          </div>
         </div>
 
-        <div className="col-span-2 flex">
-          {tracker.variant === "value" ? (
-            <BubbleInput
-              key={tracker.id}
-              valueControl={tracker.value}
-              color={tracker.color}
-              inputProps={{
-                // value: tracker.value,
-                // onChange: (e) =>
-                //   handleInputChange(tracker.id, "value", e.target.value),
-                onBlur: (e) =>
-                  updateTrackerField(tracker.id, "value", e.target.value),
-              }}
-            ></BubbleInput>
-          ) : (
-            <BarInput
-              key={tracker.id}
-              valueControl={tracker.value}
-              maxControl={tracker.max}
-              color={tracker.color}
-              valueInputProps={{
-                onBlur: (e) =>
-                  updateTrackerField(tracker.id, "value", e.target.value),
-              }}
-              maxInputProps={{
-                onBlur: (e) =>
-                  updateTrackerField(tracker.id, "max", e.target.value),
-              }}
-            ></BarInput>
-          )}
-        </div>
+        {/* <div className="col-span-2 flex w-full justify-stretch">
+          
+        </div> */}
+        {/* <div className="col-start-1 col-end-1"></div>
+        <div className="col-span-1 col-start-1"></div>
+
+        <div className="col-start-2 row-span-2 row-start-2 flex w-full justify-center"></div> */}
+
+        {/* <div className="col-span-2 flex w-full items-center justify-evenly"></div> */}
       </div>
     );
   };
@@ -245,13 +182,19 @@ export default function App({
     <div className={mode === "DARK" ? "dark" : ""}>
       <div className={`flex flex-col gap-2 px-2 py-2`}>
         <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">
-          <IconButton Icon={AddIcon} onClick={addTrackerBubble}></IconButton>
-          <IconButton Icon={AddSquareIcon} onClick={addTrackerBar}></IconButton>
+          <IconButton
+            Icon={AddIcon}
+            onClick={() => addTrackerBubble(trackers, setTrackers)}
+          ></IconButton>
+          <IconButton
+            Icon={AddSquareIcon}
+            onClick={() => addTrackerBar(trackers, setTrackers)}
+          ></IconButton>
 
           {role === "GM" && (
             <IconButton
               Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-              onClick={toggleHidden}
+              onClick={() => toggleTrackersHidden(setTrackersHidden)}
             ></IconButton>
           )}
           <IconButton
