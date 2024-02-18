@@ -157,7 +157,6 @@ export function createTrackerBar(
   item: Item,
   bounds: { width: number; height: number },
   tracker: Tracker,
-  trackersHidden: boolean,
   origin: { x: number; y: number },
   segments = 0,
 ): Item[] {

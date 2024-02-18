@@ -225,7 +225,7 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
       deleteItemsArray.push(...getBarItemIds(item.id, tracker.position));
     } else {
       addItemsArray.push(
-        ...createTrackerBar(item, bounds, tracker, trackersHidden, {
+        ...createTrackerBar(item, bounds, tracker, {
           x: origin.x,
           y: origin.y - barCount * FULL_BAR_HEIGHT + bounds.height / 2,
         }),
