@@ -3,7 +3,7 @@ import { useOwlbearStore } from "../../useOwlbearStore";
 import { useOwlbearStoreSync } from "../../useOwlbearStoreSync";
 import "../index.css";
 import { Tracker } from "../itemHelpers.ts";
-import Editor from "./Editor.tsx";
+import Editor from "./Editor";
 
 export default function App({
   initialMode,
