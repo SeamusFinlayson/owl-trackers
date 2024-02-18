@@ -1,4 +1,4 @@
-import OBR, { Image, Item, isImage } from "@owlbear-rodeo/sdk";
+import OBR, { Image, Item, buildImage, isImage } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import {
   BUBBLE_DIAMETER,
@@ -11,6 +11,8 @@ import {
 } from "./compoundItemHelpers";
 import {
   HIDDEN_METADATA_ID,
+  MAX_BAR_COUNT,
+  MAX_BUBBLE_COUNT,
   TRACKER_METADATA_ID,
   getTrackersFromItem,
 } from "../itemHelpers";
@@ -90,7 +92,7 @@ async function startTrackerUpdates() {
     // Handle item changes (Update health bars)
     const unsubscribeFromItems = OBR.scene.items.onChange(
       async (itemsFromCallback) => {
-        // Filter items for only images from character, mount, and prop layers
+        // Filter items for only images from character and mount layers
         const imagesFromCallback: Image[] = [];
         for (const item of itemsFromCallback) {
           if (
@@ -160,7 +162,7 @@ function getChangedItems(items: Image[]): Image[] {
     ) {
       // Bar text attachments must be deleted to prevent ghost selection highlight bug
       deleteItemsArray.push(
-        ...Array(4)
+        ...Array(MAX_BAR_COUNT)
           .fill(undefined)
           .map((_, i) => getBarTextId(items[i].id, i)),
       );
@@ -212,14 +214,38 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
     y: item.position.y + bounds.height / 2,
   };
 
-  let s = 0; // Skipped tracker count
+  const imageUrl = "https://cdn-icons-png.flaticon.com/128/565/565655.png";
+
+  const theImage = {
+    width: 30,
+    height: 30,
+    mime: "image/png",
+    url: imageUrl,
+  };
+
+  const marker = buildImage(theImage, item.grid)
+    .scale({ x: 2, y: 2 })
+    .rotation(1)
+    .position({ x: origin.x, y: origin.y })
+    .attachedTo(item.id)
+    .locked(false)
+    .name(`hide icon`)
+    .id(`${item.id}-not-visible`)
+    .metadata({ [getPluginId("metadata")]: { enabled: true } })
+    .layer("ATTACHMENT")
+    .disableHit(false)
+    .visible(item.visible)
+    .build();
+
+  addItemsArray.push(marker);
+
+  // Add bar trackers
   let barCount = 0;
-  trackers.map((tracker, index) => {
+  trackers.map((tracker) => {
     if (tracker.variant !== "value-max") {
-      s++;
+      () => {};
     } else if (!tracker.showOnMap) {
-      s++;
-      deleteItemsArray.push(...getBubbleItemIds(item.id, tracker.position));
+      deleteItemsArray.push(...getBarItemIds(item.id, tracker.position));
     } else {
       addItemsArray.push(
         ...createTrackerBar(item, bounds, tracker, trackersHidden, {
@@ -231,28 +257,38 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
     }
   });
 
-  console.log(barCount);
+  // Clean up extra bars
+  for (let i = barCount; i < MAX_BAR_COUNT; i++) {
+    deleteItemsArray.push(...getBarItemIds(item.id, i));
+  }
 
-  s = 0; // Skipped tracker count
-  trackers.map((tracker, index) => {
+  // Add bubble trackers
+  let bubbleCount = 0; // Skipped tracker count
+  trackers.map((tracker) => {
     if (tracker.variant !== "value") {
-      s++;
+      () => {};
     } else if (!tracker.showOnMap) {
-      s++;
       deleteItemsArray.push(...getBubbleItemIds(item.id, tracker.position));
     } else {
       addItemsArray.push(
         ...createStatBubble(item, bounds, tracker, {
           x:
-            origin.x -
+            origin.x +
+            2 -
             bounds.width / 2 +
-            (index - s) * (BUBBLE_DIAMETER + 2) +
+            bubbleCount * (BUBBLE_DIAMETER + 2) +
             BUBBLE_DIAMETER / 2,
-          y: origin.y - BUBBLE_DIAMETER / 2 - barCount * FULL_BAR_HEIGHT,
+          y: origin.y - 2 - BUBBLE_DIAMETER / 2 - barCount * FULL_BAR_HEIGHT,
         }),
       );
+      bubbleCount++;
     }
   });
+
+  // Clean up extra bubbles
+  for (let i = bubbleCount; i < MAX_BUBBLE_COUNT; i++) {
+    deleteItemsArray.push(...getBubbleItemIds(item.id, i));
+  }
 }
 
 const getImageBounds = (item: Image, dpi: number) => {
@@ -281,10 +317,10 @@ function deleteOrphanHealthBars(newItems: Image[]) {
 }
 
 function addAllItemAttachmentsToDeleteList(itemId: string) {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < MAX_BUBBLE_COUNT; i++) {
     deleteItemsArray.push(...getBubbleItemIds(itemId, i));
   }
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < MAX_BAR_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
   }
 }

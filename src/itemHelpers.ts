@@ -169,6 +169,9 @@ export const updateTrackerField = (
   }, setTrackers);
 };
 
+export const MAX_BUBBLE_COUNT = 8;
+export const MAX_BAR_COUNT = 4;
+
 export const addTrackerBubble = (
   trackers: Tracker[],
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,

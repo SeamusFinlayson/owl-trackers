@@ -6,11 +6,10 @@ import {
 } from "@owlbear-rodeo/sdk";
 import { Tracker } from "../itemHelpers";
 import { getColor } from "../colorHelpers";
-import { error } from "console";
 
 // Constants used in multiple functions
 const FONT_SIZE = 22;
-const FONT = "Lucida Console, monospace";
+const FONT = "Roboto, sans-serif";
 const DISABLE_HIT = true;
 const BACKGROUND_OPACITY = 0.6;
 const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
@@ -19,7 +18,7 @@ const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
   "COPY",
   "SCALE",
 ];
-const TEXT_VERTICAL_OFFSET = 1.5;
+const TEXT_VERTICAL_OFFSET = 2;
 
 // Constants used in createStatBubble()
 export const BUBBLE_DIAMETER = 30;
@@ -57,7 +56,7 @@ export function createStatBubble(
 
   const bubbleText = buildText()
     .position({
-      x: position.x - BUBBLE_DIAMETER / 2 - (valueText.length >= 3 ? 0.2 : 0.5),
+      x: position.x - BUBBLE_DIAMETER / 2 - (valueText.length >= 3 ? 0 : 0),
       y: position.y - BUBBLE_DIAMETER / 2 + TEXT_VERTICAL_OFFSET,
     })
     .plainText(valueText.length > 3 ? String.fromCharCode(0x2026) : valueText)
@@ -109,7 +108,7 @@ export function createTrackerBar(
 
   if (tracker.variant !== "value-max") throw "Error";
 
-  let trackerBackgroundColor = "#A4A4A4";
+  let trackerBackgroundColor = "black"; // "#A4A4A4";
   if (trackersHidden) {
     trackerBackgroundColor = "black";
   }
@@ -167,7 +166,7 @@ export function createTrackerBar(
 
   const healthText = buildText()
     .position({ x: position.x, y: position.y + TEXT_VERTICAL_OFFSET })
-    .plainText(`${tracker.value}${String.fromCharCode(0x2215)}${tracker.max}`)
+    .plainText(`${tracker.value}/${tracker.max}`)
     .textAlign("CENTER")
     .textAlignVertical("MIDDLE")
     .fontSize(FONT_SIZE)
