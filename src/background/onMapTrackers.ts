@@ -288,7 +288,11 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
   });
 
   // Clean up extra bubbles
-  for (let i = bubbleCount; i < MAX_BUBBLE_COUNT; i++) {
+  for (
+    let i = bubbleCount - (trackersHidden ? 1 : 0);
+    i < MAX_BUBBLE_COUNT;
+    i++
+  ) {
     deleteItemsArray.push(...getBubbleItemIds(item.id, i));
   }
 }
