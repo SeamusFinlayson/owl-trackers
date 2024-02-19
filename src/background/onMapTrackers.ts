@@ -56,9 +56,11 @@ async function refreshAllTrackers() {
 
   //draw health bars
   const roll = await OBR.player.getRole();
+  const sceneDpi = await OBR.scene.grid.getDpi();
   for (const item of items) {
-    await updateItemTrackers(item, roll);
+    await updateItemTrackers(item, roll, sceneDpi);
   }
+
   OBR.scene.local.addItems(addItemsArray); //bulk add items
   OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
   //clear add and delete arrays arrays
@@ -115,8 +117,10 @@ async function startTrackerUpdates() {
 
         //draw health bars
         const role = await OBR.player.getRole();
+        const sceneDpi = await OBR.scene.grid.getDpi();
+
         for (const item of changedItems) {
-          await updateItemTrackers(item, role);
+          await updateItemTrackers(item, role, sceneDpi);
         }
 
         //bulk delete items
@@ -192,21 +196,25 @@ function getChangedItems(items: Image[]): Image[] {
   return changedItems;
 }
 
-async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
+async function updateItemTrackers(
+  item: Image,
+  role: "PLAYER" | "GM",
+  sceneDpi: number,
+) {
   // Extract metadata from the token
   const [trackers, trackersHidden] = getTrackersFromItem(item);
 
   // Explicitly delete all attachment and return early if none are assigned to this item
   const noAttachments = () =>
-    (role === "PLAYER" && trackersHidden) || trackers.length === 0;
+    (role === "PLAYER" && trackersHidden) ||
+    (trackers.length === 0 && !trackersHidden);
   if (noAttachments()) {
     addAllItemAttachmentsToDeleteList(item.id);
     return;
   }
 
   // Determine token bounds
-  const dpi = await OBR.scene.grid.getDpi();
-  const bounds = getImageBounds(item, dpi);
+  const bounds = getImageBounds(item, sceneDpi);
   bounds.width = Math.abs(bounds.width);
   bounds.height = Math.abs(bounds.height);
 
@@ -239,24 +247,33 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
     deleteItemsArray.push(...getBarItemIds(item.id, i));
   }
 
-  let bubbleCount = 0;
+  let bubblePositionInRow = 0;
+  // let bubbleRowsCount = 0;
   const getBubblePosition = () => {
+    // if ((bubblePositionInRow + 1) * (BUBBLE_DIAMETER + 2) > bounds.width) {
+    //   bubbleRowsCount++;
+    //   bubblePositionInRow = 0;
+    // }
+
     const position = {
       x:
         origin.x +
         2 -
         bounds.width / 2 +
-        bubbleCount * (BUBBLE_DIAMETER + 2) +
+        bubblePositionInRow * (BUBBLE_DIAMETER + 2) +
         BUBBLE_DIAMETER / 2,
       y:
         origin.y -
         2 -
         BUBBLE_DIAMETER / 2 -
+        // bubbleRowsCount * (BUBBLE_DIAMETER + 2) -
         barCount * FULL_BAR_HEIGHT +
         bounds.height / 2,
     };
 
-    bubbleCount++;
+    // console.log(position);
+
+    bubblePositionInRow++;
     return position;
   };
 
@@ -265,7 +282,7 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
   } else {
     const hideIndicator = createImageBubble(
       item,
-      dpi,
+      sceneDpi,
       bounds,
       // origin,
       getBubblePosition(),
@@ -291,7 +308,7 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
 
   // Clean up extra bubbles
   for (
-    let i = bubbleCount - (trackersHidden ? 1 : 0);
+    let i = bubblePositionInRow - (trackersHidden ? 1 : 0);
     i < MAX_BUBBLE_COUNT;
     i++
   ) {

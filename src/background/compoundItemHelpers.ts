@@ -13,7 +13,7 @@ import { getColor } from "../colorHelpers";
 const FONT_SIZE = 22;
 const FONT = "Roboto, sans-serif";
 const DISABLE_HIT = true;
-const BACKGROUND_OPACITY = 0.6;
+const BUBBLE_OPACITY = 0.6;
 const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
   "ROTATION",
   "VISIBLE",
@@ -40,7 +40,7 @@ export function createTrackerBubble(
     .height(BUBBLE_DIAMETER)
     .shapeType("CIRCLE")
     .fillColor(getColor(tracker.color))
-    .fillOpacity(BACKGROUND_OPACITY)
+    .fillOpacity(BUBBLE_OPACITY)
     .strokeColor(getColor(tracker.color))
     .strokeOpacity(0.5)
     .strokeWidth(0)
@@ -88,7 +88,7 @@ export function createTrackerBubble(
 
 export function createImageBubble(
   item: Image,
-  dpi: number,
+  sceneDpi: number,
   bounds: { width: number; height: number },
   position: { x: number; y: number },
   color: string,
@@ -100,7 +100,7 @@ export function createImageBubble(
     .height(BUBBLE_DIAMETER)
     .shapeType("CIRCLE")
     .fillColor(color)
-    .fillOpacity(BACKGROUND_OPACITY)
+    .fillOpacity(BUBBLE_OPACITY)
     .strokeColor(color)
     .strokeOpacity(0.5)
     .strokeWidth(0)
@@ -124,21 +124,8 @@ export function createImageBubble(
 
   const image = buildImage(imageObject, {
     offset: { x: length / 2, y: length / 2 },
-    dpi: dpi,
+    dpi: sceneDpi,
   })
-    // .scale({ x: 1, y: 1 })
-    // .position({
-    //   x:
-    //     position.x +
-    //     (150 - bounds.width) / 2 +
-    //     bounds.width / 2 -
-    //     imageObject.width / 4,
-    //   y:
-    //     position.y +
-    //     (150 - bounds.height) / 2 +
-    //     bounds.height / 2 -
-    //     imageObject.height / 4,
-    // })
     .position(position)
     .attachedTo(item.id)
     .locked(true)
@@ -155,8 +142,9 @@ export function createImageBubble(
 
 // Constants used in createHealthBar()
 const BAR_PADDING = 2;
-const TRACKER_OPACITY = 0.7;
+const FILL_OPACITY = 0.8;
 export const FULL_BAR_HEIGHT = 20;
+const BACKGROUND_OPACITY = 0.4;
 
 /** Creates health bar component items */
 export function createTrackerBar(
@@ -176,7 +164,7 @@ export function createTrackerBar(
 
   if (tracker.variant !== "value-max") throw "Error";
 
-  const trackerBackgroundColor = "dimgrey"; // "#A4A4A4";
+  const trackerBackgroundColor = "black"; // "#A4A4A4";
 
   const backgroundShape = buildShape()
     .width(barWidth)
@@ -216,7 +204,7 @@ export function createTrackerBar(
     .height(FULL_BAR_HEIGHT)
     .shapeType("RECTANGLE")
     .fillColor(getColor(tracker.color))
-    .fillOpacity(TRACKER_OPACITY)
+    .fillOpacity(FILL_OPACITY)
     .strokeWidth(0)
     .strokeOpacity(0)
     .position({ x: position.x, y: position.y })

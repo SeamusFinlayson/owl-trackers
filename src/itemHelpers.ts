@@ -144,8 +144,17 @@ const updateTrackers = (
 
     const sortedTrackers = sortTrackers(draftTrackers);
 
-    writeTrackersToItem(sortedTrackers);
-    return sortedTrackers;
+    const validatedTrackers: Tracker[] = [];
+    sortedTrackers.forEach((tracker) => {
+      if (!isTracker(tracker)) {
+        console.log("Invalid tracker detected:", tracker);
+      } else {
+        validatedTrackers.push(tracker);
+      }
+    });
+
+    writeTrackersToItem(validatedTrackers);
+    return validatedTrackers;
   });
 };
 
@@ -306,10 +315,13 @@ function getTrackersFromMetadata(item: Item) {
 
   for (const tracker of metadata) {
     if (!isTracker(tracker)) {
-      console.log(tracker);
-      throw TypeError(`Expected a Tracker, got ${typeof tracker}`);
+      console.log(
+        "Invalid tracker detected, tracker was deleted, see contents below: ",
+        tracker,
+      );
+    } else {
+      trackers.push(tracker);
     }
-    trackers.push(tracker);
   }
 
   return trackers;
