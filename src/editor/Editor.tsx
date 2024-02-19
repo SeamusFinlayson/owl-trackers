@@ -42,11 +42,9 @@ export default function Editor({
   const [trackersHidden, setTrackersHidden] = useState(initialHidden);
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
 
-  useEffect(() => {
-    if (trackersHidden && role === "PLAYER") {
-      OBR.popover.close(getPluginId("editor"));
-    }
-  }, [trackersHidden, role]);
+  if (trackersHidden && role === "PLAYER") {
+    OBR.popover.close(getPluginId("editor"));
+  }
 
   useEffect(
     () =>

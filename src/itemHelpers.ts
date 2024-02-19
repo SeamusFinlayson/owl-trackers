@@ -126,8 +126,7 @@ const sortTrackers = (trackers: Tracker[]): Tracker[] => {
         .filter((value) => value.variant === variant)
         .sort((a, b) => a.position - b.position)
         .map((tracker, index) => {
-          tracker.position = index;
-          return tracker;
+          return { ...tracker, ["position"]: index };
         }),
     );
   }

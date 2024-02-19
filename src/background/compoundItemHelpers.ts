@@ -88,6 +88,7 @@ export function createTrackerBubble(
 
 export function createImageBubble(
   item: Image,
+  dpi: number,
   bounds: { width: number; height: number },
   position: { x: number; y: number },
   color: string,
@@ -113,27 +114,32 @@ export function createImageBubble(
     .disableHit(DISABLE_HIT)
     .build();
 
+  const length = 24;
   const imageObject = {
-    width: 50,
-    height: 50,
+    width: length,
+    height: length,
     mime: "image/png",
     url: url,
   };
 
-  const image = buildImage(imageObject, item.grid)
-    .position({
-      x:
-        position.x +
-        (150 - bounds.width) / 2 +
-        bounds.width / 2 -
-        imageObject.width / 4,
-      y:
-        position.y +
-        (150 - bounds.height) / 2 +
-        bounds.height / 2 -
-        imageObject.height / 4,
-    })
-    // .position(position)
+  const image = buildImage(imageObject, {
+    offset: { x: length / 2, y: length / 2 },
+    dpi: dpi,
+  })
+    // .scale({ x: 1, y: 1 })
+    // .position({
+    //   x:
+    //     position.x +
+    //     (150 - bounds.width) / 2 +
+    //     bounds.width / 2 -
+    //     imageObject.width / 4,
+    //   y:
+    //     position.y +
+    //     (150 - bounds.height) / 2 +
+    //     bounds.height / 2 -
+    //     imageObject.height / 4,
+    // })
+    .position(position)
     .attachedTo(item.id)
     .locked(true)
     .name(`hide icon`)

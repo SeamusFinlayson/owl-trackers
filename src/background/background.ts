@@ -25,9 +25,9 @@ OBR.onReady(async () => {
         label: "Edit Stats",
         filter: {
           every: [
-            { key: "type", value: "IMAGE" },
             { key: "layer", value: "CHARACTER", coordinator: "||" },
             { key: "layer", value: "MOUNT" },
+            { key: "type", value: "IMAGE" },
             {
               key: ["metadata", `com.owl-trackers/${HIDDEN_METADATA_ID}`],
               value: false,
@@ -55,9 +55,9 @@ OBR.onReady(async () => {
         label: "Owl Trackers",
         filter: {
           every: [
-            { key: "type", value: "IMAGE" },
             { key: "layer", value: "CHARACTER", coordinator: "||" },
             { key: "layer", value: "MOUNT" },
+            { key: "type", value: "IMAGE" },
           ],
           roles: ["GM"],
           max: 1,

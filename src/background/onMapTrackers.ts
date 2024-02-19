@@ -265,7 +265,9 @@ async function updateItemTrackers(item: Image, role: "PLAYER" | "GM") {
   } else {
     const hideIndicator = createImageBubble(
       item,
+      dpi,
       bounds,
+      // origin,
       getBubblePosition(),
       "black",
       "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
