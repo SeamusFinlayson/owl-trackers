@@ -147,7 +147,7 @@ const updateTrackers = (
     const validatedTrackers: Tracker[] = [];
     sortedTrackers.forEach((tracker) => {
       if (!isTracker(tracker)) {
-        console.log("Invalid tracker detected:", tracker);
+        console.log("Invalid tracker detected: ", tracker);
       } else {
         validatedTrackers.push(tracker);
       }
@@ -164,12 +164,28 @@ export const updateTrackerField = (
   content: string | number,
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
 ) => {
-  if ((field === "value" || field === "max") && typeof content === "string") {
-    content = Math.trunc(parseFloat(content));
-    if (isNaN(content)) content = 0;
-  }
   updateTrackers((prevTrackers) => {
     const index = prevTrackers.findIndex((item) => item.id === id);
+    const tracker = prevTrackers[index];
+
+    if ((field === "value" || field === "max") && typeof content === "string") {
+      if (
+        tracker.inlineMath &&
+        (content.startsWith("+") || content.startsWith("-"))
+      ) {
+        let prevValue = 0;
+        if (tracker.variant === "value-max" && field === "max") {
+          prevValue = tracker.max;
+        } else {
+          prevValue = tracker.value;
+        }
+        content = Math.trunc(prevValue + Math.trunc(parseFloat(content)));
+      } else {
+        content = Math.trunc(parseFloat(content));
+        if (isNaN(content)) content = 0;
+      }
+    }
+
     prevTrackers.splice(index, 1, {
       ...prevTrackers[index],
       [field]: content,

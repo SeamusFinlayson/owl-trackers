@@ -66,6 +66,16 @@ export default function TrackerMenu({
                 e.target.value,
                 setTrackers,
               ),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") {
+                updateTrackerField(
+                  tracker.id,
+                  "value",
+                  (e.target as HTMLInputElement).value,
+                  setTrackers,
+                );
+              }
+            },
           }}
         ></BubbleInput>
       );
@@ -84,10 +94,30 @@ export default function TrackerMenu({
               e.target.value,
               setTrackers,
             ),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") {
+              updateTrackerField(
+                tracker.id,
+                "value",
+                (e.target as HTMLInputElement).value,
+                setTrackers,
+              );
+            }
+          },
         }}
         maxInputProps={{
           onBlur: (e) =>
             updateTrackerField(tracker.id, "max", e.target.value, setTrackers),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") {
+              updateTrackerField(
+                tracker.id,
+                "max",
+                (e.target as HTMLInputElement).value,
+                setTrackers,
+              );
+            }
+          },
         }}
       ></BarInput>
     );
@@ -121,7 +151,9 @@ export default function TrackerMenu({
                 id: getPluginId("editor"),
                 url: "/src/editor/editor.html",
                 height: 600,
-                width: 450,
+                width: 500,
+                anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+                transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
               });
             }}
           ></IconButton>

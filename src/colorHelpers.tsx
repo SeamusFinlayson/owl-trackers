@@ -12,18 +12,21 @@ export function getBackgroundColor(colorNumber: number) {
       color = "bg-red-700/70";
       break;
     case 3:
-      color = "bg-amber-600/60";
+      color = "bg-orange-600/60";
       break;
     case 4:
-      color = "bg-lime-400/30";
+      color = "bg-yellow-500/40";
       break;
     case 5:
-      color = "bg-emerald-400/30";
+      color = "bg-lime-400/30";
       break;
     case 6:
-      color = "bg-cyan-300/30";
+      color = "bg-emerald-400/30";
       break;
     case 7:
+      color = "bg-cyan-300/30";
+      break;
+    case 8:
       color = "bg-blue-500/30";
       break;
   }
@@ -44,18 +47,21 @@ export function getColor(colorNumber: number) {
       color = "#ab2022";
       break;
     case 3:
-      color = "#bc6c13";
+      color = "#a34e26";
       break;
     case 4:
-      color = "#6d9142";
+      color = "#bc6c13";
       break;
     case 5:
-      color = "#378873";
+      color = "#6d9142";
       break;
     case 6:
-      color = "#5092a3";
+      color = "#378873";
       break;
     case 7:
+      color = "#5092a3";
+      break;
+    case 8:
       color = "#4064a4";
       break;
   }

@@ -6,11 +6,13 @@ export default function IconButton({
   onClick,
   rounded = "rounded-full",
   padding = "p-[2px]",
+  danger = false,
 }: {
   Icon: ComponentType<IconProps>;
   onClick: () => void;
   rounded?: string;
   padding?: string;
+  danger?: boolean;
 }): JSX.Element {
   // const [animate, setAnimate] = useState(false);
   return (
@@ -21,7 +23,7 @@ export default function IconButton({
       // onPointerDown={() => setAnimate(true)}
     >
       <div
-        className={`flex h-[36px] w-[36px] items-center justify-center ${rounded} group-hover:bg-white/10 group-focus-visible:bg-white/10`}
+        className={`flex h-[36px] w-[36px] items-center justify-center ${rounded} ${danger ? "group-hover:bg-red-400/20 group-focus-visible:bg-red-400/20" : "group-hover:bg-white/10 group-focus-visible:bg-white/10"}`}
       >
         <Icon className={`h-[24px] w-[24px] fill-white/75`}></Icon>
       </div>

@@ -15,9 +15,9 @@ import {
   deleteTracker,
   getTrackersFromSelection,
   toggleTrackersHidden,
-  // toggleInlineMath,
   toggleShowOnMap,
   updateTrackerField,
+  toggleInlineMath,
 } from "../itemHelpers.ts";
 import OBR from "@owlbear-rodeo/sdk";
 import NameInput from "../components/NameInput.tsx";
@@ -26,8 +26,8 @@ import ColorPicker from "../components/ColorPicker.tsx";
 import { getPluginId } from "../getPluginId.ts";
 import OnMap from "../icons/OnMap.tsx";
 import NotOnMap from "../icons/NotOnMap.tsx";
-// import MathIcon from "../icons/MathIcon.tsx";
-// import "./temp.css";
+import MathIcon from "../icons/MathIcon.tsx";
+import NoMathIcon from "../icons/NoMathIcon.tsx";
 
 export default function Editor({
   initialTrackers,
@@ -36,7 +36,7 @@ export default function Editor({
   initialTrackers: Tracker[];
   initialHidden: boolean;
 }): JSX.Element {
-  const role = useOwlbearStore((state) => state.role); // TODO: prevent flash from hide icon being added in second render
+  const role = useOwlbearStore((state) => state.role);
   const mode = useOwlbearStore((state) => state.mode);
 
   const [trackersHidden, setTrackersHidden] = useState(initialHidden);
@@ -63,7 +63,7 @@ export default function Editor({
     return (
       <div
         key={tracker.id}
-        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg bg-[#3d4051]/95 p-1 drop-shadow not-tiny:basis-1`}
+        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-[#3d4051]/95 p-1 drop-shadow not-tiny:basis-1`}
       >
         <NameInput
           valueControl={tracker.name}
@@ -83,16 +83,17 @@ export default function Editor({
           onClick={() => deleteTracker(tracker.id, setTrackers)}
           rounded="rounded-md"
           padding=""
+          danger={true}
         ></IconButton>
 
-        <div className="col-span-2 flex w-full flex-row items-stretch justify-evenly">
+        <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
           <ColorPicker
             setColorNumber={(content) =>
               updateTrackerField(tracker.id, "color", content, setTrackers)
             }
           ></ColorPicker>
 
-          <div className="flex flex-col items-center justify-evenly">
+          <div className="flex min-w-[100px] flex-col items-center justify-evenly gap-2 py-1">
             {tracker.variant === "value" ? (
               <BubbleInput
                 key={tracker.id}
@@ -109,6 +110,16 @@ export default function Editor({
                       e.target.value,
                       setTrackers,
                     ),
+                  onKeyDown: (e) => {
+                    if (e.key === "Enter") {
+                      updateTrackerField(
+                        tracker.id,
+                        "value",
+                        (e.target as HTMLInputElement).value,
+                        setTrackers,
+                      );
+                    }
+                  },
                 }}
               ></BubbleInput>
             ) : (
@@ -125,6 +136,16 @@ export default function Editor({
                       e.target.value,
                       setTrackers,
                     ),
+                  onKeyDown: (e) => {
+                    if (e.key === "Enter") {
+                      updateTrackerField(
+                        tracker.id,
+                        "value",
+                        (e.target as HTMLInputElement).value,
+                        setTrackers,
+                      );
+                    }
+                  },
                 }}
                 maxInputProps={{
                   onBlur: (e) =>
@@ -134,6 +155,16 @@ export default function Editor({
                       e.target.value,
                       setTrackers,
                     ),
+                  onKeyDown: (e) => {
+                    if (e.key === "Enter") {
+                      updateTrackerField(
+                        tracker.id,
+                        "max",
+                        (e.target as HTMLInputElement).value,
+                        setTrackers,
+                      );
+                    }
+                  },
                 }}
               ></BarInput>
             )}
@@ -142,10 +173,10 @@ export default function Editor({
                 Icon={tracker.showOnMap ? OnMap : NotOnMap}
                 onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
               ></IconButton>
-              {/* <IconButton
-                Icon={MathIcon}
+              <IconButton
+                Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
                 onClick={() => toggleInlineMath(tracker.id, setTrackers)}
-              ></IconButton> */}
+              ></IconButton>
             </div>
           </div>
         </div>
@@ -163,10 +194,12 @@ export default function Editor({
     );
   };
 
+  const trackerCountIsOdd = trackers.length % 2 === 1;
+
   return (
     // <button className="box"></button>
     <div className={mode === "DARK" ? "dark" : ""}>
-      <div className={`flex flex-col gap-2 px-2 py-2`}>
+      <div className={`flex flex-col gap-2 p-2`}>
         <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">
           <IconButton
             Icon={AddIcon}
@@ -186,10 +219,16 @@ export default function Editor({
           <IconButton
             Icon={DeleteIcon}
             onClick={() => OBR.popover.close(getPluginId("editor"))}
+            danger={true}
           ></IconButton>
         </div>
-        <div className="flex min-w-[220px] flex-row flex-wrap justify-around gap-x-2 gap-y-2 rounded-xl bg-[#1e2231]/80 p-2">
+        <div
+          className={`flex h-[536px] min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-[#1e2231]/80 p-2  ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
+        >
           {trackers.map((tracker) => generateTrackerOptions(tracker))}
+          {trackerCountIsOdd && (
+            <div className="`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg drop-shadow not-tiny:basis-1 not-tiny:p-1"></div>
+          )}
         </div>
       </div>
     </div>

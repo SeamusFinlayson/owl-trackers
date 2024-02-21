@@ -33,7 +33,7 @@ export default function BarInput({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[2px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
         placeholder=""
       ></input>
       <div className="self-center pb-[1px]">/</div>
@@ -42,7 +42,7 @@ export default function BarInput({
         value={max}
         onChange={(e) => setMax(e.target.value)}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[2px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
         placeholder=""
       ></input>
     </div>
