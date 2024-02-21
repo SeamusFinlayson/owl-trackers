@@ -1,12 +1,15 @@
 import { InputHTMLAttributes, useEffect, useState } from "react";
 import { getBackgroundColor } from "../colorHelpers";
+import { Tracker, updateTrackerField } from "../itemHelpers";
 
 export default function BubbleInput({
-  valueControl,
+  tracker,
+  setTrackers,
   color,
   inputProps,
 }: {
-  valueControl: number;
+  tracker: Tracker;
+  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
   color: number;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }): JSX.Element {
@@ -14,8 +17,29 @@ export default function BubbleInput({
     event.target.select();
   };
 
-  const [value, setValue] = useState<number | string>(valueControl);
-  useEffect(() => setValue(valueControl), [valueControl]);
+  const [value, setValue] = useState<string>(tracker.value.toString());
+  const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
+
+  if (valueInputUpdateFlag) {
+    setValue(tracker.value.toString());
+    setValueInputUpdateFlag(false);
+  }
+
+  useEffect(() => setValueInputUpdateFlag(true), [tracker.value]);
+
+  const updateTracker = (
+    e:
+      | React.FocusEvent<HTMLInputElement, Element>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    updateTrackerField(
+      tracker.id,
+      "value",
+      (e.target as HTMLInputElement).value,
+      setTrackers,
+    );
+    setValueInputUpdateFlag(true);
+  };
 
   return (
     <div
@@ -25,6 +49,10 @@ export default function BubbleInput({
         {...inputProps}
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        onBlur={(e) => updateTracker(e)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") updateTracker(e);
+        }}
         onFocus={handleFocus}
         className={`duration-50selection:bl h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium  outline-none -outline-offset-2 outline-white/40 focus:bg-black/10 focus:outline-white/60`}
         placeholder=""

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useOwlbearStore } from "../../useOwlbearStore.ts";
+import { useOwlbearStore } from "../useOwlbearStore.ts";
 import "../index.css";
 import BubbleInput from "../components/BubbleInput.tsx";
 import IconButton from "../components/IconButton.tsx";
@@ -97,75 +97,16 @@ export default function Editor({
             {tracker.variant === "value" ? (
               <BubbleInput
                 key={tracker.id}
-                valueControl={tracker.value}
+                tracker={tracker}
+                setTrackers={setTrackers}
                 color={tracker.color}
-                inputProps={{
-                  // value: tracker.value,
-                  // onChange: (e) =>
-                  //   handleInputChange(tracker.id, "value", e.target.value),
-                  onBlur: (e) =>
-                    updateTrackerField(
-                      tracker.id,
-                      "value",
-                      e.target.value,
-                      setTrackers,
-                    ),
-                  onKeyDown: (e) => {
-                    if (e.key === "Enter") {
-                      updateTrackerField(
-                        tracker.id,
-                        "value",
-                        (e.target as HTMLInputElement).value,
-                        setTrackers,
-                      );
-                    }
-                  },
-                }}
               ></BubbleInput>
             ) : (
               <BarInput
                 key={tracker.id}
-                valueControl={tracker.value}
-                maxControl={tracker.max}
+                tracker={tracker}
+                setTrackers={setTrackers}
                 color={tracker.color}
-                valueInputProps={{
-                  onBlur: (e) =>
-                    updateTrackerField(
-                      tracker.id,
-                      "value",
-                      e.target.value,
-                      setTrackers,
-                    ),
-                  onKeyDown: (e) => {
-                    if (e.key === "Enter") {
-                      updateTrackerField(
-                        tracker.id,
-                        "value",
-                        (e.target as HTMLInputElement).value,
-                        setTrackers,
-                      );
-                    }
-                  },
-                }}
-                maxInputProps={{
-                  onBlur: (e) =>
-                    updateTrackerField(
-                      tracker.id,
-                      "max",
-                      e.target.value,
-                      setTrackers,
-                    ),
-                  onKeyDown: (e) => {
-                    if (e.key === "Enter") {
-                      updateTrackerField(
-                        tracker.id,
-                        "max",
-                        (e.target as HTMLInputElement).value,
-                        setTrackers,
-                      );
-                    }
-                  },
-                }}
               ></BarInput>
             )}
             <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">

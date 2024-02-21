@@ -186,6 +186,8 @@ export const updateTrackerField = (
       }
     }
 
+    // console.log(content);
+
     prevTrackers.splice(index, 1, {
       ...prevTrackers[index],
       [field]: content,

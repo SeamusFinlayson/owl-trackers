@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useOwlbearStore } from "../../useOwlbearStore";
+import { useOwlbearStore } from "../useOwlbearStore";
 import "../index.css";
 import BubbleInput from "../components/BubbleInput";
 import IconButton from "../components/IconButton";
@@ -15,7 +15,6 @@ import {
   checkOccupiedSpaces,
   getTrackersFromSelection,
   toggleTrackersHidden,
-  updateTrackerField,
 } from "../itemHelpers";
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
@@ -53,72 +52,18 @@ export default function TrackerMenu({
       return (
         <BubbleInput
           key={tracker.id}
-          valueControl={tracker.value}
+          tracker={tracker}
+          setTrackers={setTrackers}
           color={tracker.color}
-          inputProps={{
-            // value: tracker.value,
-            // onChange: (e) =>
-            //   handleInputChange(tracker.id, "value", e.target.value),
-            onBlur: (e) =>
-              updateTrackerField(
-                tracker.id,
-                "value",
-                e.target.value,
-                setTrackers,
-              ),
-            onKeyDown: (e) => {
-              if (e.key === "Enter") {
-                updateTrackerField(
-                  tracker.id,
-                  "value",
-                  (e.target as HTMLInputElement).value,
-                  setTrackers,
-                );
-              }
-            },
-          }}
         ></BubbleInput>
       );
     }
     return (
       <BarInput
         key={tracker.id}
-        valueControl={tracker.value}
-        maxControl={tracker.max}
+        tracker={tracker}
+        setTrackers={setTrackers}
         color={tracker.color}
-        valueInputProps={{
-          onBlur: (e) =>
-            updateTrackerField(
-              tracker.id,
-              "value",
-              e.target.value,
-              setTrackers,
-            ),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") {
-              updateTrackerField(
-                tracker.id,
-                "value",
-                (e.target as HTMLInputElement).value,
-                setTrackers,
-              );
-            }
-          },
-        }}
-        maxInputProps={{
-          onBlur: (e) =>
-            updateTrackerField(tracker.id, "max", e.target.value, setTrackers),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") {
-              updateTrackerField(
-                tracker.id,
-                "max",
-                (e.target as HTMLInputElement).value,
-                setTrackers,
-              );
-            }
-          },
-        }}
       ></BarInput>
     );
   };
