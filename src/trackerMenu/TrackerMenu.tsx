@@ -74,7 +74,7 @@ export default function TrackerMenu({
       <div
         className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) % 4 === 1 ? "px-8" : "px-4"} py-1`}
       >
-        <div className="flex flex-row justify-center self-center rounded-full bg-black/25">
+        <div className="flex flex-row justify-center self-center rounded-full bg-white/25 dark:bg-black/25">
           <IconButton
             Icon={AddIcon}
             onClick={() => addTrackerBubble(trackers, setTrackers)}

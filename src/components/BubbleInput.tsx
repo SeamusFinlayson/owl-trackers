@@ -54,7 +54,7 @@ export default function BubbleInput({
           if (e.key === "Enter") updateTracker(e);
         }}
         onFocus={handleFocus}
-        className={`duration-50selection:bl h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium  outline-none -outline-offset-2 outline-white/40 focus:bg-black/10 focus:outline-white/60`}
+        className={`text-text-primary dark:text-text-primary-dark duration-50 h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none -outline-offset-2 focus:bg-black/10 dark:outline-white/40 focus:dark:outline-white/60`}
         placeholder=""
       ></input>
     </div>

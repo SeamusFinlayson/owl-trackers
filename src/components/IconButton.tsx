@@ -23,9 +23,11 @@ export default function IconButton({
       // onPointerDown={() => setAnimate(true)}
     >
       <div
-        className={`flex h-[36px] w-[36px] items-center justify-center ${rounded} ${danger ? "group-hover:bg-red-400/20 group-focus-visible:bg-red-400/20" : "group-hover:bg-white/10 group-focus-visible:bg-white/10"}`}
+        className={`flex h-[36px] w-[36px] items-center justify-center ${rounded} ${danger ? "group-hover:bg-red-400/60 group-focus-visible:bg-red-400/60 group-hover:dark:bg-red-400/30 group-focus-visible:dark:bg-red-400/30" : "group-hover:bg-black/10 group-focus-visible:bg-black/10 group-hover:dark:bg-white/10 group-focus-visible:dark:bg-white/10"}`}
       >
-        <Icon className={`h-[24px] w-[24px] fill-white/75`}></Icon>
+        <Icon
+          className={`fill-text-secondary dark:fill-text-secondary-dark h-[24px] w-[24px]`}
+        ></Icon>
       </div>
       {/* <Icon
         className={`absolute ${animate && "animate-[ping_0.15s_1]"} fill-violet-300/0 duration-500  group-active:fill-violet-300/30 group-active:duration-0`}

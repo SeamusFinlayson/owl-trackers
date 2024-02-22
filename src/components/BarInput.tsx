@@ -59,7 +59,7 @@ export default function BarInput({
 
   return (
     <div
-      className={`flex h-[44px] w-[100px] flex-row justify-between pb-[2px] pr-[0px] ${getBackgroundColor(color)} justify-center rounded-xl outline-none -outline-offset-2 outline-white/40 drop-shadow-sm duration-100 focus-within:outline-white/60 focus-within:drop-shadow-lg`}
+      className={`flex h-[44px] w-[100px] flex-row justify-between pb-[2px] pr-[0px] ${getBackgroundColor(color)} justify-center rounded-xl outline-none -outline-offset-2 drop-shadow-sm duration-100 focus-within:drop-shadow-lg dark:outline-white/40 focus-within:dark:outline-white/60`}
     >
       <input
         {...valueInputProps}
@@ -70,10 +70,12 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "value");
         }}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`text-text-primary dark:text-text-primary-dark duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
         placeholder=""
       ></input>
-      <div className="self-center pb-[1px]">/</div>
+      <div className="text-text-primary dark:text-text-primary-dark self-center pt-[2px]">
+        /
+      </div>
       <input
         {...maxInputProps}
         value={max}
@@ -83,7 +85,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "max");
         }}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`text-text-primary dark:text-text-primary-dark duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
         placeholder=""
       ></input>
     </div>

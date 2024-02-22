@@ -63,7 +63,7 @@ export default function Editor({
     return (
       <div
         key={tracker.id}
-        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-[#3d4051]/95 p-1 drop-shadow not-tiny:basis-1`}
+        className={`bg-paper dark:bg-paper-dark/75 grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg p-1 drop-shadow not-tiny:basis-1`}
       >
         <NameInput
           valueControl={tracker.name}
@@ -109,7 +109,7 @@ export default function Editor({
                 color={tracker.color}
               ></BarInput>
             )}
-            <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">
+            <div className="bg-default dark:bg-default-dark/80 flex flex-row justify-center self-center rounded-full">
               <IconButton
                 Icon={tracker.showOnMap ? OnMap : NotOnMap}
                 onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
@@ -137,11 +137,22 @@ export default function Editor({
 
   const trackerCountIsOdd = trackers.length % 2 === 1;
 
+  // const [color, setColor] = useState("#000");
+  // OBR.theme.getTheme().then((value) => setColor(value.background.default));
+
   return (
     // <button className="box"></button>
-    <div className={mode === "DARK" ? "dark" : ""}>
-      <div className={`flex flex-col gap-2 p-2`}>
-        <div className="flex flex-row justify-center self-center rounded-full bg-[#1e2231]/80">
+    <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
+      {/* <div
+        style={{
+          height: 30,
+          width: 30,
+          backgroundColor: color,
+          position: "absolute",
+        }}
+      ></div> */}
+      <div className={`flex h-full flex-col gap-2 p-2`}>
+        <div className="bg-default dark:bg-default-dark/80 flex flex-row justify-center self-center rounded-full">
           <IconButton
             Icon={AddIcon}
             onClick={() => addTrackerBubble(trackers, setTrackers)}
@@ -164,7 +175,7 @@ export default function Editor({
           ></IconButton>
         </div>
         <div
-          className={`flex h-[536px] min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-[#1e2231]/80 p-2  ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
+          className={`bg-default dark:bg-default-dark flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl p-2 ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
         >
           {trackers.map((tracker) => generateTrackerOptions(tracker))}
           {trackerCountIsOdd && (
