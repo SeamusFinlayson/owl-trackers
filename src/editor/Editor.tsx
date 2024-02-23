@@ -64,7 +64,7 @@ export default function Editor({
     return (
       <div
         key={tracker.id}
-        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75 not-tiny:basis-1`}
+        className={`grid auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75`}
       >
         <NameInput
           valueControl={tracker.name}
@@ -138,21 +138,9 @@ export default function Editor({
             </div>
           </div>
         </div>
-
-        {/* <div className="col-span-2 flex w-full justify-stretch">
-          
-        </div> */}
-        {/* <div className="col-start-1 col-end-1"></div>
-        <div className="col-span-1 col-start-1"></div>
-
-        <div className="col-start-2 row-span-2 row-start-2 flex w-full justify-center"></div> */}
-
-        {/* <div className="col-span-2 flex w-full items-center justify-evenly"></div> */}
       </div>
     );
   };
-
-  const trackerCountIsOdd = trackers.length % 2 === 1;
 
   // const [color, setColor] = useState("#000");
   // OBR.theme.getTheme().then((value) => setColor(value.background.default));
@@ -207,12 +195,11 @@ export default function Editor({
           </Tooltip>
         </div>
         <div
-          className={`flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
+          className={`h-full min-w-[220px] overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark`}
         >
-          {trackers.map((tracker) => generateTrackerOptions(tracker))}
-          {trackerCountIsOdd && (
-            <div className="`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg drop-shadow not-tiny:basis-1 not-tiny:p-1"></div>
-          )}
+          <div className="grid grid-cols-1 gap-x-2 gap-y-2 not-tiny:grid-cols-2">
+            {trackers.map((tracker) => generateTrackerOptions(tracker))}
+          </div>
         </div>
       </div>
     </div>
