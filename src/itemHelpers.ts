@@ -1,6 +1,10 @@
 import OBR, { Item } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
 
+/////////////////////////////////////////////////////////////////////
+// Tracker types
+/////////////////////////////////////////////////////////////////////
+
 export type Tracker =
   | {
       id: string;
@@ -66,8 +70,19 @@ function isTracker(potentialTracker: unknown): potentialTracker is Tracker {
   return true;
 }
 
-const randomColor = () => {
-  return Math.floor(Math.random() * 6);
+/////////////////////////////////////////////////////////////////////
+// Tracker creation
+/////////////////////////////////////////////////////////////////////
+
+const createColor = (trackers: Tracker[], variant: TrackerVariant) => {
+  let count = 0;
+  trackers.forEach((tracker) => {
+    if (tracker.variant === variant) count++;
+  });
+  if (variant === "value") {
+    return (5 + count * 2) % 9;
+  }
+  return (2 + count * 4) % 9;
 };
 
 const createId = () => {
@@ -86,7 +101,7 @@ const createBubble = (trackers: Tracker[]): Tracker => {
     position: createPosition(trackers, "value"),
     showOnMap: true,
     inlineMath: true,
-    color: randomColor(),
+    color: createColor(trackers, "value"),
     value: 0,
   };
 };
@@ -99,7 +114,7 @@ const createBar = (trackers: Tracker[]): Tracker => {
     position: createPosition(trackers, "value-max"),
     showOnMap: true,
     inlineMath: true,
-    color: randomColor(),
+    color: createColor(trackers, "value-max"),
     value: 0,
     max: 0,
   };
@@ -116,6 +131,10 @@ export const checkOccupiedSpaces = (trackers: Tracker[]) => {
   }
   return spaces;
 };
+
+/////////////////////////////////////////////////////////////////////
+// Updating trackers
+/////////////////////////////////////////////////////////////////////
 
 const sortTrackers = (trackers: Tracker[]): Tracker[] => {
   const sortedTrackers: Tracker[] = [];
@@ -153,7 +172,7 @@ const updateTrackers = (
       }
     });
 
-    writeTrackersToItem(validatedTrackers);
+    writeTrackersToSelection(validatedTrackers);
     return validatedTrackers;
   });
 };
@@ -257,15 +276,20 @@ export const toggleTrackersHidden = (
 ) => {
   setTrackersHidden((prev) => {
     const value = !prev;
-    writeTrackersHiddenToItem(value);
+    writeTrackersHiddenToSelection(value);
     return value;
   });
 };
 
+/////////////////////////////////////////////////////////////////////
+// Interacting with stored trackers in an item
+/////////////////////////////////////////////////////////////////////
+
 export const TRACKER_METADATA_ID: string = "trackers";
 export const HIDDEN_METADATA_ID: string = "hidden";
 
-async function writeTrackersToItem(trackers: Tracker[]) {
+/** Write local trackers to selected item */
+async function writeTrackersToSelection(trackers: Tracker[]) {
   const selection = await OBR.player.getSelection();
   const selectedItems = await OBR.scene.items.getItems(selection);
 
@@ -280,7 +304,8 @@ async function writeTrackersToItem(trackers: Tracker[]) {
   });
 }
 
-async function writeTrackersHiddenToItem(trackersHidden: boolean) {
+/** Write local trackers hidden state to selected item */
+async function writeTrackersHiddenToSelection(trackersHidden: boolean) {
   const selection = await OBR.player.getSelection();
   const selectedItems = await OBR.scene.items.getItems(selection);
 
@@ -295,6 +320,7 @@ async function writeTrackersHiddenToItem(trackersHidden: boolean) {
   });
 }
 
+/** Get trackers from selected item */
 export async function getTrackersFromSelection(
   items?: Item[],
 ): Promise<[Tracker[], boolean]> {
@@ -354,3 +380,7 @@ function getTrackersHiddenFromItem(item: Item) {
 
   return trackersHidden;
 }
+
+/////////////////////////////////////////////////////////////////////
+// Interacting with stored trackers in the scene
+/////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
-import menuIcon from "../assets/owl-origami-paper-svgrepo-com.svg";
+import menuIcon from "../assets/owl-trackers-logo-outline.svg";
 import { HIDDEN_METADATA_ID } from "../itemHelpers";
 import { initOnMapTrackers } from "./onMapTrackers";
 

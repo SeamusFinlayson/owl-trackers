@@ -1,6 +1,6 @@
 export function getBackgroundColor(colorNumber: number) {
   let color: string;
-  switch (colorNumber) {
+  switch (colorNumber % 9) {
     default:
     case 0:
       color = "bg-fuchsia-500/40";
@@ -35,7 +35,7 @@ export function getBackgroundColor(colorNumber: number) {
 
 export function getColor(colorNumber: number) {
   let color: string;
-  switch (colorNumber) {
+  switch (colorNumber % 9) {
     default:
     case 0:
       color = "#9c43b2";

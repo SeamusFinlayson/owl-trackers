@@ -4,9 +4,11 @@ import "../index.css";
 import OBR from "@owlbear-rodeo/sdk";
 import { getTrackersFromSelection } from "../itemHelpers";
 import App from "./App";
+import { ThemeProvider } from "@mui/material";
+import { getTheme } from "../OBRThemeProvider";
 
 OBR.onReady(async () => {
-  const [theme, role, metadata] = await Promise.all([
+  const [OBRtheme, role, metadata] = await Promise.all([
     OBR.theme.getTheme(),
     OBR.player.getRole(),
     getTrackersFromSelection(),
@@ -16,12 +18,14 @@ OBR.onReady(async () => {
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-      <App
-        initialMode={theme.mode}
-        initialRole={role}
-        initialTrackers={trackers}
-        initialHidden={trackersHidden}
-      />
+      <ThemeProvider theme={getTheme(OBRtheme)}>
+        <App
+          initialMode={OBRtheme.mode}
+          initialRole={role}
+          initialTrackers={trackers}
+          initialHidden={trackersHidden}
+        />
+      </ThemeProvider>
     </React.StrictMode>,
   );
 });

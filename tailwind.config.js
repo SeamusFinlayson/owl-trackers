@@ -2,6 +2,9 @@
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  future: {
+    hoverOnlyWhenSupported: true
+  },
   theme: {
     screens: {
       "not-tiny": "440px",

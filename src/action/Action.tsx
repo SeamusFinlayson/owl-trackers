@@ -28,7 +28,6 @@ import OnMap from "../icons/OnMap.tsx";
 import NotOnMap from "../icons/NotOnMap.tsx";
 import MathIcon from "../icons/MathIcon.tsx";
 import NoMathIcon from "../icons/NoMathIcon.tsx";
-import { Tooltip } from "@mui/material";
 
 export default function Editor({
   initialTrackers,
@@ -64,7 +63,7 @@ export default function Editor({
     return (
       <div
         key={tracker.id}
-        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75 not-tiny:basis-1`}
+        className={`bg-paper dark:bg-paper-dark/75 grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg p-1 drop-shadow not-tiny:basis-1`}
       >
         <NameInput
           valueControl={tracker.name}
@@ -79,17 +78,13 @@ export default function Editor({
           }}
         ></NameInput>
 
-        <Tooltip title={"Delete"} placement="top">
-          <div>
-            <IconButton
-              Icon={DeleteIcon}
-              onClick={() => deleteTracker(tracker.id, setTrackers)}
-              rounded="rounded-md"
-              padding=""
-              danger={true}
-            ></IconButton>
-          </div>
-        </Tooltip>
+        <IconButton
+          Icon={DeleteIcon}
+          onClick={() => deleteTracker(tracker.id, setTrackers)}
+          rounded="rounded-md"
+          padding=""
+          danger={true}
+        ></IconButton>
 
         <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
           <ColorPicker
@@ -114,27 +109,15 @@ export default function Editor({
                 color={tracker.color}
               ></BarInput>
             )}
-            <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
-              <Tooltip
-                title={tracker.showOnMap ? "Hide From Map" : "Show on Map"}
-              >
-                <div className="rounded-full">
-                  <IconButton
-                    Icon={tracker.showOnMap ? OnMap : NotOnMap}
-                    onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
-                  ></IconButton>
-                </div>
-              </Tooltip>
-              <Tooltip
-                title={tracker.inlineMath ? "Disable Math" : "Enable Math"}
-              >
-                <div className="rounded-full">
-                  <IconButton
-                    Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
-                    onClick={() => toggleInlineMath(tracker.id, setTrackers)}
-                  ></IconButton>
-                </div>
-              </Tooltip>
+            <div className="bg-default dark:bg-default-dark/80 flex flex-row justify-center self-center rounded-full">
+              <IconButton
+                Icon={tracker.showOnMap ? OnMap : NotOnMap}
+                onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
+              ></IconButton>
+              <IconButton
+                Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
+                onClick={() => toggleInlineMath(tracker.id, setTrackers)}
+              ></IconButton>
             </div>
           </div>
         </div>
@@ -169,45 +152,30 @@ export default function Editor({
         }}
       ></div> */}
       <div className={`flex h-full flex-col gap-2 p-2`}>
-        <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
-          <Tooltip title={"Add Tracker"}>
-            <div className="rounded-full">
-              <IconButton
-                Icon={AddIcon}
-                onClick={() => addTrackerBubble(trackers, setTrackers)}
-              ></IconButton>
-            </div>
-          </Tooltip>
-          <Tooltip title={"Add Bar Tracker"}>
-            <div className="rounded-full">
-              <IconButton
-                Icon={AddSquareIcon}
-                onClick={() => addTrackerBar(trackers, setTrackers)}
-              ></IconButton>
-            </div>
-          </Tooltip>
+        <div className="bg-default dark:bg-default-dark/80 flex flex-row justify-center self-center rounded-full">
+          <IconButton
+            Icon={AddIcon}
+            onClick={() => addTrackerBubble(trackers, setTrackers)}
+          ></IconButton>
+          <IconButton
+            Icon={AddSquareIcon}
+            onClick={() => addTrackerBar(trackers, setTrackers)}
+          ></IconButton>
+
           {role === "GM" && (
-            <Tooltip title={trackersHidden ? "Show Trackers" : "Hide Trackers"}>
-              <div className="rounded-full">
-                <IconButton
-                  Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-                  onClick={() => toggleTrackersHidden(setTrackersHidden)}
-                ></IconButton>
-              </div>
-            </Tooltip>
+            <IconButton
+              Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
+              onClick={() => toggleTrackersHidden(setTrackersHidden)}
+            ></IconButton>
           )}
-          <Tooltip title={"Close Editor"}>
-            <div className="rounded-full">
-              <IconButton
-                Icon={DeleteIcon}
-                onClick={() => OBR.popover.close(getPluginId("editor"))}
-                danger={true}
-              ></IconButton>
-            </div>
-          </Tooltip>
+          <IconButton
+            Icon={DeleteIcon}
+            onClick={() => OBR.popover.close(getPluginId("editor"))}
+            danger={true}
+          ></IconButton>
         </div>
         <div
-          className={`flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
+          className={`bg-default dark:bg-default-dark flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl p-2 ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
         >
           {trackers.map((tracker) => generateTrackerOptions(tracker))}
           {trackerCountIsOdd && (

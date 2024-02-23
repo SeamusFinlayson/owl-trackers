@@ -13,7 +13,7 @@ import { getColor } from "../colorHelpers";
 const FONT_SIZE = 22;
 const FONT = "Roboto, sans-serif";
 const DISABLE_HIT = true;
-const BUBBLE_OPACITY = 0.6;
+const BUBBLE_OPACITY = 0.7;
 const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
   "ROTATION",
   "VISIBLE",
