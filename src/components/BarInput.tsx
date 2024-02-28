@@ -70,10 +70,10 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "value");
         }}
         onFocus={handleFocus}
-        className={`text-text-primary dark:text-text-primary-dark duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
-      <div className="text-text-primary dark:text-text-primary-dark self-center pt-[2px]">
+      <div className="self-center pt-[2px] text-text-primary dark:text-text-primary-dark">
         /
       </div>
       <input
@@ -85,7 +85,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "max");
         }}
         onFocus={handleFocus}
-        className={`text-text-primary dark:text-text-primary-dark duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium outline-none focus:bg-black/10`}
+        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
     </div>

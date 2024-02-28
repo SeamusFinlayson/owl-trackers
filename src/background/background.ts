@@ -30,8 +30,8 @@ OBR.onReady(async () => {
             { key: "type", value: "IMAGE" },
             {
               key: ["metadata", `com.owl-trackers/${HIDDEN_METADATA_ID}`],
-              value: false,
-              operator: "==",
+              value: true,
+              operator: "!=",
             },
           ],
           permissions: ["UPDATE"],
