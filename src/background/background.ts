@@ -1,8 +1,8 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import menuIcon from "../assets/owl-trackers-logo-outline.svg";
-import { HIDDEN_METADATA_ID } from "../itemHelpers";
 import { initOnMapTrackers } from "./onMapTrackers";
+import { HIDDEN_METADATA_ID } from "../basicTrackerHelpers";
 
 /**
  * This file represents the background script run when the plugin loads.

@@ -1,38 +1,33 @@
-import { useState } from "react";
 import { useOwlbearStore } from "../useOwlbearStore.ts";
 import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
 import "../index.css";
-import { Tracker } from "../itemHelpers.ts";
-import TrackerMenu from "./Action.tsx";
+import { Action } from "./Action.tsx";
+import IconButton from "../components/IconButton.tsx";
+import MoreIcon from "../icons/MoreIcon.tsx";
+import { getPluginId } from "../getPluginId.ts";
+import OBR from "@owlbear-rodeo/sdk";
 
-export default function App({
-  initialMode,
-  initialRole,
-  initialTrackers,
-  initialHidden,
-}: {
-  initialMode: "DARK" | "LIGHT";
-  initialRole: "PLAYER" | "GM";
-  initialTrackers: Tracker[];
-  initialHidden: boolean;
-}): JSX.Element {
+export default function App(): JSX.Element {
   useOwlbearStoreSync();
 
-  const setRole = useOwlbearStore((state) => state.setRole);
-  const setMode = useOwlbearStore((state) => state.setMode);
-
-  // Prevent flash on startup
-  const [initDone, setInitDone] = useState(false);
-  if (!initDone) {
-    setInitDone(true);
-    setMode(initialMode);
-    setRole(initialRole);
-  }
-
   return (
-    <TrackerMenu
-      initialTrackers={initialTrackers}
-      initialHidden={initialHidden}
-    ></TrackerMenu>
+    <Action>
+      <h1>Set scene default trackers</h1>
+      <IconButton
+        Icon={MoreIcon}
+        onClick={() =>
+          OBR.popover.open({
+            id: getPluginId("editor"),
+            url: "/src/action/editor.html",
+            height: 600,
+            width: 500,
+            anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+            transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
+          })
+        }
+      ></IconButton>
+      <h1>setting</h1>
+      <button className="bg-black/20 hover:bg-black/30">Press</button>
+    </Action>
   );
 }

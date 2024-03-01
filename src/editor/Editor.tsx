@@ -9,7 +9,6 @@ import VisibleIcon from "../icons/VisibleIcon.tsx";
 import NotVisibleIcon from "../icons/NotVisibleIcon.tsx";
 import BarInput from "../components/BarInput.tsx";
 import {
-  Tracker,
   addTrackerBar,
   addTrackerBubble,
   deleteTracker,
@@ -29,6 +28,7 @@ import NotOnMap from "../icons/NotOnMap.tsx";
 import MathIcon from "../icons/MathIcon.tsx";
 import NoMathIcon from "../icons/NoMathIcon.tsx";
 import { Tooltip } from "@mui/material";
+import { Tracker } from "../basicTrackerHelpers.ts";
 
 export default function Editor({
   initialTrackers,

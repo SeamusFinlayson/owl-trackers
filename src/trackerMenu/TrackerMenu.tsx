@@ -9,16 +9,15 @@ import VisibleIcon from "../icons/VisibleIcon";
 import NotVisibleIcon from "../icons/NotVisibleIcon";
 import BarInput from "../components/BarInput";
 import {
-  Tracker,
   addTrackerBar,
   addTrackerBubble,
-  checkOccupiedSpaces,
   getTrackersFromSelection,
   toggleTrackersHidden,
 } from "../itemHelpers";
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import MoreIcon from "../icons/MoreIcon";
+import { Tracker, checkOccupiedSpaces } from "../basicTrackerHelpers";
 // import "./temp.css";
 
 export default function TrackerMenu({

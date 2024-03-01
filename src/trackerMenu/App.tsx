@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useOwlbearStore } from "../useOwlbearStore.ts";
 import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
 import "../index.css";
-import { Tracker } from "../itemHelpers";
 import TrackerMenu from "./TrackerMenu.tsx";
+import { Tracker } from "../basicTrackerHelpers.ts";
 
 export default function App({
   initialMode,

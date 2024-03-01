@@ -11,13 +11,13 @@ import {
   createImageBubble,
   getImageBubbleItemIds,
 } from "./compoundItemHelpers";
+import { getTrackersFromItem } from "../itemHelpers";
 import {
-  HIDDEN_METADATA_ID,
   MAX_BAR_COUNT,
-  MAX_BUBBLE_COUNT,
   TRACKER_METADATA_ID,
-  getTrackersFromItem,
-} from "../itemHelpers";
+  HIDDEN_METADATA_ID,
+  MAX_BUBBLE_COUNT,
+} from "../basicTrackerHelpers";
 
 let tokenIds: string[] = []; // for orphan health bar management
 let itemsLast: Image[] = []; // for item change checks

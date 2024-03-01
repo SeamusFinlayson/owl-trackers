@@ -6,5 +6,12 @@
   "homepage_url": "https://github.com/SeamusFinlayson/owl-trackers",
   "icon": "/owl-trackers-logo.svg",
   "background_url": "/src/background/background.html",
-  "description": "Elegant system-agnostic token trackers"
+  "description": "Elegant system-agnostic token trackers",
+  "action": {
+    "title": "Owl Trackers",
+    "icon": "/owl-trackers-logo-outline.svg",
+    "popover": "/src/action/action.html",
+    "height": 390,
+    "width": 300
+  }
 }

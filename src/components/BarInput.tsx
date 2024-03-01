@@ -1,6 +1,7 @@
 import { InputHTMLAttributes, useEffect, useState } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { Tracker, updateTrackerField } from "../itemHelpers";
+import { updateTrackerField } from "../itemHelpers";
+import { Tracker } from "../basicTrackerHelpers";
 
 export default function BarInput({
   tracker,

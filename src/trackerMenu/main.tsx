@@ -5,7 +5,7 @@ import OBR from "@owlbear-rodeo/sdk";
 import App from "./App";
 import { getTrackersFromSelection } from "../itemHelpers";
 import { ThemeProvider } from "@mui/material";
-import { getTheme } from "../OBRThemeProvider";
+import { getTheme } from "../getTheme";
 
 OBR.onReady(async () => {
   const [OBRTheme, role, metadata] = await Promise.all([
