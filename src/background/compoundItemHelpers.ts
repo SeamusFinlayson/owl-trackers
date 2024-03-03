@@ -7,7 +7,7 @@ import {
   buildText,
 } from "@owlbear-rodeo/sdk";
 import { getColor } from "../colorHelpers";
-import { Tracker } from "../basicTrackerHelpers";
+import { Tracker } from "../trackerHelpersBasic";
 
 // Constants used in multiple functions
 const FONT_SIZE = 22;

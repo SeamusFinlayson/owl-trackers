@@ -12,26 +12,33 @@ import {
   addTrackerBar,
   addTrackerBubble,
   getTrackersFromSelection,
+  overwriteTrackers,
   toggleTrackersHidden,
-} from "../itemHelpers";
+  updateTrackerField,
+} from "../trackerHelpersItem";
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import MoreIcon from "../icons/MoreIcon";
-import { Tracker, checkOccupiedSpaces } from "../basicTrackerHelpers";
+import { Tracker, checkOccupiedSpaces } from "../trackerHelpersBasic";
+import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
 // import "./temp.css";
 
 export default function TrackerMenu({
   initialHidden,
   initialTrackers,
+  initialSceneTrackers,
 }: {
-  initialTrackers: Tracker[];
   initialHidden: boolean;
+  initialTrackers: Tracker[];
+  initialSceneTrackers: Tracker[];
 }): JSX.Element {
   const role = useOwlbearStore((state) => state.role);
   const mode = useOwlbearStore((state) => state.mode);
 
   const [trackersHidden, setTrackersHidden] = useState(initialHidden);
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
+  const [sceneTrackers, setSceneTrackers] =
+    useState<Tracker[]>(initialSceneTrackers);
 
   useEffect(
     () =>
@@ -46,14 +53,24 @@ export default function TrackerMenu({
     [],
   );
 
+  useEffect(
+    () =>
+      OBR.scene.onMetadataChange((metadata) =>
+        setSceneTrackers(getTrackersFromSceneMetadata(metadata)),
+      ),
+    [],
+  );
+
   const generateInput = (tracker: Tracker): JSX.Element => {
     if (tracker.variant === "value") {
       return (
         <BubbleInput
           key={tracker.id}
           tracker={tracker}
-          setTrackers={setTrackers}
           color={tracker.color}
+          updateValueMetadata={(content: string) =>
+            updateTrackerField(tracker.id, "value", content, setTrackers)
+          }
         ></BubbleInput>
       );
     }
@@ -61,8 +78,13 @@ export default function TrackerMenu({
       <BarInput
         key={tracker.id}
         tracker={tracker}
-        setTrackers={setTrackers}
         color={tracker.color}
+        updateValueMetadata={(content: string) =>
+          updateTrackerField(tracker.id, "value", content, setTrackers)
+        }
+        updateMaxMetadata={(content: string) =>
+          updateTrackerField(tracker.id, "max", content, setTrackers)
+        }
       ></BarInput>
     );
   };
@@ -102,9 +124,22 @@ export default function TrackerMenu({
             }}
           ></IconButton>
         </div>
-        <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 rounded-xl bg-white/0">
-          {trackers.map((tracker) => generateInput(tracker))}
-        </div>
+        {trackers.length !== 0 ? (
+          <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 rounded-xl bg-white/0">
+            {trackers.map((tracker) => generateInput(tracker))}
+          </div>
+        ) : sceneTrackers.length !== 0 ? (
+          <button
+            className="self-center justify-self-center rounded-lg border-none bg-white/30 p-[6px] text-center text-text-primary no-underline hover:bg-white/20 dark:bg-black/15 dark:text-text-primary-dark dark:hover:bg-black/35"
+            onClick={() => overwriteTrackers(sceneTrackers, setTrackers)}
+          >
+            Use scene trackers
+          </button>
+        ) : (
+          <div className="self-center justify-self-center rounded-lg border-none p-[6px] text-center text-text-primary no-underline dark:text-text-primary-dark">
+            Scene trackers not set
+          </div>
+        )}
       </div>
     </div>
   );

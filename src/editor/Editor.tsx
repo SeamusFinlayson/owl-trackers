@@ -17,7 +17,8 @@ import {
   toggleShowOnMap,
   updateTrackerField,
   toggleInlineMath,
-} from "../itemHelpers.ts";
+  overwriteTrackers,
+} from "../trackerHelpersItem.ts";
 import OBR from "@owlbear-rodeo/sdk";
 import NameInput from "../components/NameInput.tsx";
 import DeleteIcon from "../icons/DeleteIcon.tsx";
@@ -28,20 +29,25 @@ import NotOnMap from "../icons/NotOnMap.tsx";
 import MathIcon from "../icons/MathIcon.tsx";
 import NoMathIcon from "../icons/NoMathIcon.tsx";
 import { Tooltip } from "@mui/material";
-import { Tracker } from "../basicTrackerHelpers.ts";
+import { Tracker } from "../trackerHelpersBasic.ts";
+import { getTrackersFromSceneMetadata } from "../trackerHelpersScene.ts";
 
 export default function Editor({
-  initialTrackers,
   initialHidden,
+  initialTrackers,
+  initialSceneTrackers,
 }: {
-  initialTrackers: Tracker[];
   initialHidden: boolean;
+  initialTrackers: Tracker[];
+  initialSceneTrackers: Tracker[];
 }): JSX.Element {
   const role = useOwlbearStore((state) => state.role);
   const mode = useOwlbearStore((state) => state.mode);
 
   const [trackersHidden, setTrackersHidden] = useState(initialHidden);
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
+  const [sceneTrackers, setSceneTrackers] =
+    useState<Tracker[]>(initialSceneTrackers);
 
   if (trackersHidden && role === "PLAYER") {
     OBR.popover.close(getPluginId("editor"));
@@ -56,6 +62,14 @@ export default function Editor({
             setTrackersHidden(newTrackersHidden);
           },
         ),
+      ),
+    [],
+  );
+
+  useEffect(
+    () =>
+      OBR.scene.onMetadataChange((metadata) =>
+        setSceneTrackers(getTrackersFromSceneMetadata(metadata)),
       ),
     [],
   );
@@ -103,15 +117,22 @@ export default function Editor({
               <BubbleInput
                 key={tracker.id}
                 tracker={tracker}
-                setTrackers={setTrackers}
                 color={tracker.color}
+                updateValueMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "value", content, setTrackers)
+                }
               ></BubbleInput>
             ) : (
               <BarInput
                 key={tracker.id}
                 tracker={tracker}
-                setTrackers={setTrackers}
                 color={tracker.color}
+                updateValueMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "value", content, setTrackers)
+                }
+                updateMaxMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "max", content, setTrackers)
+                }
               ></BarInput>
             )}
             <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
@@ -156,7 +177,7 @@ export default function Editor({
           position: "absolute",
         }}
       ></div> */}
-      <div className={`flex h-full flex-col gap-2 p-2`}>
+      <div className={`flex h-full flex-col gap-1.5 p-2`}>
         <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
           <Tooltip title={"Add Tracker"}>
             <div className="rounded-full">
@@ -195,11 +216,24 @@ export default function Editor({
           </Tooltip>
         </div>
         <div
-          className={`h-full min-w-[220px] overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark`}
+          className={`flex h-full w-full min-w-[220px] flex-col items-center justify-start overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark`}
         >
-          <div className="grid grid-cols-1 gap-x-2 gap-y-2 not-tiny:grid-cols-2">
-            {trackers.map((tracker) => generateTrackerOptions(tracker))}
-          </div>
+          {trackers.length !== 0 ? (
+            <div className="grid grid-cols-1 gap-x-2 gap-y-2 not-tiny:grid-cols-2">
+              {trackers.map((tracker) => generateTrackerOptions(tracker))}
+            </div>
+          ) : sceneTrackers.length !== 0 ? (
+            <button
+              className="rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
+              onClick={() => overwriteTrackers(sceneTrackers, setTrackers)}
+            >
+              Use scene trackers
+            </button>
+          ) : (
+            <div className="rounded-lg border-none p-[6px] text-center text-text-secondary no-underline dark:text-text-secondary-dark">
+              Scene trackers not set
+            </div>
+          )}
         </div>
       </div>
     </div>

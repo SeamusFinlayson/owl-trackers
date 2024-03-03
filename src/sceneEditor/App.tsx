@@ -2,21 +2,17 @@ import { useState } from "react";
 import { useOwlbearStore } from "../useOwlbearStore.ts";
 import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
 import "../index.css";
-import TrackerMenu from "./TrackerMenu.tsx";
+import Editor from "./SceneEditor.tsx";
 import { Tracker } from "../trackerHelpersBasic.ts";
 
 export default function App({
   initialMode,
   initialRole,
-  initialHidden,
   initialTrackers,
-  initialSceneTrackers,
 }: {
   initialMode: "DARK" | "LIGHT";
   initialRole: "PLAYER" | "GM";
-  initialHidden: boolean;
   initialTrackers: Tracker[];
-  initialSceneTrackers: Tracker[];
 }): JSX.Element {
   useOwlbearStoreSync();
 
@@ -31,11 +27,5 @@ export default function App({
     setRole(initialRole);
   }
 
-  return (
-    <TrackerMenu
-      initialHidden={initialHidden}
-      initialTrackers={initialTrackers}
-      initialSceneTrackers={initialSceneTrackers}
-    ></TrackerMenu>
-  );
+  return <Editor initialTrackers={initialTrackers}></Editor>;
 }

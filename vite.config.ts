@@ -12,6 +12,7 @@ export default defineConfig({
         background: resolve(__dirname, "src/background/background.html"),
         context_embed: resolve(__dirname, "src/trackerMenu/trackerMenu.html"),
         popover: resolve(__dirname, "src/editor/editor.html"),
+        action: resolve(__dirname, "src/action/action.html"),
       },
     },
   },

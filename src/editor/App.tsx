@@ -3,18 +3,20 @@ import { useOwlbearStore } from "../useOwlbearStore.ts";
 import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
 import "../index.css";
 import Editor from "./Editor.tsx";
-import { Tracker } from "../basicTrackerHelpers.ts";
+import { Tracker } from "../trackerHelpersBasic.ts";
 
 export default function App({
   initialMode,
   initialRole,
-  initialTrackers,
   initialHidden,
+  initialTrackers,
+  initialSceneTrackers,
 }: {
   initialMode: "DARK" | "LIGHT";
   initialRole: "PLAYER" | "GM";
-  initialTrackers: Tracker[];
   initialHidden: boolean;
+  initialTrackers: Tracker[];
+  initialSceneTrackers: Tracker[];
 }): JSX.Element {
   useOwlbearStoreSync();
 
@@ -31,8 +33,9 @@ export default function App({
 
   return (
     <Editor
-      initialTrackers={initialTrackers}
       initialHidden={initialHidden}
+      initialTrackers={initialTrackers}
+      initialSceneTrackers={initialSceneTrackers}
     ></Editor>
   );
 }

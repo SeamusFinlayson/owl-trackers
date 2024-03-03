@@ -1,18 +1,19 @@
 import { InputHTMLAttributes, useEffect, useState } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { updateTrackerField } from "../itemHelpers";
-import { Tracker } from "../basicTrackerHelpers";
+import { Tracker } from "../trackerHelpersBasic";
 
 export default function BarInput({
   tracker,
-  setTrackers,
   color,
+  updateValueMetadata,
+  updateMaxMetadata,
   valueInputProps,
   maxInputProps,
 }: {
   tracker: Tracker;
-  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
   color: number;
+  updateValueMetadata: (content: string) => void;
+  updateMaxMetadata: (content: string) => void;
   valueInputProps?: InputHTMLAttributes<HTMLInputElement>;
   maxInputProps?: InputHTMLAttributes<HTMLInputElement>;
 }): JSX.Element {
@@ -49,18 +50,17 @@ export default function BarInput({
       | React.KeyboardEvent<HTMLInputElement>,
     field: "value" | "max",
   ) => {
-    updateTrackerField(
-      tracker.id,
-      field,
-      (e.target as HTMLInputElement).value,
-      setTrackers,
-    );
+    if (field === "value") {
+      updateValueMetadata((e.target as HTMLInputElement).value);
+    } else {
+      updateMaxMetadata((e.target as HTMLInputElement).value);
+    }
     setValueInputUpdateFlag(true);
   };
 
   return (
     <div
-      className={`flex h-[44px] w-[100px] flex-row justify-between pb-[2px] pr-[0px] ${getBackgroundColor(color)} justify-center rounded-xl outline-none -outline-offset-2 drop-shadow-sm duration-100 focus-within:drop-shadow-lg dark:outline-white/40 focus-within:dark:outline-white/60`}
+      className={`${getBackgroundColor(color)} flex h-[44px] w-[100px] flex-row justify-between rounded-xl pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg focus-within:duration-100 dark:outline-white/40 dark:focus-within:outline-white/60`}
     >
       <input
         {...valueInputProps}
@@ -71,7 +71,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "value");
         }}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
+        className={`h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
       <div className="self-center pt-[2px] text-text-primary dark:text-text-primary-dark">
@@ -86,7 +86,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "max");
         }}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
+        className={`h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
     </div>

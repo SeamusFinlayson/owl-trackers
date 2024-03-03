@@ -1,17 +1,16 @@
 import { InputHTMLAttributes, useEffect, useState } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { updateTrackerField } from "../itemHelpers";
-import { Tracker } from "../basicTrackerHelpers";
+import { Tracker } from "../trackerHelpersBasic";
 
 export default function BubbleInput({
   tracker,
-  setTrackers,
   color,
+  updateValueMetadata,
   inputProps,
 }: {
   tracker: Tracker;
-  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
   color: number;
+  updateValueMetadata: (content: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
 }): JSX.Element {
   const handleFocus = (event: React.FocusEvent<HTMLInputElement, Element>) => {
@@ -33,18 +32,13 @@ export default function BubbleInput({
       | React.FocusEvent<HTMLInputElement, Element>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    updateTrackerField(
-      tracker.id,
-      "value",
-      (e.target as HTMLInputElement).value,
-      setTrackers,
-    );
+    updateValueMetadata((e.target as HTMLInputElement).value);
     setValueInputUpdateFlag(true);
   };
 
   return (
     <div
-      className={`h-[44px] w-[44px] pb-[2px] pr-[0px] ${getBackgroundColor(color)} justify-center rounded-full drop-shadow-sm transition-shadow focus-within:drop-shadow-lg`}
+      className={`${getBackgroundColor(color)} h-[44px] w-[44px] justify-center rounded-full pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg focus-within:duration-100 dark:outline-white/40 dark:focus-within:outline-white/60`}
     >
       <input
         {...inputProps}
@@ -55,7 +49,7 @@ export default function BubbleInput({
           if (e.key === "Enter") updateTracker(e);
         }}
         onFocus={handleFocus}
-        className={`duration-50 h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none -outline-offset-2 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark dark:outline-white/40 focus:dark:outline-white/60`}
+        className={`h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
     </div>

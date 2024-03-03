@@ -1,30 +1,30 @@
-import { useState } from "react";
-import { useOwlbearStore } from "../../useOwlbearStore.ts";
+import { useEffect, useState } from "react";
+import { useOwlbearStore } from "../useOwlbearStore.ts";
 import "../index.css";
-import BubbleInput from "../../components/BubbleInput.tsx";
-import IconButton from "../../components/IconButton.tsx";
-import AddIcon from "../../icons/AddIcon.tsx";
-import AddSquareIcon from "../../icons/AddSquareIcon.tsx";
-import BarInput from "../../components/BarInput.tsx";
+import BubbleInput from "../components/BubbleInput.tsx";
+import IconButton from "../components/IconButton.tsx";
+import AddIcon from "../icons/AddIcon.tsx";
+import AddSquareIcon from "../icons/AddSquareIcon.tsx";
+import BarInput from "../components/BarInput.tsx";
 import {
   addTrackerBar,
   addTrackerBubble,
   deleteTracker,
-  // getTrackersFromScene,
   toggleShowOnMap,
-  updateTrackerField,
   toggleInlineMath,
-} from "../../sceneHelpers.ts";
+  getTrackersFromSceneMetadata,
+  updateTrackerField,
+} from "../trackerHelpersScene.ts";
 import OBR from "@owlbear-rodeo/sdk";
-import NameInput from "../../components/NameInput.tsx";
-import DeleteIcon from "../../icons/DeleteIcon.tsx";
-import ColorPicker from "../../components/ColorPicker.tsx";
-import { getPluginId } from "../../getPluginId.ts";
-import OnMap from "../../icons/OnMap.tsx";
-import NotOnMap from "../../icons/NotOnMap.tsx";
-import MathIcon from "../../icons/MathIcon.tsx";
-import NoMathIcon from "../../icons/NoMathIcon.tsx";
-import { Tracker } from "../../basicTrackerHelpers.ts";
+import NameInput from "../components/NameInput.tsx";
+import DeleteIcon from "../icons/DeleteIcon.tsx";
+import ColorPicker from "../components/ColorPicker.tsx";
+import { getPluginId } from "../getPluginId.ts";
+import OnMap from "../icons/OnMap.tsx";
+import NotOnMap from "../icons/NotOnMap.tsx";
+import MathIcon from "../icons/MathIcon.tsx";
+import NoMathIcon from "../icons/NoMathIcon.tsx";
+import { Tracker } from "../trackerHelpersBasic.ts";
 
 export default function SceneEditor({
   initialTrackers,
@@ -36,17 +36,13 @@ export default function SceneEditor({
 
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
 
-  // TODO: Use scene instead of items
-  // useEffect(
-  //   () =>
-  //     OBR.scene.items.onChange((items) =>
-  //       getTrackersFromScene(items).then(([newTracker, newTrackersHidden]) => {
-  //         setTrackers(newTracker);
-  //         setTrackersHidden(newTrackersHidden);
-  //       }),
-  //     ),
-  //   [],
-  // );
+  useEffect(
+    () =>
+      OBR.scene.onMetadataChange((metadata) =>
+        setTrackers(getTrackersFromSceneMetadata(metadata)),
+      ),
+    [],
+  );
 
   const generateTrackerOptions = (tracker: Tracker): JSX.Element => {
     return (
@@ -87,15 +83,22 @@ export default function SceneEditor({
               <BubbleInput
                 key={tracker.id}
                 tracker={tracker}
-                setTrackers={setTrackers}
                 color={tracker.color}
+                updateValueMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "value", content, setTrackers)
+                }
               ></BubbleInput>
             ) : (
               <BarInput
                 key={tracker.id}
                 tracker={tracker}
-                setTrackers={setTrackers}
                 color={tracker.color}
+                updateValueMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "value", content, setTrackers)
+                }
+                updateMaxMetadata={(content: string) =>
+                  updateTrackerField(tracker.id, "max", content, setTrackers)
+                }
               ></BarInput>
             )}
             <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
@@ -140,25 +143,28 @@ export default function SceneEditor({
           position: "absolute",
         }}
       ></div> */}
-      <div className={`flex h-full flex-col gap-2 p-2`}>
-        <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
-          <IconButton
-            Icon={AddIcon}
-            onClick={() => addTrackerBubble(trackers, setTrackers)}
-          ></IconButton>
-          <IconButton
-            Icon={AddSquareIcon}
-            onClick={() => addTrackerBar(trackers, setTrackers)}
-          ></IconButton>
+      <div className={`flex h-full flex-col gap-1.5 p-2`}>
+        <div className="grid grid-cols-[auto,1fr] items-center gap-0 pl-2 pr-32">
+          <h1 className="m-0 flex items-center justify-center justify-self-start text-xl tracking-[0px] text-text-primary dark:text-text-primary-dark">
+            Set Scene Defaults
+          </h1>
+          <div className="flex w-max flex-row justify-center justify-self-center rounded-full bg-default dark:bg-default-dark/80">
+            <IconButton
+              Icon={AddIcon}
+              onClick={() => addTrackerBubble(trackers, setTrackers)}
+            ></IconButton>
+            <IconButton
+              Icon={AddSquareIcon}
+              onClick={() => addTrackerBar(trackers, setTrackers)}
+            ></IconButton>
 
-          {/* {role === "GM" && (
-          
-          )} */}
-          <IconButton
-            Icon={DeleteIcon}
-            onClick={() => OBR.popover.close(getPluginId("editor"))}
-            danger={true}
-          ></IconButton>
+            {/* {role === "GM" && ()} */}
+            <IconButton
+              Icon={DeleteIcon}
+              onClick={() => OBR.popover.close(getPluginId("editor"))}
+              danger={true}
+            ></IconButton>
+          </div>
         </div>
         <div
           className={`flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}

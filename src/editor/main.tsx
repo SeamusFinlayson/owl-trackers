@@ -2,19 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "../index.css";
 import OBR from "@owlbear-rodeo/sdk";
-import { getTrackersFromSelection } from "../itemHelpers";
+import { getTrackersFromSelection } from "../trackerHelpersItem";
 import App from "./App";
 import { ThemeProvider } from "@mui/material";
 import { getTheme } from "../getTheme";
+import { getTrackersFromScene } from "../trackerHelpersScene";
 
 OBR.onReady(async () => {
-  const [OBRtheme, role, metadata] = await Promise.all([
-    OBR.theme.getTheme(),
-    OBR.player.getRole(),
-    getTrackersFromSelection(),
-  ]);
-
-  const [trackers, trackersHidden] = metadata;
+  const [OBRtheme, role, [trackers, trackersHidden], sceneTrackers] =
+    await Promise.all([
+      OBR.theme.getTheme(),
+      OBR.player.getRole(),
+      getTrackersFromSelection(),
+      getTrackersFromScene(),
+    ]);
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
@@ -22,8 +23,9 @@ OBR.onReady(async () => {
         <App
           initialMode={OBRtheme.mode}
           initialRole={role}
-          initialTrackers={trackers}
           initialHidden={trackersHidden}
+          initialTrackers={trackers}
+          initialSceneTrackers={sceneTrackers}
         />
       </ThemeProvider>
     </React.StrictMode>,

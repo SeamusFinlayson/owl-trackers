@@ -1,14 +1,13 @@
-import OBR, { Item } from "@owlbear-rodeo/sdk";
+import OBR, { Metadata } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
 import {
+  Tracker,
   isTracker,
   checkOccupiedSpaces,
   createBubble,
   createBar,
   TRACKER_METADATA_ID,
-  HIDDEN_METADATA_ID,
-  Tracker,
-} from "./basicTrackerHelpers";
+} from "./trackerHelpersBasic";
 
 /////////////////////////////////////////////////////////////////////
 // Updating trackers
@@ -50,7 +49,7 @@ const updateTrackers = (
       }
     });
 
-    writeTrackersToSelection(validatedTrackers);
+    writeTrackersToScene(validatedTrackers);
     return validatedTrackers;
   });
 };
@@ -146,90 +145,52 @@ export const toggleInlineMath = (
   }, setTrackers);
 };
 
-export const toggleTrackersHidden = (
-  setTrackersHidden: React.Dispatch<React.SetStateAction<boolean>>,
-) => {
-  setTrackersHidden((prev) => {
-    const value = !prev;
-    writeTrackersHiddenToSelection(value);
-    return value;
-  });
-};
+// export const toggleTrackersHidden = (
+//   setTrackersHidden: React.Dispatch<React.SetStateAction<boolean>>,
+// ) => {
+//   setTrackersHidden((prev) => {
+//     const value = !prev;
+//     writeTrackersHiddenToScene(value);
+//     return value;
+//   });
+// };
 
 /////////////////////////////////////////////////////////////////////
-// Interacting with stored trackers in an item
+// Interacting with stored trackers in the scene
 /////////////////////////////////////////////////////////////////////
 
-/** Write local trackers to selected item */
-async function writeTrackersToSelection(trackers: Tracker[]) {
-  const selection = await OBR.player.getSelection();
-  const selectedItems = await OBR.scene.items.getItems(selection);
-
-  if (typeof selection === "undefined" || selection.length !== 1) {
-    throw `Error: Player has selected ${selection?.length} items selected, expected 1.`;
-  }
-
-  OBR.scene.items.updateItems(selectedItems, (items) => {
-    for (const item of items) {
-      item.metadata[getPluginId(TRACKER_METADATA_ID)] = trackers;
-    }
-  });
+/** Write local trackers to scene */
+async function writeTrackersToScene(trackers: Tracker[]) {
+  OBR.scene.setMetadata({ [getPluginId(TRACKER_METADATA_ID)]: trackers });
 }
 
-/** Write local trackers hidden state to selected item */
-async function writeTrackersHiddenToSelection(trackersHidden: boolean) {
-  const selection = await OBR.player.getSelection();
-  const selectedItems = await OBR.scene.items.getItems(selection);
+/** Write local trackers hidden state to scene */
+// async function writeTrackersHiddenToScene(trackersHidden: boolean) {
+//   OBR.scene.setMetadata({ [getPluginId(HIDDEN_METADATA_ID)]: trackersHidden });
+// }
 
-  if (typeof selection === "undefined" || selection.length !== 1) {
-    throw `Error: Player has selected ${selection?.length} items selected, expected 1.`;
+/** Get trackers from scene */
+export async function getTrackersFromScene(): Promise<Tracker[]> {
+  const sceneMetadata = await OBR.scene.getMetadata();
+  // console.log(sceneMetadata[getPluginId(TRACKER_METADATA_ID)]);
+
+  if (typeof sceneMetadata === "undefined") {
+    return [];
   }
 
-  OBR.scene.items.updateItems(selectedItems, (items) => {
-    for (const item of items) {
-      item.metadata[getPluginId(HIDDEN_METADATA_ID)] = trackersHidden;
-    }
-  });
+  return getTrackersFromSceneMetadata(sceneMetadata);
 }
 
-/** Get trackers from selected item */
-export async function getTrackersFromSelection(
-  items?: Item[],
-): Promise<[Tracker[], boolean]> {
-  if (items === undefined) {
-    items = await OBR.scene.items.getItems();
-  }
-
-  const selection = await OBR.player.getSelection();
-  if (selection === undefined) throw TypeError;
-
-  const selectedItem = items.find((item) => item.id === selection[0]);
-  if (selectedItem === undefined) throw TypeError;
-
-  if (typeof selection === "undefined" || selection.length !== 1) {
-    throw `Error: Player has selected ${selection?.length} items selected, expected 1.`;
-  }
-
-  return [
-    getTrackersFromMetadata(selectedItem),
-    getTrackersHiddenFromItem(selectedItem),
-  ];
-}
-
-export function getTrackersFromItem(item: Item): [Tracker[], boolean] {
-  return [getTrackersFromMetadata(item), getTrackersHiddenFromItem(item)];
-}
-
-function getTrackersFromMetadata(item: Item) {
+export function getTrackersFromSceneMetadata(sceneMetadata: Metadata) {
   const trackers: Tracker[] = [];
 
-  const metadata = item.metadata[getPluginId(TRACKER_METADATA_ID)];
-  if (!metadata) return trackers;
-  if (!Array.isArray(metadata)) {
-    throw TypeError(`Expected an array, got ${typeof metadata}`);
+  const trackersMetadata = sceneMetadata[getPluginId(TRACKER_METADATA_ID)];
+  if (!trackersMetadata) return trackers;
+  if (!Array.isArray(trackersMetadata)) {
+    throw TypeError(`Expected an array, got ${typeof trackersMetadata}`);
   }
 
-  for (const tracker of metadata) {
+  for (const tracker of trackersMetadata) {
     if (!isTracker(tracker)) {
       console.log(
         "Invalid tracker detected, tracker was deleted, see contents below: ",
@@ -243,12 +204,13 @@ function getTrackersFromMetadata(item: Item) {
   return trackers;
 }
 
-function getTrackersHiddenFromItem(item: Item) {
-  let trackersHidden = false;
+// function getTrackersHiddenFromMetadata(sceneMetadata: Metadata) {
+//   let trackersHidden = false;
 
-  const metadata = item.metadata[getPluginId(HIDDEN_METADATA_ID)];
-  if (!metadata || typeof metadata !== "boolean") return trackersHidden;
-  trackersHidden = metadata;
+//   const hiddenMetadata = sceneMetadata[getPluginId(HIDDEN_METADATA_ID)];
+//   if (!hiddenMetadata || typeof hiddenMetadata !== "boolean")
+//     return trackersHidden;
+//   trackersHidden = hiddenMetadata;
 
-  return trackersHidden;
-}
+//   return trackersHidden;
+// }
