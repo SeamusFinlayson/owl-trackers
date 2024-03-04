@@ -42,7 +42,7 @@ export default function HeaderButton({
         <Tooltip title="Change Log">
           <a
             className="flex size-8 items-center justify-center justify-self-end rounded-lg border-none bg-black/15 p-[5px] text-center text-text-primary no-underline hover:bg-black/35 dark:text-text-primary-dark"
-            href="https://www.patreon.com/collection/306916?view=expanded"
+            href="https://www.patreon.com/collection/420087"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -79,7 +79,7 @@ export default function HeaderButton({
         <Tooltip placement="bottom-start" title="Instructions">
           <a
             className="flex size-8 items-center justify-center justify-self-end rounded-lg border-none bg-black/15 p-[6px] text-center text-text-primary no-underline hover:bg-black/35 dark:text-text-primary-dark"
-            href="https://github.com/SeamusFinlayson/Bubbles-for-Owlbear-Rodeo?tab=readme-ov-file#how-it-works"
+            href="https://github.com/SeamusFinlayson/owl-trackers?#how-it-works"
             target="_blank"
             rel="noreferrer noopener"
           >

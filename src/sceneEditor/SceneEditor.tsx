@@ -33,6 +33,11 @@ export default function SceneEditor({
 }): JSX.Element {
   // const role = useOwlbearStore((state) => state.role);
   const mode = useOwlbearStore((state) => state.mode);
+  const role = useOwlbearStore((state) => state.role);
+
+  if (role === "PLAYER") {
+    OBR.popover.close(getPluginId("scene-editor"));
+  }
 
   const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
 
@@ -44,108 +49,14 @@ export default function SceneEditor({
     [],
   );
 
-  const generateTrackerOptions = (tracker: Tracker): JSX.Element => {
-    return (
-      <div
-        key={tracker.id}
-        className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75 not-tiny:basis-1`}
-      >
-        <NameInput
-          valueControl={tracker.name}
-          inputProps={{
-            onBlur: (e) =>
-              updateTrackerField(
-                tracker.id,
-                "name",
-                e.target.value,
-                setTrackers,
-              ),
-          }}
-        ></NameInput>
-
-        <IconButton
-          Icon={DeleteIcon}
-          onClick={() => deleteTracker(tracker.id, setTrackers)}
-          rounded="rounded-md"
-          padding=""
-          danger={true}
-        ></IconButton>
-
-        <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
-          <ColorPicker
-            setColorNumber={(content) =>
-              updateTrackerField(tracker.id, "color", content, setTrackers)
-            }
-          ></ColorPicker>
-
-          <div className="flex min-w-[100px] flex-col items-center justify-evenly gap-2 py-1">
-            {tracker.variant === "value" ? (
-              <BubbleInput
-                key={tracker.id}
-                tracker={tracker}
-                color={tracker.color}
-                updateValueMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "value", content, setTrackers)
-                }
-              ></BubbleInput>
-            ) : (
-              <BarInput
-                key={tracker.id}
-                tracker={tracker}
-                color={tracker.color}
-                updateValueMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "value", content, setTrackers)
-                }
-                updateMaxMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "max", content, setTrackers)
-                }
-              ></BarInput>
-            )}
-            <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
-              <IconButton
-                Icon={tracker.showOnMap ? OnMap : NotOnMap}
-                onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
-              ></IconButton>
-              <IconButton
-                Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
-                onClick={() => toggleInlineMath(tracker.id, setTrackers)}
-              ></IconButton>
-            </div>
-          </div>
-        </div>
-
-        {/* <div className="col-span-2 flex w-full justify-stretch">
-          
-        </div> */}
-        {/* <div className="col-start-1 col-end-1"></div>
-        <div className="col-span-1 col-start-1"></div>
-
-        <div className="col-start-2 row-span-2 row-start-2 flex w-full justify-center"></div> */}
-
-        {/* <div className="col-span-2 flex w-full items-center justify-evenly"></div> */}
-      </div>
-    );
-  };
-
   const trackerCountIsOdd = trackers.length % 2 === 1;
-
-  // const [color, setColor] = useState("#000");
-  // OBR.theme.getTheme().then((value) => setColor(value.background.default));
 
   return (
     // <button className="box"></button>
     <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
-      {/* <div
-        style={{
-          height: 30,
-          width: 30,
-          backgroundColor: color,
-          position: "absolute",
-        }}
-      ></div> */}
       <div className={`flex h-full flex-col gap-1.5 p-2`}>
-        <div className="grid grid-cols-[auto,1fr] items-center gap-0 pl-2 pr-32">
-          <h1 className="m-0 flex items-center justify-center justify-self-start text-xl tracking-[0px] text-text-primary dark:text-text-primary-dark">
+        <div className="grid grid-cols-[auto,1fr] items-center gap-0 pl-2 pr-40">
+          <h1 className="m-0 flex items-center justify-center justify-self-start text-lg tracking-[0px] text-text-primary dark:text-text-primary-dark">
             Set Scene Defaults
           </h1>
           <div className="flex w-max flex-row justify-center justify-self-center rounded-full bg-default dark:bg-default-dark/80">
@@ -158,10 +69,9 @@ export default function SceneEditor({
               onClick={() => addTrackerBar(trackers, setTrackers)}
             ></IconButton>
 
-            {/* {role === "GM" && ()} */}
             <IconButton
               Icon={DeleteIcon}
-              onClick={() => OBR.popover.close(getPluginId("editor"))}
+              onClick={() => OBR.popover.close(getPluginId("scene-editor"))}
               danger={true}
             ></IconButton>
           </div>
@@ -169,7 +79,9 @@ export default function SceneEditor({
         <div
           className={`flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
         >
-          {trackers.map((tracker) => generateTrackerOptions(tracker))}
+          {trackers.map((tracker) =>
+            generateTrackerOptions(tracker, setTrackers),
+          )}
           {trackerCountIsOdd && (
             <div className="`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg drop-shadow not-tiny:basis-1 not-tiny:p-1"></div>
           )}
@@ -178,3 +90,74 @@ export default function SceneEditor({
     </div>
   );
 }
+
+const generateTrackerOptions = (
+  tracker: Tracker,
+  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
+): JSX.Element => {
+  return (
+    <div
+      key={tracker.id}
+      className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75 not-tiny:basis-1`}
+    >
+      <NameInput
+        valueControl={tracker.name}
+        inputProps={{
+          onBlur: (e) =>
+            updateTrackerField(tracker.id, "name", e.target.value, setTrackers),
+        }}
+      ></NameInput>
+
+      <IconButton
+        Icon={DeleteIcon}
+        onClick={() => deleteTracker(tracker.id, setTrackers)}
+        rounded="rounded-md"
+        padding=""
+        danger={true}
+      ></IconButton>
+
+      <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
+        <ColorPicker
+          setColorNumber={(content) =>
+            updateTrackerField(tracker.id, "color", content, setTrackers)
+          }
+        ></ColorPicker>
+
+        <div className="flex min-w-[100px] flex-col items-center justify-evenly gap-2 py-1">
+          {tracker.variant === "value" ? (
+            <BubbleInput
+              key={tracker.id}
+              tracker={tracker}
+              color={tracker.color}
+              updateValueMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "value", content, setTrackers)
+              }
+            ></BubbleInput>
+          ) : (
+            <BarInput
+              key={tracker.id}
+              tracker={tracker}
+              color={tracker.color}
+              updateValueMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "value", content, setTrackers)
+              }
+              updateMaxMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "max", content, setTrackers)
+              }
+            ></BarInput>
+          )}
+          <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
+            <IconButton
+              Icon={tracker.showOnMap ? OnMap : NotOnMap}
+              onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
+            ></IconButton>
+            <IconButton
+              Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
+              onClick={() => toggleInlineMath(tracker.id, setTrackers)}
+            ></IconButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
