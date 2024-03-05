@@ -84,12 +84,11 @@ async function startTrackerUpdates() {
     userRoleLast = await OBR.player.getRole();
 
     // Handle role changes
-    const unSubscribeFromPlayer = OBR.player.onChange(async () => {
+    const unSubscribeFromPlayer = OBR.player.onChange((player) => {
       // Do a refresh if player role change is detected
-      const userRole = await OBR.player.getRole();
-      if (userRole !== userRoleLast) {
+      if (player.role !== userRoleLast) {
         refreshAllTrackers();
-        userRoleLast = userRole;
+        userRoleLast = player.role;
       }
     });
 

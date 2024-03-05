@@ -47,10 +47,10 @@ export function getColor(colorNumber: number) {
       color = "#ab2022";
       break;
     case 3:
-      color = "#a34e26";
+      color = "#c85217";
       break;
     case 4:
-      color = "#bc6c13";
+      color = "#a58421";
       break;
     case 5:
       color = "#6d9142";

@@ -1,13 +1,14 @@
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
-import menuIcon from "../assets/owl-trackers-logo-outline.svg";
 import { initOnMapTrackers } from "./onMapTrackers";
 import { HIDDEN_METADATA_ID } from "../trackerHelpersBasic";
 
-/**
- * This file represents the background script run when the plugin loads.
- * It creates the context menu items.
- */
+const menuIcon = new URL(
+  "../assets/owl-trackers-logo-outline.svg#icon",
+  import.meta.url,
+).toString();
+
+const contextMenuLabel = "Owl Trackers";
 
 OBR.onReady(async () => {
   fetch("/manifest.json")
@@ -22,7 +23,7 @@ OBR.onReady(async () => {
     icons: [
       {
         icon: menuIcon,
-        label: "Edit Stats",
+        label: contextMenuLabel,
         filter: {
           every: [
             { key: "layer", value: "CHARACTER", coordinator: "||" },
@@ -52,7 +53,7 @@ OBR.onReady(async () => {
     icons: [
       {
         icon: menuIcon,
-        label: "Owl Trackers",
+        label: contextMenuLabel,
         filter: {
           every: [
             { key: "layer", value: "CHARACTER", coordinator: "||" },

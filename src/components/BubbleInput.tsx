@@ -7,11 +7,13 @@ export default function BubbleInput({
   color,
   updateValueMetadata,
   inputProps,
+  animateOnlyWhenRootActive = false,
 }: {
   tracker: Tracker;
   color: number;
   updateValueMetadata: (content: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  animateOnlyWhenRootActive?: boolean;
 }): JSX.Element {
   const handleFocus = (event: React.FocusEvent<HTMLInputElement, Element>) => {
     event.target.select();
@@ -38,7 +40,7 @@ export default function BubbleInput({
 
   return (
     <div
-      className={`${getBackgroundColor(color)} h-[44px] w-[44px] justify-center rounded-full pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg focus-within:duration-100 dark:outline-white/40 dark:focus-within:outline-white/60`}
+      className={`${getBackgroundColor(color)} ${animateOnlyWhenRootActive ? "group-focus-within/root:duration-75 group-hover/root:duration-75" : "duration-75"} h-[44px] w-[44px] justify-center rounded-full pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg dark:outline-white/40 dark:focus-within:outline-white/60`}
     >
       <input
         {...inputProps}
@@ -49,7 +51,7 @@ export default function BubbleInput({
           if (e.key === "Enter") updateTracker(e);
         }}
         onFocus={handleFocus}
-        className={`h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
+        className={`${animateOnlyWhenRootActive ? "group-focus-within/root:duration-100 group-hover/root:duration-100" : "duration-100"} h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
     </div>

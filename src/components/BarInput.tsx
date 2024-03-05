@@ -9,6 +9,7 @@ export default function BarInput({
   updateMaxMetadata,
   valueInputProps,
   maxInputProps,
+  animateOnlyWhenRootActive = false,
 }: {
   tracker: Tracker;
   color: number;
@@ -16,6 +17,7 @@ export default function BarInput({
   updateMaxMetadata: (content: string) => void;
   valueInputProps?: InputHTMLAttributes<HTMLInputElement>;
   maxInputProps?: InputHTMLAttributes<HTMLInputElement>;
+  animateOnlyWhenRootActive?: boolean;
 }): JSX.Element {
   if (tracker.variant !== "value-max")
     throw `Error expected 'value-max' tracker, got '${tracker.variant}' tracker`;
@@ -60,7 +62,7 @@ export default function BarInput({
 
   return (
     <div
-      className={`${getBackgroundColor(color)} flex h-[44px] w-[100px] flex-row justify-between rounded-xl pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg focus-within:duration-100 dark:outline-white/40 dark:focus-within:outline-white/60`}
+      className={`${getBackgroundColor(color)} ${animateOnlyWhenRootActive ? "group-focus-within/root:duration-75 group-hover/root:duration-75" : "duration-75"} flex h-[44px] w-[100px] flex-row justify-between rounded-xl pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg dark:outline-white/40 dark:focus-within:outline-white/60`}
     >
       <input
         {...valueInputProps}
@@ -71,7 +73,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "value");
         }}
         onFocus={handleFocus}
-        className={`h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
+        className={`${animateOnlyWhenRootActive ? "group-focus-within/root:duration-100 group-hover/root:duration-100" : "duration-100"} h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15  dark:text-text-primary-dark`}
         placeholder=""
       ></input>
       <div className="self-center pt-[2px] text-text-primary dark:text-text-primary-dark">
@@ -86,7 +88,7 @@ export default function BarInput({
           if (e.key === "Enter") updateTracker(e, "max");
         }}
         onFocus={handleFocus}
-        className={`h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none duration-100 hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
+        className={`${animateOnlyWhenRootActive ? "group-focus-within/root:duration-100 group-hover/root:duration-100" : "duration-100"} h-[44px] w-[44px] justify-center rounded-xl bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>
     </div>

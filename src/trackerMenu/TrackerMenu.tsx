@@ -71,6 +71,7 @@ export default function TrackerMenu({
           updateValueMetadata={(content: string) =>
             updateTrackerField(tracker.id, "value", content, setTrackers)
           }
+          animateOnlyWhenRootActive={true}
         ></BubbleInput>
       );
     }
@@ -85,13 +86,14 @@ export default function TrackerMenu({
         updateMaxMetadata={(content: string) =>
           updateTrackerField(tracker.id, "max", content, setTrackers)
         }
+        animateOnlyWhenRootActive={true}
       ></BarInput>
     );
   };
 
   return (
     // <button className="box"></button>
-    <div className={mode === "DARK" ? "dark" : ""}>
+    <div className={`${mode === "DARK" ? "dark" : ""}`}>
       <div
         className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) % 4 === 1 ? "px-8" : "px-4"} py-1`}
       >

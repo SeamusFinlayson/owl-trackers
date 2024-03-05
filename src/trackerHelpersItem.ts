@@ -245,7 +245,7 @@ function getTrackersFromMetadata(item: Item) {
   for (const tracker of metadata) {
     if (!isTracker(tracker)) {
       console.log(
-        "Invalid tracker detected, tracker was deleted, see contents below: ",
+        "Invalid tracker detected and ignored, see contents below:",
         tracker,
       );
     } else {

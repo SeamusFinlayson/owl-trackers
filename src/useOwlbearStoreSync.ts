@@ -40,6 +40,5 @@ export function useOwlbearStoreSync() {
     };
     OBR.theme.getTheme().then(handleThemeChange);
     return OBR.theme.onChange(handleThemeChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
