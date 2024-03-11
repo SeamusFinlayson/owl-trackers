@@ -2,12 +2,12 @@ import OBR, { Item } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
 import {
   isTracker,
-  checkOccupiedSpaces,
   createBubble,
   createBar,
   TRACKER_METADATA_ID,
   HIDDEN_METADATA_ID,
   Tracker,
+  MAX_TRACKER_COUNT,
 } from "./trackerHelpersBasic";
 
 /////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ export const addTrackerBubble = (
   trackers: Tracker[],
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
 ) => {
-  if (checkOccupiedSpaces(trackers) < 8) {
+  if (trackers.length < MAX_TRACKER_COUNT) {
     updateTrackers((prev) => prev.push(createBubble(trackers)), setTrackers);
   }
 };
@@ -118,7 +118,7 @@ export const addTrackerBar = (
   trackers: Tracker[],
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
 ) => {
-  if (checkOccupiedSpaces(trackers) < 7) {
+  if (trackers.length < MAX_TRACKER_COUNT) {
     updateTrackers((prev) => prev.push(createBar(trackers)), setTrackers);
   }
 };

@@ -49,17 +49,15 @@ export default function SceneEditor({
     [],
   );
 
-  const trackerCountIsOdd = trackers.length % 2 === 1;
-
   return (
     // <button className="box"></button>
     <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
       <div className={`flex h-full flex-col gap-1.5 p-2`}>
-        <div className="grid grid-cols-[auto,1fr] items-center gap-0 pl-2 pr-40">
+        <div className="grid grid-cols-[auto,1fr] items-center gap-6 pl-2 pr-1.5">
           <h1 className="m-0 flex items-center justify-center justify-self-start text-lg tracking-[0px] text-text-primary dark:text-text-primary-dark">
             Set Scene Defaults
           </h1>
-          <div className="flex w-max flex-row justify-center justify-self-center rounded-full bg-default dark:bg-default-dark/80">
+          <div className="flex w-max flex-row justify-center justify-self-start rounded-full bg-default dark:bg-default-dark/80">
             <IconButton
               Icon={AddIcon}
               onClick={() => addTrackerBubble(trackers, setTrackers)}
@@ -77,28 +75,33 @@ export default function SceneEditor({
           </div>
         </div>
         <div
-          className={`flex h-full min-w-[220px] flex-row flex-wrap content-start justify-around gap-x-2 gap-y-2 overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark ${trackerCountIsOdd ? "pb-0" : "pd-2"} not-tiny:pb-2`}
+          className={`flex h-full w-full min-w-[220px] flex-col items-center justify-start overflow-y-auto rounded-xl bg-default p-2 dark:bg-default-dark`}
         >
-          {trackers.map((tracker) =>
-            generateTrackerOptions(tracker, setTrackers),
-          )}
-          {trackerCountIsOdd && (
-            <div className="`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-2 rounded-lg drop-shadow not-tiny:basis-1 not-tiny:p-1"></div>
-          )}
+          <div className="grid grid-cols-1 gap-x-2 gap-y-2 not-tiny:grid-cols-2">
+            {trackers.map((tracker) => (
+              <TrackerCard
+                key={tracker.id}
+                tracker={tracker}
+                setTrackers={setTrackers}
+              ></TrackerCard>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-const generateTrackerOptions = (
-  tracker: Tracker,
-  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
-): JSX.Element => {
+const TrackerCard = ({
+  tracker,
+  setTrackers,
+}: {
+  tracker: Tracker;
+  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
+}): JSX.Element => {
   return (
     <div
-      key={tracker.id}
-      className={`grid min-w-[170px] grow auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75 not-tiny:basis-1`}
+      className={`grid min-w-[170px] auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-1.5 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75`}
     >
       <NameInput
         valueControl={tracker.name}

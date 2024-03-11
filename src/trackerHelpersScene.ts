@@ -3,10 +3,10 @@ import { getPluginId } from "./getPluginId";
 import {
   Tracker,
   isTracker,
-  checkOccupiedSpaces,
   createBubble,
   createBar,
   TRACKER_METADATA_ID,
+  MAX_TRACKER_COUNT,
 } from "./trackerHelpersBasic";
 
 /////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ export const addTrackerBubble = (
   trackers: Tracker[],
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
 ) => {
-  if (checkOccupiedSpaces(trackers) < 8) {
+  if (trackers.length < MAX_TRACKER_COUNT) {
     updateTrackers((prev) => prev.push(createBubble(trackers)), setTrackers);
   }
 };
@@ -104,7 +104,7 @@ export const addTrackerBar = (
   trackers: Tracker[],
   setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>,
 ) => {
-  if (checkOccupiedSpaces(trackers) < 7) {
+  if (trackers.length < MAX_TRACKER_COUNT) {
     updateTrackers((prev) => prev.push(createBar(trackers)), setTrackers);
   }
 };
@@ -145,16 +145,6 @@ export const toggleInlineMath = (
   }, setTrackers);
 };
 
-// export const toggleTrackersHidden = (
-//   setTrackersHidden: React.Dispatch<React.SetStateAction<boolean>>,
-// ) => {
-//   setTrackersHidden((prev) => {
-//     const value = !prev;
-//     writeTrackersHiddenToScene(value);
-//     return value;
-//   });
-// };
-
 /////////////////////////////////////////////////////////////////////
 // Interacting with stored trackers in the scene
 /////////////////////////////////////////////////////////////////////
@@ -163,11 +153,6 @@ export const toggleInlineMath = (
 async function writeTrackersToScene(trackers: Tracker[]) {
   OBR.scene.setMetadata({ [getPluginId(TRACKER_METADATA_ID)]: trackers });
 }
-
-/** Write local trackers hidden state to scene */
-// async function writeTrackersHiddenToScene(trackersHidden: boolean) {
-//   OBR.scene.setMetadata({ [getPluginId(HIDDEN_METADATA_ID)]: trackersHidden });
-// }
 
 /** Get trackers from scene */
 export async function getTrackersFromScene(): Promise<Tracker[]> {
@@ -203,14 +188,3 @@ export function getTrackersFromSceneMetadata(sceneMetadata: Metadata) {
 
   return trackers;
 }
-
-// function getTrackersHiddenFromMetadata(sceneMetadata: Metadata) {
-//   let trackersHidden = false;
-
-//   const hiddenMetadata = sceneMetadata[getPluginId(HIDDEN_METADATA_ID)];
-//   if (!hiddenMetadata || typeof hiddenMetadata !== "boolean")
-//     return trackersHidden;
-//   trackersHidden = hiddenMetadata;
-
-//   return trackersHidden;
-// }

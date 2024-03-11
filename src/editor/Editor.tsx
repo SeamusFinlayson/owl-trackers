@@ -74,109 +74,8 @@ export default function Editor({
     [],
   );
 
-  const generateTrackerOptions = (tracker: Tracker): JSX.Element => {
-    return (
-      <div
-        key={tracker.id}
-        className={`grid auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-4 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75`}
-      >
-        <NameInput
-          valueControl={tracker.name}
-          inputProps={{
-            onBlur: (e) =>
-              updateTrackerField(
-                tracker.id,
-                "name",
-                e.target.value,
-                setTrackers,
-              ),
-          }}
-        ></NameInput>
-
-        <Tooltip title={"Delete"} placement="top">
-          <div>
-            <IconButton
-              Icon={DeleteIcon}
-              onClick={() => deleteTracker(tracker.id, setTrackers)}
-              rounded="rounded-md"
-              padding=""
-              danger={true}
-            ></IconButton>
-          </div>
-        </Tooltip>
-
-        <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
-          <ColorPicker
-            setColorNumber={(content) =>
-              updateTrackerField(tracker.id, "color", content, setTrackers)
-            }
-          ></ColorPicker>
-
-          <div className="flex min-w-[100px] flex-col items-center justify-evenly gap-2 py-1">
-            {tracker.variant === "value" ? (
-              <BubbleInput
-                key={tracker.id}
-                tracker={tracker}
-                color={tracker.color}
-                updateValueMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "value", content, setTrackers)
-                }
-              ></BubbleInput>
-            ) : (
-              <BarInput
-                key={tracker.id}
-                tracker={tracker}
-                color={tracker.color}
-                updateValueMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "value", content, setTrackers)
-                }
-                updateMaxMetadata={(content: string) =>
-                  updateTrackerField(tracker.id, "max", content, setTrackers)
-                }
-              ></BarInput>
-            )}
-            <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
-              <Tooltip
-                title={tracker.showOnMap ? "Hide From Map" : "Show on Map"}
-              >
-                <div className="rounded-full">
-                  <IconButton
-                    Icon={tracker.showOnMap ? OnMap : NotOnMap}
-                    onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
-                  ></IconButton>
-                </div>
-              </Tooltip>
-              <Tooltip
-                title={tracker.inlineMath ? "Disable Math" : "Enable Math"}
-              >
-                <div className="rounded-full">
-                  <IconButton
-                    Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
-                    onClick={() => toggleInlineMath(tracker.id, setTrackers)}
-                  ></IconButton>
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // const [color, setColor] = useState("#000");
-  // OBR.theme.getTheme().then((value) => setColor(value.background.default));
-
   return (
-    // <button className="box"></button>
     <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
-      {/* <div
-        style={{
-          height: 30,
-          width: 30,
-          backgroundColor: color,
-          position: "absolute",
-        }}
-      ></div> */}
       <div className={`flex h-full flex-col gap-1.5 p-2`}>
         <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
           <Tooltip title={"Add Tracker"}>
@@ -220,7 +119,13 @@ export default function Editor({
         >
           {trackers.length !== 0 ? (
             <div className="grid grid-cols-1 gap-x-2 gap-y-2 not-tiny:grid-cols-2">
-              {trackers.map((tracker) => generateTrackerOptions(tracker))}
+              {trackers.map((tracker) => (
+                <TrackerCard
+                  key={tracker.id}
+                  tracker={tracker}
+                  setTrackers={setTrackers}
+                ></TrackerCard>
+              ))}
             </div>
           ) : sceneTrackers.length !== 0 ? (
             <button
@@ -239,3 +144,92 @@ export default function Editor({
     </div>
   );
 }
+
+const TrackerCard = ({
+  tracker,
+  setTrackers,
+}: {
+  tracker: Tracker;
+  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
+}): JSX.Element => {
+  return (
+    <div
+      className={`grid auto-cols-auto grid-cols-[1fr_36px] place-items-center gap-x-1 gap-y-1.5 rounded-lg bg-paper p-1 drop-shadow dark:bg-paper-dark/75`}
+    >
+      <NameInput
+        valueControl={tracker.name}
+        inputProps={{
+          onBlur: (e) =>
+            updateTrackerField(tracker.id, "name", e.target.value, setTrackers),
+        }}
+      ></NameInput>
+
+      <Tooltip title={"Delete"} placement="top">
+        <div>
+          <IconButton
+            Icon={DeleteIcon}
+            onClick={() => deleteTracker(tracker.id, setTrackers)}
+            rounded="rounded-md"
+            padding=""
+            danger={true}
+          ></IconButton>
+        </div>
+      </Tooltip>
+
+      <div className="col-span-2 flex w-full flex-row items-center justify-evenly gap-x-1">
+        <ColorPicker
+          setColorNumber={(content) =>
+            updateTrackerField(tracker.id, "color", content, setTrackers)
+          }
+        ></ColorPicker>
+
+        <div className="flex min-w-[100px] flex-col items-center justify-evenly gap-2 py-1">
+          {tracker.variant === "value" ? (
+            <BubbleInput
+              key={tracker.id}
+              tracker={tracker}
+              color={tracker.color}
+              updateValueMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "value", content, setTrackers)
+              }
+            ></BubbleInput>
+          ) : (
+            <BarInput
+              key={tracker.id}
+              tracker={tracker}
+              color={tracker.color}
+              updateValueMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "value", content, setTrackers)
+              }
+              updateMaxMetadata={(content: string) =>
+                updateTrackerField(tracker.id, "max", content, setTrackers)
+              }
+            ></BarInput>
+          )}
+          <div className="flex flex-row justify-center self-center rounded-full bg-default dark:bg-default-dark/80">
+            <Tooltip
+              title={tracker.showOnMap ? "Hide From Map" : "Show on Map"}
+            >
+              <div className="rounded-full">
+                <IconButton
+                  Icon={tracker.showOnMap ? OnMap : NotOnMap}
+                  onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
+                ></IconButton>
+              </div>
+            </Tooltip>
+            <Tooltip
+              title={tracker.inlineMath ? "Disable Math" : "Enable Math"}
+            >
+              <div className="rounded-full">
+                <IconButton
+                  Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
+                  onClick={() => toggleInlineMath(tracker.id, setTrackers)}
+                ></IconButton>
+              </div>
+            </Tooltip>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

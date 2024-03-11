@@ -93,9 +93,11 @@ export default function TrackerMenu({
 
   return (
     // <button className="box"></button>
-    <div className={`${mode === "DARK" ? "dark" : ""}`}>
+    <div
+      className={`${mode === "DARK" ? "dark" : ""} h-screen overflow-y-auto`}
+    >
       <div
-        className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) % 4 === 1 ? "px-8" : "px-4"} py-1`}
+        className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) === 5 ? "px-8" : "px-4"} py-1`}
       >
         <div className="flex flex-row justify-center self-center rounded-full bg-white/25 dark:bg-black/25">
           <IconButton
