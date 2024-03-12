@@ -1,14 +1,6 @@
 # Owl Trackers
 
-System-agnostic token trackers for [Owlbear Rodeo](https://www.owlbear.rodeo/).
-
-![OwlTrackersHeader](https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/f09269a8-295e-4dca-af31-3f70c1d1bde0)
-
-## Installing
-
-Install this extension using the install link: https://owl-trackers.onrender.com/manifest.json
-
-Coming soon: ~~The extension can be installed from the [store page](https://extensions.owlbear.rodeo/owl-trackers).~~
+_Elegant system-agnostic token trackers_
 
 ## How it Works
 
@@ -55,29 +47,3 @@ I may accept feature requests but - as I have limited time and development plans
 If you need support for this extension you can message me in the [Owlbear Rodeo Discord](https://discord.gg/yWSErB6Qaj) @Seamus or open an issue on [GitHub](https://github.com/SeamusFinlayson/Bubbles-for-Owkbear-Rodeo).
 
 If you like using this extension consider [supporting me on Patreon](https://www.patreon.com/SeamusFinlayson) where paid members can request features. You can also follow along there as a free member for updates.
-
-## Building
-
-This project uses [PNPm](https://pnpm.io/) as a package manager.
-
-To install all the dependencies run:
-
-`pnpm install`
-
-To run in a development mode run:
-
-`pnpm dev`
-
-To make a production build run:
-
-`pnpm build`
-
-## License
-
-GNU GPLv3
-
-## Contributing
-
-Copyright (C) 2024 Seamus Finlayson
-
-Feel free to fork this but if you post it to the store please do not use my extension name or logo. I am unlikely to accept pull requests.
