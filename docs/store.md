@@ -6,7 +6,6 @@ image: https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/f09269a8-
 icon: https://owl-trackers.onrender.com/owl-trackers-logo.svg
 tags:
   - combat
-  - tool
 manifest: https://owl-trackers.onrender.com/manifest.json
 learn-more: https://github.com/SeamusFinlayson/owl-trackers
 ---
