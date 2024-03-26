@@ -189,7 +189,7 @@ const TrackerCard = ({
               key={tracker.id}
               tracker={tracker}
               color={tracker.color}
-              updateValueMetadata={(content: string) =>
+              updateHandler={(content: string) =>
                 updateTrackerField(tracker.id, "value", content, setTrackers)
               }
             ></BubbleInput>

@@ -1,7 +1,6 @@
-import OBR, { Image, Item, isImage } from "@owlbear-rodeo/sdk";
+import OBR, { Image, Item, Metadata, isImage } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import {
-  BUBBLE_DIAMETER,
   FULL_BAR_HEIGHT,
   createTrackerBubble,
   createTrackerBar,
@@ -10,6 +9,9 @@ import {
   getBubbleItemIds,
   createImageBubble,
   getImageBubbleItemIds,
+  REDUCED_BAR_HEIGHT,
+  MINIMAL_BAR_HEIGHT,
+  createMinimalTrackerBar,
 } from "./compoundItemHelpers";
 import { getTrackersFromItem } from "../trackerHelpersItem";
 import {
@@ -18,6 +20,14 @@ import {
   HIDDEN_METADATA_ID,
   MAX_BUBBLE_COUNT,
 } from "../trackerHelpersBasic";
+import { BubblePosition } from "./trackerPositionHelper";
+import {
+  BAR_HEIGHT_METADATA_ID,
+  TRACKERS_ABOVE_METADATA_ID,
+  VERTICAL_OFFSET_METADATA_ID,
+  readBooleanFromMetadata,
+  readNumberFromMetadata,
+} from "../sceneMetadataHelpers";
 
 let tokenIds: string[] = []; // for orphan health bar management
 let itemsLast: Image[] = []; // for item change checks
@@ -26,10 +36,23 @@ const deleteItemsArray: string[] = []; // for bulk deletion of scene items
 let sceneListenersSet = false;
 let userRoleLast: "GM" | "PLAYER";
 
+let verticalOffset = 0;
+let trackersAboveToken = false;
+let barHeightIsReduced = false;
+const segmentsEnabled = false;
+// const segmentSettingsArray: [string, number][] = [
+//   ["health", 2],
+//   ["drive", 0],
+// ];
+// const segmentSettings = new Map<string, number>(segmentSettingsArray);
+// console.log(segmentSettings);
+const segmentSettings = new Map<string, number>([]);
+
 export async function initOnMapTrackers() {
   // Handle when the scene is either changed or made ready after extension load
   OBR.scene.onReadyChange(async (isReady) => {
     if (isReady) {
+      await getGlobalSettings();
       await refreshAllTrackers();
       await startTrackerUpdates();
     }
@@ -38,9 +61,34 @@ export async function initOnMapTrackers() {
   // Check if the scene is already ready once the extension loads
   const isReady = await OBR.scene.isReady();
   if (isReady) {
+    await getGlobalSettings();
     await refreshAllTrackers();
     await startTrackerUpdates();
   }
+}
+
+async function getGlobalSettings(sceneMetadata?: Metadata): Promise<boolean> {
+  // load settings from scene metadata if not passed to function
+  if (typeof sceneMetadata === "undefined") {
+    sceneMetadata = await OBR.scene.getMetadata();
+  }
+
+  const [newVerticalOffset, newTrackersAboveToken, newBarHeightIsReduced] = [
+    readNumberFromMetadata(sceneMetadata, VERTICAL_OFFSET_METADATA_ID),
+    readBooleanFromMetadata(sceneMetadata, TRACKERS_ABOVE_METADATA_ID),
+    readBooleanFromMetadata(sceneMetadata, BAR_HEIGHT_METADATA_ID),
+  ];
+
+  const doRefresh =
+    newVerticalOffset !== verticalOffset ||
+    newTrackersAboveToken !== trackersAboveToken ||
+    newBarHeightIsReduced !== barHeightIsReduced;
+
+  verticalOffset = newVerticalOffset;
+  trackersAboveToken = newTrackersAboveToken;
+  barHeightIsReduced = newBarHeightIsReduced;
+
+  return doRefresh;
 }
 
 async function refreshAllTrackers() {
@@ -49,7 +97,6 @@ async function refreshAllTrackers() {
     (item) =>
       (item.layer === "CHARACTER" || item.layer === "MOUNT") && isImage(item),
   );
-  // console.log(items);
 
   //store array of all items currently on the board for change monitoring
   itemsLast = items;
@@ -61,8 +108,8 @@ async function refreshAllTrackers() {
     await updateItemTrackers(item, roll, sceneDpi);
   }
 
-  OBR.scene.local.addItems(addItemsArray); //bulk add items
-  OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
+  await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
+  await OBR.scene.local.addItems(addItemsArray); //bulk add items
   //clear add and delete arrays arrays
   addItemsArray.length = 0;
   deleteItemsArray.length = 0;
@@ -92,6 +139,13 @@ async function startTrackerUpdates() {
       }
     });
 
+    // Handle Global settings changes
+    const unsubscribeFromSceneMetadata = OBR.scene.onMetadataChange(
+      async (metadata) => {
+        if (await getGlobalSettings(metadata)) refreshAllTrackers();
+      },
+    );
+
     // Handle item changes (Update health bars)
     const unsubscribeFromItems = OBR.scene.items.onChange(
       async (itemsFromCallback) => {
@@ -106,8 +160,8 @@ async function startTrackerUpdates() {
           }
         }
 
-        //get rid of health bars that no longer attach to anything
-        deleteOrphanHealthBars(imagesFromCallback);
+        //get rid of tracker attachments that no longer attach to anything
+        deleteOrphanAttachments(imagesFromCallback);
 
         const changedItems = getChangedItems(imagesFromCallback);
 
@@ -122,11 +176,8 @@ async function startTrackerUpdates() {
           await updateItemTrackers(item, role, sceneDpi);
         }
 
-        //bulk delete items
-        await OBR.scene.local.deleteItems(deleteItemsArray);
-
-        //bulk add items
-        await OBR.scene.local.addItems(addItemsArray);
+        await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
+        await OBR.scene.local.addItems(addItemsArray); //bulk add items
 
         //clear add and delete arrays arrays
         addItemsArray.length = 0;
@@ -135,11 +186,12 @@ async function startTrackerUpdates() {
     );
 
     // Unsubscribe listeners that rely on the scene if it stops being ready
-    const unsubscribeFromScene = OBR.scene.onReadyChange((isReady) => {
+    const unsubscribeFromSceneReady = OBR.scene.onReadyChange((isReady) => {
       if (!isReady) {
         unSubscribeFromPlayer();
+        unsubscribeFromSceneMetadata();
         unsubscribeFromItems();
-        unsubscribeFromScene();
+        unsubscribeFromSceneReady();
         sceneListenersSet = false;
       }
     });
@@ -203,115 +255,192 @@ async function updateItemTrackers(
   // Extract metadata from the token
   const [trackers, trackersHidden] = getTrackersFromItem(item);
 
-  // Explicitly delete all attachment and return early if none are assigned to this item
-  const noAttachments = () =>
-    (role === "PLAYER" && trackersHidden) ||
-    (trackers.length === 0 && !trackersHidden);
-  if (noAttachments()) {
+  if (
+    (role === "GM" && trackers.length === 0 && !trackersHidden) ||
+    (role === "PLAYER" && trackers.length === 0) ||
+    (role === "PLAYER" && trackersHidden && !segmentsEnabled)
+  ) {
+    // Display nothing, delete any existing tracker attachments
     addAllItemAttachmentsToDeleteList(item.id);
-    return;
+  } else if (role === "PLAYER" && trackersHidden) {
+    // Display limited trackers depending on GM configuration
+    console.log("Warning: limited view available");
+    createPlayerVisibleTrackers();
+  } else {
+    // Display full trackers
+    createAllTrackers();
   }
 
-  // Determine token bounds
-  const bounds = getImageBounds(item, sceneDpi);
-  bounds.width = Math.abs(bounds.width);
-  bounds.height = Math.abs(bounds.height);
+  function createPlayerVisibleTrackers() {
+    // Determine token bounds
+    const bounds = getImageBounds(item, sceneDpi);
+    bounds.width = Math.abs(bounds.width);
+    bounds.height = Math.abs(bounds.height);
 
-  // Determine coordinate origin for drawing stats
-  const origin = {
-    x: item.position.x,
-    y: item.position.y,
-  };
-
-  // Add bar trackers
-  let barCount = 0;
-  trackers.map((tracker) => {
-    if (tracker.variant !== "value-max") {
-      () => {};
-    } else if (!tracker.showOnMap) {
-      deleteItemsArray.push(...getBarItemIds(item.id, tracker.position));
-    } else {
-      addItemsArray.push(
-        ...createTrackerBar(item, bounds, tracker, {
-          x: origin.x,
-          y: origin.y - barCount * FULL_BAR_HEIGHT + bounds.height / 2,
-        }),
-      );
-      barCount++;
-    }
-  });
-
-  // Clean up extra bars
-  for (let i = barCount; i < MAX_BAR_COUNT; i++) {
-    deleteItemsArray.push(...getBarItemIds(item.id, i));
-  }
-
-  let bubblePositionInRow = 0;
-  // let bubbleRowsCount = 0;
-  const getBubblePosition = () => {
-    // if ((bubblePositionInRow + 1) * (BUBBLE_DIAMETER + 2) > bounds.width) {
-    //   bubbleRowsCount++;
-    //   bubblePositionInRow = 0;
-    // }
-
-    const position = {
-      x:
-        origin.x +
-        2 -
-        bounds.width / 2 +
-        bubblePositionInRow * (BUBBLE_DIAMETER + 2) +
-        BUBBLE_DIAMETER / 2,
-      y:
-        origin.y -
-        2 -
-        BUBBLE_DIAMETER / 2 -
-        // bubbleRowsCount * (BUBBLE_DIAMETER + 2) -
-        barCount * FULL_BAR_HEIGHT +
-        bounds.height / 2,
+    // Determine coordinate origin for drawing stats
+    const origin = {
+      x: item.position.x,
+      y: item.position.y - (trackersAboveToken ? bounds.height : 0),
     };
 
-    // console.log(position);
+    const barHeight = MINIMAL_BAR_HEIGHT;
 
-    bubblePositionInRow++;
-    return position;
-  };
+    // Add bar trackers
+    let barIndex = 0;
+    let barCount = 0;
+    trackers.map((tracker) => {
+      if (tracker.variant !== "value-max") {
+        () => {};
+      } else if (!tracker.showOnMap) {
+        deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
+      } else if (segmentSettings.has(tracker.name)) {
+        addItemsArray.push(
+          ...createMinimalTrackerBar(
+            item,
+            bounds,
+            tracker,
+            {
+              x: origin.x,
+              y:
+                origin.y -
+                barCount * barHeight +
+                bounds.height / 2 -
+                verticalOffset,
+            },
+            segmentSettings.get(tracker.name),
+          ),
+        );
+        barCount++;
+      }
+      barIndex++;
+    });
 
-  if (!trackersHidden) {
-    deleteItemsArray.push(...getImageBubbleItemIds(item.id, "hide"));
-  } else {
-    const hideIndicator = createImageBubble(
-      item,
-      sceneDpi,
-      bounds,
-      // origin,
-      getBubblePosition(),
-      "black",
-      "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
-      "hide",
-    );
-    addItemsArray.push(...hideIndicator);
+    // Clean up extra bars
+    for (; barIndex < MAX_BAR_COUNT; barIndex++) {
+      deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
+    }
+
+    // Delete all bar text attachments
+    for (let i = 0; i < MAX_BAR_COUNT; i++) {
+      deleteItemsArray.push(getBarTextId(item.id, i));
+    }
+
+    // Delete all bubbles
+    addAllBubbleTrackersToDeleteList(item.id);
+
+    // Delete Hide bubble
+    addHideBubbleToDeleteList(item.id);
   }
 
-  // Add bubble trackers
-  trackers.map((tracker) => {
-    if (tracker.variant !== "value") {
-      () => {};
-    } else if (!tracker.showOnMap) {
-      deleteItemsArray.push(...getBubbleItemIds(item.id, tracker.position));
+  function createAllTrackers() {
+    // Determine token bounds
+    const bounds = getImageBounds(item, sceneDpi);
+    bounds.width = Math.abs(bounds.width);
+    bounds.height = Math.abs(bounds.height);
+
+    // Determine coordinate origin for drawing stats
+    const origin = {
+      x: item.position.x,
+      y: item.position.y - (trackersAboveToken ? bounds.height : 0),
+    };
+
+    const barHeight = barHeightIsReduced ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
+
+    // Add bar trackers
+    let barIndex = 0;
+    let barCount = 0;
+    let bubbleCount = 0;
+    trackers.forEach((tracker) => {
+      if (tracker.variant === "value") bubbleCount++;
+    });
+    trackers.map((tracker) => {
+      if (tracker.variant !== "value-max") {
+        () => {};
+      } else if (!tracker.showOnMap) {
+        console.log("hidden", barIndex);
+        deleteItemsArray.push(
+          ...getBarItemIds(item.id, barIndex - bubbleCount),
+        );
+      } else {
+        addItemsArray.push(
+          ...createTrackerBar(
+            item,
+            bounds,
+            tracker,
+            {
+              x: origin.x,
+              y:
+                origin.y -
+                barCount * barHeight +
+                bounds.height / 2 -
+                verticalOffset,
+            },
+            barHeightIsReduced,
+          ),
+        );
+        barCount++;
+      }
+      barIndex++;
+    });
+
+    // Clean up extra bars
+    for (; barIndex - bubbleCount < MAX_BAR_COUNT; barIndex++) {
+      console.log(barIndex - bubbleCount);
+      deleteItemsArray.push(...getBarItemIds(item.id, barIndex - bubbleCount));
+    }
+
+    const bubblePosition = new BubblePosition(
+      origin,
+      bounds,
+      barCount,
+      barHeight,
+      trackersAboveToken,
+    );
+
+    // Add hidden indicator
+    if (!trackersHidden) {
+      deleteItemsArray.push(...getImageBubbleItemIds(item.id, "hide"));
     } else {
-      addItemsArray.push(
-        ...createTrackerBubble(item, bounds, tracker, getBubblePosition()),
+      const position = bubblePosition.getNew();
+      const hideIndicator = createImageBubble(
+        item,
+        sceneDpi,
+        bounds,
+        { x: position.x, y: position.y - verticalOffset },
+        "black",
+        "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
+        "hide",
+      );
+      addItemsArray.push(...hideIndicator);
+    }
+
+    // Add bubble trackers
+    let bubbleIndex = 0;
+    trackers.map((tracker) => {
+      if (tracker.variant !== "value") {
+        () => {};
+      } else if (!tracker.showOnMap) {
+        deleteItemsArray.push(...getBubbleItemIds(item.id, bubbleIndex));
+        () => {};
+      } else {
+        const position = bubblePosition.getNew();
+        addItemsArray.push(
+          ...createTrackerBubble(item, bounds, tracker, {
+            x: position.x,
+            y: position.y - verticalOffset,
+          }),
+        );
+      }
+      bubbleIndex++;
+    });
+
+    // Clean up extra bubbles
+    for (; bubbleIndex - barCount < MAX_BUBBLE_COUNT; bubbleIndex++) {
+      // console.log(bubbleIndex - barCount);
+      deleteItemsArray.push(
+        ...getBubbleItemIds(item.id, bubbleIndex - barCount),
       );
     }
-  });
-
-  // Clean up extra bubbles
-  for (
-    let i = bubblePositionInRow - (trackersHidden ? 1 : 0);
-    i < MAX_BUBBLE_COUNT;
-    i++
-  ) {
-    deleteItemsArray.push(...getBubbleItemIds(item.id, i));
   }
 }
 
@@ -322,7 +451,7 @@ const getImageBounds = (item: Image, dpi: number) => {
   return { width, height };
 };
 
-function deleteOrphanHealthBars(newItems: Image[]) {
+function deleteOrphanAttachments(newItems: Image[]) {
   const newItemIds: string[] = [];
   for (const item of newItems) {
     newItemIds.push(item.id);
@@ -341,11 +470,19 @@ function deleteOrphanHealthBars(newItems: Image[]) {
 }
 
 function addAllItemAttachmentsToDeleteList(itemId: string) {
-  for (let i = 0; i < MAX_BUBBLE_COUNT; i++) {
-    deleteItemsArray.push(...getBubbleItemIds(itemId, i));
-  }
   for (let i = 0; i < MAX_BAR_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
   }
+  addAllBubbleTrackersToDeleteList(itemId);
+  addHideBubbleToDeleteList(itemId);
+}
+
+function addAllBubbleTrackersToDeleteList(itemId: string) {
+  for (let i = 0; i < MAX_BUBBLE_COUNT; i++) {
+    deleteItemsArray.push(...getBubbleItemIds(itemId, i));
+  }
+}
+
+function addHideBubbleToDeleteList(itemId: string) {
   deleteItemsArray.push(...getImageBubbleItemIds(itemId, "hide"));
 }

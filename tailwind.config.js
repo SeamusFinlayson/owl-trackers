@@ -1,15 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,html}"],
   future: {
-    hoverOnlyWhenSupported: true
+    hoverOnlyWhenSupported: true,
   },
   theme: {
     screens: {
       "not-tiny": "440px",
     },
     extend: {
+      transitionProperty: {
+        height: "height",
+        // padding: "padding",
+      },
       colors: {
         default: {
           DEFAULT: "#dde1ee",
@@ -31,11 +35,11 @@ export default {
           disabled: {
             DEFAULT: "rgba(0, 0, 0, 0.38)",
             dark: "rgb(255, 255, 255, 0.5)",
-          }
-        }
-      }
+          },
+        },
+      },
     },
   },
   plugins: [],
-  darkMode: "class"
+  darkMode: "class",
 };

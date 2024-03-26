@@ -32,11 +32,11 @@ ol:not(.simplebar-content-wrapper)::-webkit-scrollbar {
 }
 
 @tailwind base;
-
+/* 
 ::selection {
   color: white;
   background-color: rgba(0, 0, 0, 0.3);
-}
+} */
 
 @tailwind components;
 @tailwind utilities;

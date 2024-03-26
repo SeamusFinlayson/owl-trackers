@@ -5,37 +5,39 @@ import { Tracker } from "../trackerHelpersBasic";
 export default function BubbleInput({
   tracker,
   color,
-  updateValueMetadata,
+  updateHandler,
   inputProps,
   animateOnlyWhenRootActive = false,
 }: {
   tracker: Tracker;
   color: number;
-  updateValueMetadata: (content: string) => void;
+  updateHandler: (content: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   animateOnlyWhenRootActive?: boolean;
 }): JSX.Element {
-  const handleFocus = (event: React.FocusEvent<HTMLInputElement, Element>) => {
-    event.target.select();
-  };
-
   const [value, setValue] = useState<string>(tracker.value.toString());
-  const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
 
+  // Update value when the tracker value changes in parent
+  const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
   if (valueInputUpdateFlag) {
     setValue(tracker.value.toString());
     setValueInputUpdateFlag(false);
   }
-
   useEffect(() => setValueInputUpdateFlag(true), [tracker.value]);
 
-  const updateTracker = (
+  // Update tracker in parent element
+  const runUpdateHandler = (
     e:
       | React.FocusEvent<HTMLInputElement, Element>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    updateValueMetadata((e.target as HTMLInputElement).value);
+    updateHandler((e.target as HTMLInputElement).value);
     setValueInputUpdateFlag(true);
+  };
+
+  // Select text on focus
+  const selectText = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    event.target.select();
   };
 
   return (
@@ -46,11 +48,11 @@ export default function BubbleInput({
         {...inputProps}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => updateTracker(e)}
+        onBlur={(e) => runUpdateHandler(e)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") updateTracker(e);
+          if (e.key === "Enter") runUpdateHandler(e);
         }}
-        onFocus={handleFocus}
+        onFocus={selectText}
         className={`${animateOnlyWhenRootActive ? "group-focus-within/root:duration-100 group-hover/root:duration-100" : "duration-100"} h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
         placeholder=""
       ></input>

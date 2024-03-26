@@ -10,7 +10,6 @@ import { getColor } from "../colorHelpers";
 import { Tracker } from "../trackerHelpersBasic";
 
 // Constants used in multiple functions
-const FONT_SIZE = 22;
 const FONT = "Roboto, sans-serif";
 const DISABLE_HIT = true;
 const BUBBLE_OPACITY = 0.7;
@@ -144,6 +143,7 @@ export function createImageBubble(
 const BAR_PADDING = 2;
 const FILL_OPACITY = 0.8;
 export const FULL_BAR_HEIGHT = 20;
+export const REDUCED_BAR_HEIGHT = 16;
 const BACKGROUND_OPACITY = 0.4;
 
 /** Creates health bar component items */
@@ -152,14 +152,15 @@ export function createTrackerBar(
   bounds: { width: number; height: number },
   tracker: Tracker,
   origin: { x: number; y: number },
+  reducedHeight = false,
   segments = 0,
 ): Item[] {
+  const barHeight = reducedHeight ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
   const position = {
     x: origin.x - bounds.width / 2 + BAR_PADDING,
-    y: origin.y - FULL_BAR_HEIGHT,
+    y: origin.y - barHeight,
   };
   const barWidth = bounds.width - BAR_PADDING * 2;
-  const barTextHeight = FULL_BAR_HEIGHT + 0;
   const setVisibilityProperty = item.visible;
 
   if (tracker.variant !== "value-max") throw "Error";
@@ -168,7 +169,7 @@ export function createTrackerBar(
 
   const backgroundShape = buildShape()
     .width(barWidth)
-    .height(FULL_BAR_HEIGHT)
+    .height(barHeight)
     .shapeType("RECTANGLE")
     .fillColor(trackerBackgroundColor)
     .fillOpacity(BACKGROUND_OPACITY)
@@ -201,7 +202,7 @@ export function createTrackerBar(
 
   const healthShape = buildShape()
     .width(fillPercentage === 0 ? 0 : barWidth * fillPercentage)
-    .height(FULL_BAR_HEIGHT)
+    .height(barHeight)
     .shapeType("RECTANGLE")
     .fillColor(getColor(tracker.color))
     .fillOpacity(FILL_OPACITY)
@@ -217,12 +218,22 @@ export function createTrackerBar(
     .disableHit(DISABLE_HIT)
     .build();
 
+  const barTextHeight = reducedHeight
+    ? REDUCED_BAR_HEIGHT
+    : FULL_BAR_HEIGHT + 0;
+  const barFontSize = reducedHeight
+    ? REDUCED_BAR_HEIGHT + 2
+    : FULL_BAR_HEIGHT + 2;
+
   const healthText = buildText()
-    .position({ x: position.x, y: position.y + TEXT_VERTICAL_OFFSET })
+    .position({
+      x: position.x,
+      y: position.y + TEXT_VERTICAL_OFFSET - (reducedHeight ? 0.3 : 0),
+    })
     .plainText(`${tracker.value}/${tracker.max}`)
     .textAlign("CENTER")
     .textAlignVertical("MIDDLE")
-    .fontSize(FONT_SIZE)
+    .fontSize(barFontSize)
     .fontFamily(FONT)
     .textType("PLAIN")
     .height(barTextHeight)
@@ -241,6 +252,82 @@ export function createTrackerBar(
     .build();
 
   return [backgroundShape, healthShape, healthText];
+}
+
+export const MINIMAL_BAR_HEIGHT = 12;
+
+/** Creates health bar component items */
+export function createMinimalTrackerBar(
+  item: Item,
+  bounds: { width: number; height: number },
+  tracker: Tracker,
+  origin: { x: number; y: number },
+  segments = 0,
+): Item[] {
+  const barHeight = MINIMAL_BAR_HEIGHT;
+  const position = {
+    x: origin.x - bounds.width / 2 + BAR_PADDING,
+    y: origin.y - barHeight,
+  };
+  const barWidth = bounds.width - BAR_PADDING * 2;
+  const setVisibilityProperty = item.visible;
+
+  if (tracker.variant !== "value-max") throw "Error";
+
+  const trackerBackgroundColor = "black"; // "#A4A4A4";
+
+  const backgroundShape = buildShape()
+    .width(barWidth)
+    .height(barHeight)
+    .shapeType("RECTANGLE")
+    .fillColor(trackerBackgroundColor)
+    .fillOpacity(BACKGROUND_OPACITY)
+    .strokeWidth(0)
+    .position({ x: position.x, y: position.y })
+    .attachedTo(item.id)
+    .layer("ATTACHMENT")
+    .locked(true)
+    .id(`${item.id}-${tracker.position}-bar-bg`)
+    .visible(setVisibilityProperty)
+    .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
+    .disableHit(DISABLE_HIT)
+    .build();
+
+  let fillPercentage: number;
+  if (tracker.value <= 0) {
+    fillPercentage = 0;
+  } else if (tracker.value < tracker.max) {
+    if (segments === 0) {
+      fillPercentage = tracker.value / tracker.max;
+    } else {
+      fillPercentage =
+        Math.ceil((tracker.value / tracker.max) * segments) / segments;
+    }
+  } else if (tracker.value >= tracker.max) {
+    fillPercentage = 1;
+  } else {
+    fillPercentage = 0;
+  }
+
+  const healthShape = buildShape()
+    .width(fillPercentage === 0 ? 0 : barWidth * fillPercentage)
+    .height(barHeight)
+    .shapeType("RECTANGLE")
+    .fillColor(getColor(tracker.color))
+    .fillOpacity(FILL_OPACITY)
+    .strokeWidth(0)
+    .strokeOpacity(0)
+    .position({ x: position.x, y: position.y })
+    .attachedTo(item.id)
+    .layer("ATTACHMENT")
+    .locked(true)
+    .id(`${item.id}-${tracker.position}-bar-fill`)
+    .visible(setVisibilityProperty)
+    .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
+    .disableHit(DISABLE_HIT)
+    .build();
+
+  return [backgroundShape, healthShape];
 }
 
 export function getBubbleItemIds(itemId: string, position: number) {
