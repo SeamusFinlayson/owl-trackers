@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+// TODO: Improve light mode
+
 export default function Input({
   value,
   updateHandler,

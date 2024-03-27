@@ -9,7 +9,9 @@ import { useSceneSettingsStoreSync } from "../useSceneSettingsStoreSync.ts";
 export default function App(): JSX.Element {
   useOwlbearStoreSync();
   useSceneSettingsStoreSync();
+
   const sceneReady = useOwlbearStore((state) => state.sceneReady);
+  const mode = useOwlbearStore((state) => state.mode);
 
   if (sceneReady) {
     return <Action></Action>;
@@ -18,7 +20,7 @@ export default function App(): JSX.Element {
     return (
       <div
         className={
-          "dark" //"h-screen " + "overflow-y-auto" + (mode === "DARK" ? " dark" : "")
+          "h-screen " + "overflow-y-auto" + (mode === "DARK" ? " dark" : "")
         }
       >
         <div>
