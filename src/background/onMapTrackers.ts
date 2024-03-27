@@ -357,7 +357,7 @@ async function updateItemTrackers(
       if (tracker.variant !== "value-max") {
         () => {};
       } else if (!tracker.showOnMap) {
-        console.log("hidden", barIndex);
+        // console.log("hidden", barIndex);
         deleteItemsArray.push(
           ...getBarItemIds(item.id, barIndex - bubbleCount),
         );
@@ -385,7 +385,7 @@ async function updateItemTrackers(
 
     // Clean up extra bars
     for (; barIndex - bubbleCount < MAX_BAR_COUNT; barIndex++) {
-      console.log(barIndex - bubbleCount);
+      // console.log(barIndex - bubbleCount);
       deleteItemsArray.push(...getBarItemIds(item.id, barIndex - bubbleCount));
     }
 
