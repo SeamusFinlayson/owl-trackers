@@ -57,7 +57,7 @@ export function createTrackerBubble(
 
   const bubbleText = buildText()
     .position({
-      x: position.x - BUBBLE_DIAMETER / 2 - (valueText.length >= 3 ? 0 : 0),
+      x: position.x - BUBBLE_DIAMETER / 2,
       y: position.y - BUBBLE_DIAMETER / 2 + TEXT_VERTICAL_OFFSET,
     })
     .plainText(valueText.length > 3 ? String.fromCharCode(0x2026) : valueText)
@@ -184,24 +184,10 @@ export function createTrackerBar(
     .disableHit(DISABLE_HIT)
     .build();
 
-  let fillPercentage: number;
-  if (tracker.value <= 0) {
-    fillPercentage = 0;
-  } else if (tracker.value < tracker.max) {
-    if (segments === 0) {
-      fillPercentage = tracker.value / tracker.max;
-    } else {
-      fillPercentage =
-        Math.ceil((tracker.value / tracker.max) * segments) / segments;
-    }
-  } else if (tracker.value >= tracker.max) {
-    fillPercentage = 1;
-  } else {
-    fillPercentage = 0;
-  }
+  const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
   const healthShape = buildShape()
-    .width(fillPercentage === 0 ? 0 : barWidth * fillPercentage)
+    .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
     .height(barHeight)
     .shapeType("RECTANGLE")
     .fillColor(getColor(tracker.color))
@@ -293,24 +279,10 @@ export function createMinimalTrackerBar(
     .disableHit(DISABLE_HIT)
     .build();
 
-  let fillPercentage: number;
-  if (tracker.value <= 0) {
-    fillPercentage = 0;
-  } else if (tracker.value < tracker.max) {
-    if (segments === 0) {
-      fillPercentage = tracker.value / tracker.max;
-    } else {
-      fillPercentage =
-        Math.ceil((tracker.value / tracker.max) * segments) / segments;
-    }
-  } else if (tracker.value >= tracker.max) {
-    fillPercentage = 1;
-  } else {
-    fillPercentage = 0;
-  }
+  const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
   const healthShape = buildShape()
-    .width(fillPercentage === 0 ? 0 : barWidth * fillPercentage)
+    .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
     .height(barHeight)
     .shapeType("RECTANGLE")
     .fillColor(getColor(tracker.color))
@@ -328,6 +300,13 @@ export function createMinimalTrackerBar(
     .build();
 
   return [backgroundShape, healthShape];
+}
+
+function getFillPortion(value: number, maxValue: number, segments = 0) {
+  if (value <= 0) return 0;
+  if (value >= maxValue) return 1;
+  if (segments === 0) return value / maxValue;
+  return Math.ceil((value / maxValue) * segments) / segments;
 }
 
 export function getBubbleItemIds(itemId: string, position: number) {
