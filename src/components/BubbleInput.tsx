@@ -16,6 +16,7 @@ export default function BubbleInput({
   animateOnlyWhenRootActive?: boolean;
 }): JSX.Element {
   const [value, setValue] = useState<string>(tracker.value.toString());
+  let ignoreBlur = false;
 
   // Update value when the tracker value changes in parent
   const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
@@ -58,9 +59,17 @@ export default function BubbleInput({
           {...inputProps}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onBlur={(e) => runUpdateHandler(e)}
+          onBlur={(e) => {
+            if (!ignoreBlur) runUpdateHandler(e);
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") runUpdateHandler(e);
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Escape") {
+              ignoreBlur = true;
+              (e.target as HTMLInputElement).blur();
+              ignoreBlur = false;
+              setValue(tracker.value.toString());
+            }
           }}
           onFocus={selectText}
           className={`${animationDuration100} size-[44px] rounded-full bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
@@ -68,7 +77,7 @@ export default function BubbleInput({
         ></input>
       </div>
       <div
-        className={`${animationDuration75} ${getBackgroundColor(color)} -z-10 col-span-full row-span-full size-[44px] rounded-full peer-focus-within:scale-[1.18] dark:bg-transparent`}
+        className={`${animationDuration75} ${getBackgroundColor(color)} -z-10 col-span-full row-span-full size-[44px] rounded-full peer-focus-within:scale-[1.18] dark:invisible`}
       ></div>
     </div>
   );

@@ -24,6 +24,7 @@ export default function BarInput({
 
   const [value, setValue] = useState<string>(tracker.value.toString());
   const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
+  let ignoreBlur = false;
 
   if (valueInputUpdateFlag) {
     setValue(tracker.value.toString());
@@ -78,9 +79,17 @@ export default function BarInput({
           {...valueInputProps}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onBlur={(e) => updateTracker(e, "value")}
+          onBlur={(e) => {
+            if (!ignoreBlur) updateTracker(e, "value");
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") updateTracker(e, "value");
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Escape") {
+              ignoreBlur = true;
+              (e.target as HTMLInputElement).blur();
+              ignoreBlur = false;
+              setValue(tracker.value.toString());
+            }
           }}
           onFocus={handleFocus}
           className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
@@ -93,9 +102,17 @@ export default function BarInput({
           {...maxInputProps}
           value={max}
           onChange={(e) => setMax(e.target.value)}
-          onBlur={(e) => updateTracker(e, "max")}
+          onBlur={(e) => {
+            if (!ignoreBlur) updateTracker(e, "max");
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Enter") updateTracker(e, "max");
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Escape") {
+              ignoreBlur = true;
+              (e.target as HTMLInputElement).blur();
+              ignoreBlur = false;
+              setMax(tracker.max.toString());
+            }
           }}
           onFocus={handleFocus}
           className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
