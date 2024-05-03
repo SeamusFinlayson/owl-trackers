@@ -15,6 +15,19 @@ export default {
         // padding: "padding",
       },
       colors: {
+        tracker: {
+          light: {
+            fuchsia: "rgb(202, 145, 213)",
+            pink: "rgb(214, 133, 174)",
+            red: "rgb(219, 119, 119)",
+            orange: "rgb(214, 142, 104)",
+            yellow: "rgb(197, 173, 120)",
+            lime: "rgb(158, 174, 142)",
+            emerald: "rgb(104, 191, 163)",
+            cyan: "rgb(137, 181, 191)",
+            blue: "rgb(154, 177, 211)",
+          },
+        },
         default: {
           DEFAULT: "#dde1ee",
           dark: "#222639",

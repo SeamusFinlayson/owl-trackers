@@ -30,9 +30,9 @@ The **three dots icon** in the context embed opens the **editor** which gives yo
 
 ### Scene Defaults
 
-You can set default trackers for the scene in the **action popover** by clicking the three dots icon next to the "set scene defaults" label.
+You can set default trackers for the scene in the **action popover** by clicking the three dots icon next to the "Set scene default trackers" label.
 
-<img name="Action Menu" src="https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/16e64c83-4e02-4c8c-a3c9-a05d3140b98f" width=326>
+<img name="Action Menu" src="https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/7be4db79-32cb-46c9-a03d-5ac16479f4bd" width=326>
 
 This will open the **scene defaults editor**, which is very similar to the editor but for the scene instead of a specific token. Say, for example, that you play D&D. You might want every creature to have Hit Points, Temporary Hit Points and Armor Class.
 

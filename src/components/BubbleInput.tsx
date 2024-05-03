@@ -16,6 +16,7 @@ export default function BubbleInput({
   animateOnlyWhenRootActive?: boolean;
 }): JSX.Element {
   const [value, setValue] = useState<string>(tracker.value.toString());
+  let ignoreBlur = false;
 
   // Update value when the tracker value changes in parent
   const [valueInputUpdateFlag, setValueInputUpdateFlag] = useState(false);
@@ -40,22 +41,44 @@ export default function BubbleInput({
     event.target.select();
   };
 
+  const animationDuration75 = animateOnlyWhenRootActive
+    ? "group-focus-within/root:duration-75 group-hover/root:duration-75"
+    : "duration-75";
+  const animationDuration100 = animateOnlyWhenRootActive
+    ? "group-focus-within/root:duration-100 group-hover/root:duration-100"
+    : "duration-100";
+
   return (
     <div
-      className={`${getBackgroundColor(color)} ${animateOnlyWhenRootActive ? "group-focus-within/root:duration-75 group-hover/root:duration-75" : "duration-75"} h-[44px] w-[44px] justify-center rounded-full pb-[2px] pr-[0px] outline outline-2 -outline-offset-2 drop-shadow-sm focus-within:outline-offset-0 focus-within:drop-shadow-lg dark:outline-white/40 dark:focus-within:outline-white/60`}
+      className={`${animationDuration75} grid grid-cols-1 grid-rows-1 place-items-center drop-shadow-sm focus-within:drop-shadow-md`}
     >
-      <input
-        {...inputProps}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => runUpdateHandler(e)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") runUpdateHandler(e);
-        }}
-        onFocus={selectText}
-        className={`${animateOnlyWhenRootActive ? "group-focus-within/root:duration-100 group-hover/root:duration-100" : "duration-100"} h-[44px] w-[44px] justify-center rounded-full bg-transparent pb-[0px] pr-[0px] text-center font-medium text-text-primary outline-none hover:bg-black/10 focus:bg-black/15 dark:text-text-primary-dark`}
-        placeholder=""
-      ></input>
+      <div
+        className={`${animationDuration75} ${getBackgroundColor(color)} peer col-span-full row-span-full size-[44px] rounded-full dark:outline dark:outline-2 dark:-outline-offset-2 dark:outline-white/40 dark:focus-within:outline-offset-0 dark:focus-within:outline-white/60`}
+      >
+        <input
+          {...inputProps}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={(e) => {
+            if (!ignoreBlur) runUpdateHandler(e);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Escape") {
+              ignoreBlur = true;
+              (e.target as HTMLInputElement).blur();
+              ignoreBlur = false;
+              setValue(tracker.value.toString());
+            }
+          }}
+          onFocus={selectText}
+          className={`${animationDuration100} size-[44px] rounded-full bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
+          placeholder=""
+        ></input>
+      </div>
+      <div
+        className={`${animationDuration75} ${getBackgroundColor(color)} -z-10 col-span-full row-span-full size-[44px] rounded-full peer-focus-within:scale-[1.18] dark:invisible`}
+      ></div>
     </div>
   );
 }
