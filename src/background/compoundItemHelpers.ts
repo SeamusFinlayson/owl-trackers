@@ -19,23 +19,22 @@ const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
   "COPY",
   "SCALE",
 ];
-const TEXT_VERTICAL_OFFSET = 2;
+const TEXT_VERTICAL_OFFSET = -1.2;
 
 // Constants used in createStatBubble()
 export const BUBBLE_DIAMETER = 30;
 const CIRCLE_FONT_SIZE = BUBBLE_DIAMETER - 8;
 const REDUCED_CIRCLE_FONT_SIZE = BUBBLE_DIAMETER - 15;
-const CIRCLE_TEXT_HEIGHT = BUBBLE_DIAMETER + 0;
+const CIRCLE_TEXT_HEIGHT = BUBBLE_DIAMETER + 2;
 
 /** Creates Stat Bubble component items */
 export function createTrackerBubble(
   item: Item,
-  bounds: { width: number; height: number },
   tracker: Tracker,
   position: { x: number; y: number },
 ): Item[] {
   const bubbleShape = buildShape()
-    .width(bounds.width)
+    .width(BUBBLE_DIAMETER)
     .height(BUBBLE_DIAMETER)
     .shapeType("CIRCLE")
     .fillColor(getColor(tracker.color))
@@ -88,14 +87,13 @@ export function createTrackerBubble(
 export function createImageBubble(
   item: Image,
   sceneDpi: number,
-  bounds: { width: number; height: number },
   position: { x: number; y: number },
   color: string,
   url: string,
   label: string,
 ): Item[] {
   const bubbleShape = buildShape()
-    .width(bounds.width)
+    .width(BUBBLE_DIAMETER)
     .height(BUBBLE_DIAMETER)
     .shapeType("CIRCLE")
     .fillColor(color)
@@ -113,17 +111,19 @@ export function createImageBubble(
     .disableHit(DISABLE_HIT)
     .build();
 
-  const length = 24;
+  const desiredLength = 24;
+  const IMAGE_DPI = 150; // Specific to visibility off icon used in extension, square so height and width are equal
   const imageObject = {
-    width: length,
-    height: length,
+    width: IMAGE_DPI,
+    height: IMAGE_DPI,
     mime: "image/png",
     url: url,
   };
+  const imageInSceneDpi = (sceneDpi * IMAGE_DPI) / desiredLength;
 
   const image = buildImage(imageObject, {
-    offset: { x: length / 2, y: length / 2 },
-    dpi: sceneDpi,
+    offset: { x: sceneDpi / 2, y: sceneDpi / 2 },
+    dpi: imageInSceneDpi,
   })
     .position(position)
     .attachedTo(item.id)
@@ -144,7 +144,7 @@ const BAR_PADDING = 2;
 const FILL_OPACITY = 0.8;
 export const FULL_BAR_HEIGHT = 20;
 export const REDUCED_BAR_HEIGHT = 16;
-const BACKGROUND_OPACITY = 0.4;
+const BACKGROUND_OPACITY = 0.46;
 
 /** Creates health bar component items */
 export function createTrackerBar(
@@ -205,8 +205,8 @@ export function createTrackerBar(
     .build();
 
   const barTextHeight = reducedHeight
-    ? REDUCED_BAR_HEIGHT
-    : FULL_BAR_HEIGHT + 0;
+    ? REDUCED_BAR_HEIGHT + 8
+    : FULL_BAR_HEIGHT + 8;
   const barFontSize = reducedHeight
     ? REDUCED_BAR_HEIGHT + 2
     : FULL_BAR_HEIGHT + 2;
@@ -214,7 +214,7 @@ export function createTrackerBar(
   const healthText = buildText()
     .position({
       x: position.x,
-      y: position.y + TEXT_VERTICAL_OFFSET - (reducedHeight ? 0.3 : 0),
+      y: position.y + TEXT_VERTICAL_OFFSET + -5.3 - (reducedHeight ? -0.8 : 0),
     })
     .plainText(`${tracker.value}/${tracker.max}`)
     .textAlign("CENTER")
