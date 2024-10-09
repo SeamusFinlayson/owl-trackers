@@ -405,7 +405,6 @@ async function updateItemTrackers(
       const hideIndicator = createImageBubble(
         item,
         sceneDpi,
-        bounds,
         { x: position.x, y: position.y - verticalOffset },
         "black",
         "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
@@ -425,7 +424,7 @@ async function updateItemTrackers(
       } else {
         const position = bubblePosition.getNew();
         addItemsArray.push(
-          ...createTrackerBubble(item, bounds, tracker, {
+          ...createTrackerBubble(item, tracker, {
             x: position.x,
             y: position.y - verticalOffset,
           }),
