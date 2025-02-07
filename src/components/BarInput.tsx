@@ -10,6 +10,7 @@ export default function BarInput({
   valueInputProps,
   maxInputProps,
   animateOnlyWhenRootActive = false,
+  hideLabel = false,
 }: {
   tracker: Tracker;
   color: number;
@@ -18,6 +19,7 @@ export default function BarInput({
   valueInputProps?: InputHTMLAttributes<HTMLInputElement>;
   maxInputProps?: InputHTMLAttributes<HTMLInputElement>;
   animateOnlyWhenRootActive?: boolean;
+  hideLabel?: boolean;
 }): JSX.Element {
   if (tracker.variant !== "value-max")
     throw `Error expected 'value-max' tracker, got '${tracker.variant}' tracker`;
@@ -69,59 +71,66 @@ export default function BarInput({
     : "duration-100";
 
   return (
-    <div
-      className={`${animationDuration75} grid grid-cols-1 grid-rows-1 place-items-center drop-shadow-sm focus-within:drop-shadow-md`}
-    >
-      <div
-        className={`${animationDuration75} ${getBackgroundColor(color)} peer col-span-full row-span-full flex h-[44px] w-[100px] flex-row justify-between rounded-xl pb-[2px] outline-0 dark:outline dark:outline-2 dark:-outline-offset-2 dark:outline-white/40 dark:focus-within:outline-offset-0 dark:focus-within:outline-white/60`}
-      >
-        <input
-          {...valueInputProps}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={(e) => {
-            if (!ignoreBlur) updateTracker(e, "value");
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-            if (e.key === "Escape") {
-              ignoreBlur = true;
-              (e.target as HTMLInputElement).blur();
-              ignoreBlur = false;
-              setValue(tracker.value.toString());
-            }
-          }}
-          onFocus={handleFocus}
-          className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
-          placeholder=""
-        ></input>
-        <div className="self-center pt-[2px] text-text-primary dark:text-text-primary-dark">
-          /
+    <div>
+      {!hideLabel && (
+        <div className="text-2xs min-h-[14.5px] max-w-[100px] overflow-clip text-nowrap text-center  text-text-secondary dark:text-text-secondary-dark">
+          {tracker.name}
         </div>
-        <input
-          {...maxInputProps}
-          value={max}
-          onChange={(e) => setMax(e.target.value)}
-          onBlur={(e) => {
-            if (!ignoreBlur) updateTracker(e, "max");
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-            if (e.key === "Escape") {
-              ignoreBlur = true;
-              (e.target as HTMLInputElement).blur();
-              ignoreBlur = false;
-              setMax(tracker.max.toString());
-            }
-          }}
-          onFocus={handleFocus}
-          className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
-          placeholder=""
-        ></input>
-      </div>
+      )}
       <div
-        className={`${animationDuration75} ${getBackgroundColor(color)} -z-10 col-span-full row-span-full h-[44px] w-[100px] rounded-xl peer-focus-within:scale-x-[1.08] peer-focus-within:scale-y-[1.18] dark:bg-transparent`}
-      ></div>
+        className={`${animationDuration75} grid grid-cols-1 grid-rows-1 place-items-center drop-shadow-sm focus-within:drop-shadow-md`}
+      >
+        <div
+          className={`${animationDuration75} ${getBackgroundColor(color)} peer col-span-full row-span-full flex h-[44px] w-[100px] flex-row justify-between rounded-xl pb-[2px] outline-0 dark:outline dark:outline-2 dark:-outline-offset-2 dark:outline-white/40 dark:focus-within:outline-offset-0 dark:focus-within:outline-white/60`}
+        >
+          <input
+            {...valueInputProps}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={(e) => {
+              if (!ignoreBlur) updateTracker(e, "value");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+              if (e.key === "Escape") {
+                ignoreBlur = true;
+                (e.target as HTMLInputElement).blur();
+                ignoreBlur = false;
+                setValue(tracker.value.toString());
+              }
+            }}
+            onFocus={handleFocus}
+            className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
+            placeholder=""
+          ></input>
+          <div className="self-center pt-[2px] text-text-primary dark:text-text-primary-dark">
+            /
+          </div>
+          <input
+            {...maxInputProps}
+            value={max}
+            onChange={(e) => setMax(e.target.value)}
+            onBlur={(e) => {
+              if (!ignoreBlur) updateTracker(e, "max");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+              if (e.key === "Escape") {
+                ignoreBlur = true;
+                (e.target as HTMLInputElement).blur();
+                ignoreBlur = false;
+                setMax(tracker.max.toString());
+              }
+            }}
+            onFocus={handleFocus}
+            className={`${animationDuration100} size-[44px] rounded-xl bg-transparent text-center font-medium text-text-primary outline-none hover:bg-white/10 focus:bg-white/15 dark:text-text-primary-dark dark:hover:bg-black/10 dark:focus:bg-black/15`}
+            placeholder=""
+          ></input>
+        </div>
+        <div
+          className={`${animationDuration75} ${getBackgroundColor(color)} -z-10 col-span-full row-span-full h-[44px] w-[100px] rounded-xl peer-focus-within:scale-x-[1.08] peer-focus-within:scale-y-[1.18] dark:bg-transparent`}
+        ></div>
+      </div>
     </div>
   );
 }

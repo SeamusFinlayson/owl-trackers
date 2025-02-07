@@ -9,7 +9,7 @@ export default function IconButton({
   danger = false,
 }: {
   Icon: ComponentType<IconProps>;
-  onClick: () => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   rounded?: string;
   padding?: string;
   danger?: boolean;

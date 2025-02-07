@@ -7,9 +7,12 @@ export default {
   },
   theme: {
     screens: {
-      "not-tiny": "440px",
+      "not-tiny": "350px",
     },
     extend: {
+      fontSize: {
+        "2xs": "0.6rem",
+      },
       transitionProperty: {
         height: "height",
         // padding: "padding",

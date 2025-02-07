@@ -3,6 +3,7 @@ import { getBackgroundColor } from "../colorHelpers";
 export default function ColorPicker({
   setColorNumber,
 }: {
+  color: number;
   setColorNumber: (content: string | number) => void;
 }): JSX.Element {
   const colorButtons: JSX.Element[] = [];
@@ -10,7 +11,9 @@ export default function ColorPicker({
     colorButtons.push(
       <button
         key={i}
-        onClick={() => setColorNumber(i)}
+        onClick={() => {
+          setColorNumber(i);
+        }}
         className="group flex h-[34px] w-[34px] items-center justify-center outline-none"
       >
         <div
@@ -24,6 +27,8 @@ export default function ColorPicker({
   }
 
   return (
-    <div className="grid grid-cols-3 place-items-center">{colorButtons}</div>
+    <div className={`grid grid-cols-3 place-items-center p-1`}>
+      {colorButtons}
+    </div>
   );
 }

@@ -131,15 +131,3 @@ export const createBar = (trackers: Tracker[]): Tracker => {
     max: 0,
   };
 };
-
-export const checkOccupiedSpaces = (trackers: Tracker[]) => {
-  let spaces = 0;
-  for (const tracker of trackers) {
-    if (tracker.variant === "value") {
-      spaces += 1;
-    } else {
-      spaces += 2;
-    }
-  }
-  return spaces;
-};

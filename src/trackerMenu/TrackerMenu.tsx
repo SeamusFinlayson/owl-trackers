@@ -19,7 +19,7 @@ import {
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import MoreIcon from "../icons/MoreIcon";
-import { Tracker, checkOccupiedSpaces } from "../trackerHelpersBasic";
+import { Tracker } from "../trackerHelpersBasic";
 import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
 // import "./temp.css";
 
@@ -96,10 +96,14 @@ export default function TrackerMenu({
     <div
       className={`${mode === "DARK" ? "dark" : ""} h-screen overflow-y-auto`}
     >
-      <div
-        className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) === 5 ? "px-8" : "px-4"} py-1`}
-      >
+      <div className={`flex flex-col gap-0.5 px-4 py-1`}>
         <div className="flex flex-row justify-center self-center rounded-full bg-white/25 dark:bg-black/25">
+          {role === "GM" && (
+            <IconButton
+              Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
+              onClick={() => toggleTrackersHidden(setTrackersHidden)}
+            ></IconButton>
+          )}
           <IconButton
             Icon={AddIcon}
             onClick={() => addTrackerBubble(trackers, setTrackers)}
@@ -108,20 +112,14 @@ export default function TrackerMenu({
             Icon={AddSquareIcon}
             onClick={() => addTrackerBar(trackers, setTrackers)}
           ></IconButton>
-          {role === "GM" && (
-            <IconButton
-              Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-              onClick={() => toggleTrackersHidden(setTrackersHidden)}
-            ></IconButton>
-          )}
           <IconButton
             Icon={MoreIcon}
             onClick={() => {
               OBR.popover.open({
                 id: getPluginId("editor"),
                 url: "/src/editor/editor.html",
-                height: 600,
-                width: 500,
+                height: 550,
+                width: 430,
                 anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
                 transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
               });
@@ -129,7 +127,7 @@ export default function TrackerMenu({
           ></IconButton>
         </div>
         {trackers.length !== 0 ? (
-          <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 rounded-xl bg-white/0">
+          <div className="flex flex-wrap justify-center gap-x-2 gap-y-0.5 rounded-xl bg-white/0">
             {trackers.map((tracker) => generateInput(tracker))}
           </div>
         ) : sceneTrackers.length !== 0 ? (
