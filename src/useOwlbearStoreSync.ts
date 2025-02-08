@@ -33,10 +33,10 @@ export function useOwlbearStoreSync() {
     return OBR.player.onChange(handlePlayerChange);
   }, []);
 
-  const setMode = useOwlbearStore((state) => state.setMode);
+  const setThemeMode = useOwlbearStore((state) => state.setThemeMode);
   useEffect(() => {
     const handleThemeChange = (theme: Theme) => {
-      setMode(theme.mode);
+      setThemeMode(theme.mode);
     };
     OBR.theme.getTheme().then(handleThemeChange);
     return OBR.theme.onChange(handleThemeChange);

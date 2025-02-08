@@ -15,7 +15,11 @@ OBR.onReady(async () => {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <ThemeProvider theme={getTheme(OBRTheme)}>
-        <App initialMode={OBRTheme.mode} initialRole={role} />
+        <App
+          initialMode={OBRTheme.mode}
+          initialRole={role}
+          editorProps={{ type: "item" }}
+        />
       </ThemeProvider>
     </React.StrictMode>,
   );

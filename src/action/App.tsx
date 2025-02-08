@@ -11,7 +11,7 @@ export default function App(): JSX.Element {
   useSceneSettingsStoreSync();
 
   const sceneReady = useOwlbearStore((state) => state.sceneReady);
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
 
   if (sceneReady) {
     return <Action></Action>;

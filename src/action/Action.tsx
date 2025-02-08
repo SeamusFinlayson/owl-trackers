@@ -16,7 +16,7 @@ import ReportBugButton from "../components/ReportBugButton";
 import { useSceneSettingsStore } from "../useSceneSettingsStore";
 
 export function Action(): JSX.Element {
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
   const role = useOwlbearStore((state) => state.role);
 
   useEffect(() => {
@@ -96,8 +96,8 @@ export function Action(): JSX.Element {
                     OBR.popover.open({
                       id: getPluginId("scene-editor"),
                       url: "/src/sceneEditor/sceneEditor.html",
-                      height: 600,
-                      width: 500,
+                      height: 550,
+                      width: 430,
                       anchorOrigin: {
                         horizontal: "CENTER",
                         vertical: "CENTER",

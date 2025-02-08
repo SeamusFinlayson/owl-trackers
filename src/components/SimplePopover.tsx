@@ -11,7 +11,7 @@ export default function SimplePopover({
   buttonClassname: string;
   children: JSX.Element;
 }): JSX.Element {
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null,

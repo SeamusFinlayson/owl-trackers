@@ -26,7 +26,7 @@ export default function IconButton({
         className={`flex h-[36px] w-[36px] items-center justify-center duration-100 ${rounded} ${danger ? "group-hover:bg-red-400/60 group-focus-visible:bg-red-400/60 group-hover:dark:bg-red-400/30 group-focus-visible:dark:bg-red-400/30" : "group-hover:bg-black/10 group-focus-visible:bg-black/10 group-hover:dark:bg-white/10 group-focus-visible:dark:bg-white/10"}`}
       >
         <Icon
-          className={`h-[24px] w-[24px] fill-text-secondary dark:fill-text-secondary-dark`}
+          className={`h-[24px] w-[24px] fill-text-secondary dark:fill-text-primary-dark`}
         ></Icon>
       </div>
       {/* <Icon

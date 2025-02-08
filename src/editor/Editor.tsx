@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useOwlbearStore } from "../useOwlbearStore.ts";
 import "../index.css";
 import BubbleInput from "../components/BubbleInput.tsx";
@@ -8,18 +8,8 @@ import AddSquareIcon from "../icons/AddSquareIcon.tsx";
 import VisibleIcon from "../icons/VisibleIcon.tsx";
 import NotVisibleIcon from "../icons/NotVisibleIcon.tsx";
 import BarInput from "../components/BarInput.tsx";
-import {
-  addTrackerBar,
-  addTrackerBubble,
-  deleteTracker,
-  getTrackersFromSelection,
-  toggleTrackersHidden,
-  toggleShowOnMap,
-  updateTrackerField,
-  toggleInlineMath,
-  overwriteTrackers,
-} from "../trackerHelpersItem.ts";
-import OBR, { Item, Metadata } from "@owlbear-rodeo/sdk";
+
+import OBR from "@owlbear-rodeo/sdk";
 import NameInput from "../components/NameInput.tsx";
 import DeleteIcon from "../icons/DeleteIcon.tsx";
 import ColorPicker from "../components/ColorPicker.tsx";
@@ -28,105 +18,92 @@ import OnMap from "../icons/OnMap.tsx";
 import NotOnMap from "../icons/NotOnMap.tsx";
 import MathIcon from "../icons/MathIcon.tsx";
 import NoMathIcon from "../icons/NoMathIcon.tsx";
-import { Tooltip } from "@mui/material";
+import { Divider, Tooltip } from "@mui/material";
 import { Tracker } from "../trackerHelpersBasic.ts";
-import { getTrackersFromSceneMetadata } from "../trackerHelpersScene.ts";
 import EditOffIcon from "../icons/EditOffIcon.tsx";
 import EditIcon from "../icons/EditIcon.tsx";
 import Palette from "../icons/Palette.tsx";
 import SimplePopover from "../components/SimplePopover.tsx";
+import { useTrackerStore } from "../useTrackerStore.ts";
+import { useTrackersHidden } from "../useTrackersHidden.ts";
+import { getBackgroundColor } from "../colorHelpers.tsx";
 
-export default function Editor(): JSX.Element {
+export default function Editor({
+  trackers,
+  autofillTrackers,
+  title,
+}: {
+  trackers: Tracker[];
+  autofillTrackers: Tracker[];
+  title: string;
+}): JSX.Element {
   const role = useOwlbearStore((state) => state.role);
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
 
-  const [trackersHidden, setTrackersHidden] = useState(false);
-  const [initDone, setInitDone] = useState<{
-    trackers: boolean;
-    sceneTrackers: boolean;
-  }>({ trackers: false, sceneTrackers: false });
-  const [trackers, setTrackers] = useState<Tracker[]>([]);
-  const [sceneTrackers, setSceneTrackers] = useState<Tracker[]>([]);
+  const overWriteTrackers = useTrackerStore((state) => state.overWriteTrackers);
+  const addTrackerBubble = useTrackerStore((state) => state.addTrackerBubble);
+  const addTrackerBar = useTrackerStore((state) => state.addTrackerBar);
 
   const [editing, setEditing] = useState(false);
 
-  if (trackersHidden && role === "PLAYER") {
+  const trackersHidden = useTrackersHidden();
+
+  if (trackersHidden.value && role === "PLAYER") {
     OBR.popover.close(getPluginId("editor"));
   }
 
-  useEffect(() => {
-    const updateTrackers = (items: Item[]) =>
-      getTrackersFromSelection(items).then(
-        ([newTracker, newTrackersHidden]) => {
-          setTrackers(newTracker);
-          setTrackersHidden(newTrackersHidden);
-        },
-      );
-    OBR.scene.items
-      .getItems()
-      .then(updateTrackers)
-      .then(() => setInitDone((prev) => ({ ...prev, trackers: true })));
-    return OBR.scene.items.onChange(updateTrackers);
-  }, []);
-
-  useEffect(() => {
-    const updateSceneTrackers = (metadata: Metadata) =>
-      setSceneTrackers(getTrackersFromSceneMetadata(metadata));
-    OBR.scene
-      .getMetadata()
-      .then(updateSceneTrackers)
-      .then(() => setInitDone((prev) => ({ ...prev, sceneTrackers: true })));
-
-    return OBR.scene.onMetadataChange(updateSceneTrackers);
-  }, []);
-
-  if (!initDone.trackers || !initDone.sceneTrackers) return <></>;
-
   return (
     <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
-      <div className={`flex h-full flex-col bg-default  dark:bg-default-dark`}>
-        <div className="grid w-full grid-cols-3 bg-paper p-1 pb-0.5 shadow dark:bg-paper-dark/55">
-          <div>
-            {role === "GM" && (
-              <Tooltip
-                title={trackersHidden ? "Show Trackers" : "Hide Trackers"}
-              >
-                <div className="w-fit rounded-full">
+      <div className="flex h-full flex-col bg-default dark:bg-default-dark">
+        <div className="w-full  bg-paper p-1 pb-0.5 shadow dark:bg-paper-dark/55">
+          <div className="text  text-center text-xs font-semibold text-text-secondary dark:text-text-secondary-dark">
+            {title}
+          </div>
+          <div className="grid grid-cols-3">
+            <div>
+              {role === "GM" && trackersHidden.value !== undefined && (
+                <Tooltip
+                  title={
+                    trackersHidden.value ? "Show Trackers" : "Hide Trackers"
+                  }
+                >
+                  <div className="w-fit rounded-full">
+                    <IconButton
+                      Icon={trackersHidden.value ? NotVisibleIcon : VisibleIcon}
+                      onClick={() => trackersHidden.toggle()}
+                    />
+                  </div>
+                </Tooltip>
+              )}
+            </div>
+            <div className="flex justify-self-center">
+              <Tooltip title={"Add Tracker"}>
+                <div className="rounded-full">
                   <IconButton
-                    Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-                    onClick={() => toggleTrackersHidden(setTrackersHidden)}
+                    Icon={AddIcon}
+                    onClick={() => addTrackerBubble()}
                   />
                 </div>
               </Tooltip>
-            )}
-          </div>
-          <div className="flex justify-self-center">
-            <Tooltip title={"Add Tracker"}>
-              <div className="rounded-full">
-                <IconButton
-                  Icon={AddIcon}
-                  onClick={() => addTrackerBubble(trackers, setTrackers)}
-                />
-              </div>
-            </Tooltip>
-            <Tooltip title={"Add Bar Tracker"}>
-              <div className="rounded-full">
-                <IconButton
-                  Icon={AddSquareIcon}
-                  onClick={() => addTrackerBar(trackers, setTrackers)}
-                />
-              </div>
-            </Tooltip>
-          </div>
-          <div className="justify-self-end">
-            <Tooltip title={"Toggle Edit Mode"} placement="bottom-end">
-              <div className="rounded-full">
-                <IconButton
-                  Icon={editing ? EditOffIcon : EditIcon}
-                  onClick={() => setEditing(!editing)}
-                />
-              </div>
-            </Tooltip>
+              <Tooltip title={"Add Bar Tracker"}>
+                <div className="rounded-full">
+                  <IconButton
+                    Icon={AddSquareIcon}
+                    onClick={() => addTrackerBar()}
+                  />
+                </div>
+              </Tooltip>
+            </div>
+            <div className="justify-self-end">
+              <Tooltip title={"Toggle Edit Mode"} placement="bottom-end">
+                <div className="rounded-full">
+                  <IconButton
+                    Icon={editing ? EditOffIcon : EditIcon}
+                    onClick={() => setEditing(!editing)}
+                  />
+                </div>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
@@ -149,7 +126,6 @@ export default function Editor(): JSX.Element {
                       editing={editing}
                       key={tracker.id}
                       tracker={tracker}
-                      setTrackers={setTrackers}
                     />
                   ))}
               </div>
@@ -167,15 +143,14 @@ export default function Editor(): JSX.Element {
                       editing={editing}
                       key={tracker.id}
                       tracker={tracker}
-                      setTrackers={setTrackers}
                     />
                   ))}
               </div>
             </div>
-          ) : sceneTrackers.length !== 0 ? (
+          ) : autofillTrackers.length !== 0 ? (
             <button
               className="mt-3 rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline shadow hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
-              onClick={() => overwriteTrackers(sceneTrackers, setTrackers)}
+              onClick={() => overWriteTrackers(autofillTrackers)}
             >
               Use scene trackers
             </button>
@@ -193,14 +168,19 @@ export default function Editor(): JSX.Element {
 const TrackerCard = ({
   editing,
   tracker,
-  setTrackers,
 }: {
   editing: boolean;
   tracker: Tracker;
-  setTrackers: React.Dispatch<React.SetStateAction<Tracker[]>>;
 }): JSX.Element => {
+  const deleteTracker = useTrackerStore((state) => state.deleteTracker);
+  const updateTrackerField = useTrackerStore(
+    (state) => state.updateTrackerField,
+  );
+  const toggleShowOnMap = useTrackerStore((state) => state.toggleShowOnMap);
+  const toggleInlineMath = useTrackerStore((state) => state.toggleInlineMath);
+
   return (
-    <div className="relative flex overflow-clip rounded bg-paper shadow dark:bg-paper-dark/90">
+    <div className="relative flex overflow-clip rounded bg-paper drop-shadow-sm dark:bg-paper-dark/90">
       {editing && (
         <div className="absolute bottom-0 left-0 right-0 top-0 z-10 h-full w-full  bg-purple-300/75 dark:bg-purple-700/75">
           <div className="flex h-full w-full items-center justify-evenly text-xl">
@@ -209,86 +189,83 @@ const TrackerCard = ({
                 <IconButton
                   rounded="rounded"
                   Icon={DeleteIcon}
-                  onClick={() => deleteTracker(tracker.id, setTrackers)}
+                  onClick={() => deleteTracker(tracker.id)}
                 />
               </div>
             </Tooltip>
           </div>
         </div>
       )}
-      <div className="flex w-full flex-col justify-between">
+      <div
+        className={`${getBackgroundColor(tracker.color)} flex w-full flex-col justify-between`}
+      >
         <NameInput
           valueControl={tracker.name}
           inputProps={{
             onBlur: (e) =>
-              updateTrackerField(
-                tracker.id,
-                "name",
-                e.target.value,
-                setTrackers,
-              ),
+              updateTrackerField(tracker.id, "name", e.target.value),
           }}
         />
 
-        <div className="flex grow items-center justify-around py-2">
+        <div className="flex grow items-end justify-between p-1 pt-0">
           {tracker.variant === "value" ? (
             <BubbleInput
               key={tracker.id}
               tracker={tracker}
               color={tracker.color}
               updateHandler={(content: string) =>
-                updateTrackerField(tracker.id, "value", content, setTrackers)
+                updateTrackerField(tracker.id, "value", content)
               }
-              hideLabel
-            ></BubbleInput>
+              noBackground
+            />
           ) : (
             <BarInput
               key={tracker.id}
               tracker={tracker}
               color={tracker.color}
-              updateValueMetadata={(content: string) =>
-                updateTrackerField(tracker.id, "value", content, setTrackers)
+              valueUpdateHandler={(content: string) =>
+                updateTrackerField(tracker.id, "value", content)
               }
-              updateMaxMetadata={(content: string) =>
-                updateTrackerField(tracker.id, "max", content, setTrackers)
+              maxUpdateHandler={(content: string) =>
+                updateTrackerField(tracker.id, "max", content)
               }
-              hideLabel
-            ></BarInput>
+              noBackground
+            />
           )}
 
           <SimplePopover
             buttonContent={
-              <div className="grid grid-cols-2">
-                <div className="col-span-2 flex justify-center">
-                  <Palette className="size-4 fill-text-secondary dark:fill-text-secondary-dark" />
+              <div className="flex size-8 flex-col items-center justify-center gap-[0.5px]">
+                <div className="flex  justify-center">
+                  <Palette className="size-[18px] min-h-[18px] min-w-[18px] fill-text-secondary dark:fill-text-primary-dark" />
                 </div>
-                {tracker.showOnMap ? (
-                  <OnMap className="size-4 fill-text-secondary dark:fill-text-secondary-dark" />
-                ) : (
-                  <NotOnMap className="size-4 fill-text-secondary dark:fill-text-secondary-dark" />
-                )}
-                {tracker.inlineMath ? (
-                  <MathIcon className=" size-4 fill-text-secondary dark:fill-text-secondary-dark" />
-                ) : (
-                  <NoMathIcon className=" size-4 fill-text-secondary dark:fill-text-secondary-dark" />
-                )}
+                <div className="flex w-full justify-center gap-[1px]">
+                  {tracker.showOnMap ? (
+                    <OnMap className="size-[18px] min-h-[18px] min-w-[18px]  fill-text-secondary dark:fill-text-primary-dark" />
+                  ) : (
+                    <NotOnMap className="size-[18px] min-h-[18px] min-w-[18px]  fill-text-secondary dark:fill-text-primary-dark" />
+                  )}
+                  {tracker.inlineMath ? (
+                    <MathIcon className=" size-[18px] min-h-[18px] min-w-[18px]  fill-text-secondary dark:fill-text-primary-dark" />
+                  ) : (
+                    <NoMathIcon className=" size-[18px] min-h-[18px] min-w-[18px]  fill-text-secondary dark:fill-text-primary-dark" />
+                  )}
+                </div>
               </div>
             }
-            buttonClassname="rounded p-1 hover:bg-black/10 focus-visible:bg-black/10 hover:dark:bg-white/10 focus-visible:dark:bg-white/10"
+            buttonClassname="rounded size-[44px] flex justify-center items-center p-1 hover:bg-black/10 focus-visible:bg-black/10 hover:dark:bg-white/10 focus-visible:dark:bg-white/10"
             children={
               <div>
                 <ColorPicker
                   color={tracker.color}
                   setColorNumber={(content) =>
-                    updateTrackerField(
-                      tracker.id,
-                      "color",
-                      content,
-                      setTrackers,
-                    )
+                    updateTrackerField(tracker.id, "color", content)
                   }
                 />
-                <div className="flex">
+
+                <Divider variant="middle" />
+
+                <div className="flex justify-center p-1">
                   <Tooltip
                     placement="bottom"
                     title={tracker.showOnMap ? "Hide From Map" : "Show on Map"}
@@ -296,9 +273,8 @@ const TrackerCard = ({
                     <div className="flex justify-end">
                       <IconButton
                         padding=""
-                        rounded=""
                         Icon={tracker.showOnMap ? OnMap : NotOnMap}
-                        onClick={() => toggleShowOnMap(tracker.id, setTrackers)}
+                        onClick={() => toggleShowOnMap(tracker.id)}
                       />
                     </div>
                   </Tooltip>
@@ -313,11 +289,8 @@ const TrackerCard = ({
                     <div className="flex justify-end">
                       <IconButton
                         padding=""
-                        rounded=""
                         Icon={tracker.inlineMath ? MathIcon : NoMathIcon}
-                        onClick={() =>
-                          toggleInlineMath(tracker.id, setTrackers)
-                        }
+                        onClick={() => toggleInlineMath(tracker.id)}
                       />
                     </div>
                   </Tooltip>

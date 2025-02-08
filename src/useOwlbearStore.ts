@@ -6,13 +6,13 @@ interface OwlbearState {
   items: Item[];
   role: Player["role"];
   selection: Player["selection"];
-  mode: "DARK" | "LIGHT";
+  themeMode: "DARK" | "LIGHT";
 
   setSceneReady: (ready: boolean) => void;
   setItems: (items: Item[]) => void;
   setRole: (role: Player["role"]) => void;
   setSelection: (selection: Player["selection"]) => void;
-  setMode: (mode: "DARK" | "LIGHT") => void;
+  setThemeMode: (mode: "DARK" | "LIGHT") => void;
 }
 
 export const useOwlbearStore = create<OwlbearState>()((set) => ({
@@ -20,11 +20,11 @@ export const useOwlbearStore = create<OwlbearState>()((set) => ({
   role: "PLAYER",
   sceneReady: false,
   selection: undefined,
-  mode: "LIGHT",
+  themeMode: "LIGHT",
 
   setSceneReady: (sceneReady) => set((state) => ({ ...state, sceneReady })),
   setItems: (items) => set((state) => ({ ...state, items })),
   setRole: (role) => set((state) => ({ ...state, role })),
   setSelection: (selection) => set((state) => ({ ...state, selection })),
-  setMode: (mode) => set((state) => ({ ...state, mode })),
+  setThemeMode: (themeMode) => set((state) => ({ ...state, themeMode })),
 }));
