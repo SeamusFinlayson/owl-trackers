@@ -1,23 +1,19 @@
 // import { TextField } from "@mui/material";
-import { InputHTMLAttributes, useEffect, useState } from "react";
+import PartiallyControlledInput from "./PartiallyControlledInput";
 
 export default function NameInput({
-  valueControl,
-  inputProps,
+  value,
+  onUserConfirm,
 }: {
-  valueControl: string;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-}): JSX.Element {
-  const [value, setValue] = useState<number | string>(valueControl);
-  useEffect(() => setValue(valueControl), [valueControl]);
-
+  value: string;
+  onUserConfirm: (target: HTMLInputElement) => void;
+}): React.JSX.Element {
   return (
-    <input
-      {...inputProps}
-      className=" w-full bg-transparent px-1.5 pt-1 text-base text-text-primary placeholder-text-secondary outline-none duration-100 dark:text-text-primary-dark dark:placeholder-text-secondary-dark"
+    <PartiallyControlledInput
+      className="w-full bg-transparent text-sm text-text-primary placeholder-text-secondary outline-none duration-100 dark:text-text-primary-dark dark:placeholder-text-secondary-dark"
       placeholder="Name"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
+      parentValue={value}
+      onUserConfirm={onUserConfirm}
     />
   );
 }

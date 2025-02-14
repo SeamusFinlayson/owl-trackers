@@ -24,14 +24,13 @@ export async function getTrackersFromScene(): Promise<Tracker[]> {
 }
 
 export function getTrackersFromSceneMetadata(sceneMetadata: Metadata) {
-  const trackers: Tracker[] = [];
-
   const trackersMetadata = sceneMetadata[getPluginId(TRACKER_METADATA_ID)];
-  if (!trackersMetadata) return trackers;
+  if (trackersMetadata === undefined) return [];
   if (!Array.isArray(trackersMetadata)) {
     throw TypeError(`Expected an array, got ${typeof trackersMetadata}`);
   }
 
+  const trackers: Tracker[] = [];
   for (const tracker of trackersMetadata) {
     if (!isTracker(tracker)) {
       console.log(

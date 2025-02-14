@@ -1,6 +1,6 @@
 import HeaderButton from "../components/HeaderButton";
 
-export default function ActionHeader(): JSX.Element {
+export default function ActionHeader(): React.JSX.Element {
   return (
     <>
       <div className="grid grid-cols-[minmax(120px,_auto)_repeat(3,_42px)] items-center p-4">

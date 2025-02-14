@@ -6,7 +6,7 @@ export default function HeaderButton({
   variant,
 }: {
   variant: Variant;
-}): JSX.Element {
+}): React.JSX.Element {
   const color = useTheme().palette.text.primary;
 
   switch (variant) {

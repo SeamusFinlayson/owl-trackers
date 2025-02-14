@@ -1,6 +1,6 @@
 import { IconProps } from "../components/IconPropsType";
 
-export default function AddIcon(props: IconProps): JSX.Element {
+export default function AddIcon(props: IconProps): React.JSX.Element {
   return (
     <svg
       className={props.className}

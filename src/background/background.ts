@@ -43,7 +43,7 @@ OBR.onReady(async () => {
     ],
     embed: {
       url: "/src/trackerMenu/trackerMenu.html",
-      height: 170,
+      height: 178,
     },
   });
 
@@ -67,7 +67,7 @@ OBR.onReady(async () => {
     ],
     embed: {
       url: "/src/trackerMenu/trackerMenu.html",
-      height: 170,
+      height: 178,
     },
   });
 

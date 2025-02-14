@@ -1,4 +1,4 @@
-export default function ReportBugButton(): JSX.Element {
+export default function ReportBugButton(): React.JSX.Element {
   return (
     <div className="flex flex-row gap-2 px-4 py-3">
       <a

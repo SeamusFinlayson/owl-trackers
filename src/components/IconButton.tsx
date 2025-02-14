@@ -1,38 +1,27 @@
-import { ComponentType } from "react";
+import React, { ComponentType } from "react";
 import { IconProps } from "./IconPropsType";
+import { cn } from "../lib/utils";
+
+interface IconButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  Icon: ComponentType<IconProps>;
+  className?: string;
+}
 
 export default function IconButton({
   Icon,
-  onClick,
-  rounded = "rounded-full",
-  padding = "p-[2px]",
-  danger = false,
-}: {
-  Icon: ComponentType<IconProps>;
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  rounded?: string;
-  padding?: string;
-  danger?: boolean;
-}): JSX.Element {
-  // const [animate, setAnimate] = useState(false);
+  className,
+  ...props
+}: IconButtonProps): React.JSX.Element {
   return (
     <button
-      className={`group flex items-center justify-center ${rounded} ${padding} outline-none`}
-      onClick={onClick}
-      // onKeyDown={() => setAnimate(true)}
-      // onPointerDown={() => setAnimate(true)}
+      {...props}
+      className={cn(
+        "flex size-[36px] items-center justify-center rounded-full outline-none duration-100 hover:bg-black/10 focus-visible:bg-black/10 hover:dark:bg-white/10 focus-visible:dark:bg-white/10",
+        className,
+      )}
     >
-      <div
-        className={`flex h-[36px] w-[36px] items-center justify-center duration-100 ${rounded} ${danger ? "group-hover:bg-red-400/60 group-focus-visible:bg-red-400/60 group-hover:dark:bg-red-400/30 group-focus-visible:dark:bg-red-400/30" : "group-hover:bg-black/10 group-focus-visible:bg-black/10 group-hover:dark:bg-white/10 group-focus-visible:dark:bg-white/10"}`}
-      >
-        <Icon
-          className={`h-[24px] w-[24px] fill-text-secondary dark:fill-text-primary-dark`}
-        ></Icon>
-      </div>
-      {/* <Icon
-        className={`absolute ${animate && "animate-[ping_0.15s_1]"} fill-violet-300/0 duration-500  group-active:fill-violet-300/30 group-active:duration-0`}
-        onAnimationEnd={() => setAnimate(false)}
-      ></Icon> */}
+      <Icon className={"fill-text-secondary dark:fill-text-primary-dark"} />
     </button>
   );
 }

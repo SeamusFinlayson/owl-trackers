@@ -7,7 +7,8 @@ export default {
   },
   theme: {
     screens: {
-      "not-tiny": "350px",
+      lg: "400px",
+      md: "320px",
     },
     extend: {
       fontSize: {
@@ -29,6 +30,17 @@ export default {
             emerald: "rgb(104, 191, 163)",
             cyan: "rgb(137, 181, 191)",
             blue: "rgb(154, 177, 211)",
+          },
+          dark: {
+            fuchsia: "rgb(124, 66, 145)",
+            pink: "rgb(140, 52, 100)",
+            red: "rgb(148, 39, 44)",
+            orange: "rgb(164, 79, 39)",
+            yellow: "rgb(131, 110, 52)",
+            lime: "rgb(92, 114, 73)",
+            emerald: "rgb(59, 109, 103)",
+            cyan: "rgb(74, 115, 132)",
+            blue: "rgb(61, 84, 131)",
           },
         },
         default: {

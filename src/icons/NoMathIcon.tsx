@@ -1,6 +1,6 @@
 import { IconProps } from "../components/IconPropsType";
 
-export default function NoMathIcon(svgProps: IconProps): JSX.Element {
+export default function NoMathIcon(svgProps: IconProps): React.JSX.Element {
   return (
     <svg
       {...svgProps}

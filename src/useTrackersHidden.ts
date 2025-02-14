@@ -24,17 +24,11 @@ export const useTrackersHidden = (): {
   }, []);
 
   const toggleTrackersHidden = () => {
-    if (typeof trackersHidden === "boolean") {
-      setTrackersHidden((prev) => {
-        writeTrackersHiddenToSelection(!prev);
-        return !prev;
-      });
-    } else {
-      setTrackersHidden((prev) => {
-        writeTrackersHiddenToSelection(!prev);
-        return !prev;
-      });
-    }
+    setTrackersHidden((prev) => {
+      const newTrackersHidden = prev === undefined ? true : !prev;
+      writeTrackersHiddenToSelection(newTrackersHidden);
+      return newTrackersHidden;
+    });
   };
 
   return { value: trackersHidden, toggle: toggleTrackersHidden };

@@ -13,7 +13,10 @@ import {
   MINIMAL_BAR_HEIGHT,
   createMinimalTrackerBar,
 } from "./compoundItemHelpers";
-import { getTrackersFromItem } from "../trackerHelpersItem";
+import {
+  getTrackersFromItem,
+  getTrackersHiddenFromItem,
+} from "../trackerHelpersItem";
 import {
   MAX_BAR_COUNT,
   TRACKER_METADATA_ID,
@@ -253,7 +256,8 @@ async function updateItemTrackers(
   sceneDpi: number,
 ) {
   // Extract metadata from the token
-  const [trackers, trackersHidden] = getTrackersFromItem(item);
+  const trackers = getTrackersFromItem(item);
+  const trackersHidden = getTrackersHiddenFromItem(item);
 
   if (
     (role === "GM" && trackers.length === 0 && !trackersHidden) ||
@@ -291,9 +295,12 @@ async function updateItemTrackers(
     trackers.map((tracker) => {
       if (tracker.variant !== "value-max") {
         () => {};
-      } else if (!tracker.showOnMap) {
+      } else if (tracker.showOnMap === false) {
         deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
-      } else if (segmentSettings.has(tracker.name)) {
+      } else if (
+        tracker.name !== undefined &&
+        segmentSettings.has(tracker.name)
+      ) {
         addItemsArray.push(
           ...createMinimalTrackerBar(
             item,
@@ -356,7 +363,7 @@ async function updateItemTrackers(
     trackers.map((tracker) => {
       if (tracker.variant !== "value-max") {
         () => {};
-      } else if (!tracker.showOnMap) {
+      } else if (tracker.showOnMap === false) {
         // console.log("hidden", barIndex);
         deleteItemsArray.push(
           ...getBarItemIds(item.id, barIndex - bubbleCount),
@@ -418,7 +425,7 @@ async function updateItemTrackers(
     trackers.map((tracker) => {
       if (tracker.variant !== "value") {
         () => {};
-      } else if (!tracker.showOnMap) {
+      } else if (tracker.showOnMap === false) {
         deleteItemsArray.push(...getBubbleItemIds(item.id, bubbleIndex));
         () => {};
       } else {

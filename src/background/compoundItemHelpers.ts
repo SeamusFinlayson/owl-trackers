@@ -33,6 +33,9 @@ export function createTrackerBubble(
   tracker: Tracker,
   position: { x: number; y: number },
 ): Item[] {
+  if (tracker.variant !== "value")
+    throw new Error("Expected value tracker variant");
+
   const bubbleShape = buildShape()
     .width(BUBBLE_DIAMETER)
     .height(BUBBLE_DIAMETER)

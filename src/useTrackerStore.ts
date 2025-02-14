@@ -4,6 +4,8 @@ import {
   createBubble,
   createBar,
   MAX_TRACKER_COUNT,
+  createCheckboxTracker,
+  createCounter,
 } from "./trackerHelpersBasic";
 
 interface TrackerState {
@@ -17,12 +19,14 @@ interface TrackerState {
 
   overWriteTrackers: (trackers: Tracker[]) => void;
   updateTrackerField: (
-    id: string,
-    field: "value" | "max" | "name" | "color",
-    content: string | number,
+    trackerId: string,
+    field: "value" | "max" | "name" | "color" | "checked",
+    content: string | number | boolean,
   ) => void;
   addTrackerBubble: () => void;
   addTrackerBar: () => void;
+  addCheckboxTracker: () => void;
+  addCounterTracker: () => void;
   deleteTracker: (trackerId: string) => void;
   toggleShowOnMap: (trackerId: string) => void;
   toggleInlineMath: (trackerId: string) => void;
@@ -48,27 +52,53 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
       const index = state.trackers.findIndex((item) => item.id === trackerId);
       const tracker = state.trackers[index];
 
-      if (field === "value" && typeof content === "string") {
-        content = inlineMath(content, tracker.value, tracker.inlineMath);
+      let value: string | number | boolean;
+      if (
+        field === "value" &&
+        typeof content === "string" &&
+        (tracker.variant === "value" ||
+          tracker.variant === "value-max" ||
+          tracker.variant === "counter")
+      ) {
+        value = inlineMath(
+          content,
+          tracker.value,
+          tracker.inlineMath !== false,
+        );
       } else if (
         field === "max" &&
         typeof content === "string" &&
         tracker.variant === "value-max"
       ) {
-        content = inlineMath(content, tracker.max, tracker.inlineMath);
+        value = inlineMath(content, tracker.max, tracker.inlineMath !== false);
+      } else {
+        value = content;
       }
 
-      state.trackers.splice(index, 1, {
-        ...state.trackers[index],
-        [field]: content,
-      });
+      state.trackers = [
+        ...state.trackers.slice(0, index),
+        {
+          ...state.trackers[index],
+          [field]: value,
+        },
+        ...state.trackers.slice(index + 1),
+      ];
+
       sideEffects(state);
       return { ...state };
     }),
   addTrackerBubble: () =>
     set((state) => {
       if (state.trackers.length < MAX_TRACKER_COUNT) {
-        state.trackers.push(createBubble(state.trackers));
+        state.trackers = [...state.trackers, createBubble(state.trackers)];
+      }
+      sideEffects(state);
+      return { ...state };
+    }),
+  addCounterTracker: () =>
+    set((state) => {
+      if (state.trackers.length < MAX_TRACKER_COUNT) {
+        state.trackers = [...state.trackers, createCounter(state.trackers)];
       }
       sideEffects(state);
       return { ...state };
@@ -76,7 +106,18 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
   addTrackerBar: () =>
     set((state) => {
       if (state.trackers.length < MAX_TRACKER_COUNT) {
-        state.trackers.push(createBar(state.trackers));
+        state.trackers = [...state.trackers, createBar(state.trackers)];
+      }
+      sideEffects(state);
+      return { ...state };
+    }),
+  addCheckboxTracker: () =>
+    set((state) => {
+      if (state.trackers.length < MAX_TRACKER_COUNT) {
+        state.trackers = [
+          ...state.trackers,
+          createCheckboxTracker(state.trackers),
+        ];
       }
       sideEffects(state);
       return { ...state };
@@ -91,9 +132,10 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
   toggleShowOnMap: (trackerId) =>
     set((state) => {
       const index = state.trackers.findIndex((item) => item.id === trackerId);
+      const showOnMap = state.trackers[index].showOnMap;
       state.trackers.splice(index, 1, {
         ...state.trackers[index],
-        ["showOnMap"]: !state.trackers[index].showOnMap,
+        ["showOnMap"]: showOnMap === undefined ? false : !showOnMap,
       });
       sideEffects(state);
       return { ...state };
@@ -101,9 +143,10 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
   toggleInlineMath: (trackerId) =>
     set((state) => {
       const index = state.trackers.findIndex((item) => item.id === trackerId);
+      const inlineMath = state.trackers[index].inlineMath;
       state.trackers.splice(index, 1, {
         ...state.trackers[index],
-        ["inlineMath"]: !state.trackers[index].inlineMath,
+        ["inlineMath"]: inlineMath === undefined ? false : !inlineMath,
       });
       sideEffects(state);
       return { ...state };
@@ -111,20 +154,6 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
 }));
 
 function sideEffects(state: TrackerState) {
-  // Sort trackers
-  const sortedTrackers: Tracker[] = [];
-  for (const variant of ["value", "value-max"]) {
-    sortedTrackers.push(
-      ...state.trackers
-        .filter((value) => value.variant === variant)
-        .sort((a, b) => a.position - b.position)
-        .map((tracker, index) => {
-          return { ...tracker, ["position"]: index };
-        }),
-    );
-  }
-  state.trackers = sortedTrackers;
-
   // Update trackers in the location they are stored
   if (state.writeToSaveLocation === undefined)
     throw new Error("Write to save location is undefined");

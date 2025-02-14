@@ -37,25 +37,20 @@ export async function getTrackersFromSelection(
   const selectedItem = items.find((item) => item.id === selection?.[0]);
   if (selectedItem === undefined) throw TypeError;
 
-  return getTrackersFromMetadata(selectedItem);
+  return getTrackersFromItem(selectedItem);
 }
 
-export function getTrackersFromItem(item: Item): [Tracker[], boolean] {
-  return [getTrackersFromMetadata(item), getTrackersHiddenFromItem(item)];
-}
-
-function getTrackersFromMetadata(item: Item) {
-  const trackers: Tracker[] = [];
-
+export function getTrackersFromItem(item: Item) {
   const metadata = item.metadata[getPluginId(TRACKER_METADATA_ID)];
-  if (!metadata) return trackers;
+  if (metadata === undefined) return [];
   if (!Array.isArray(metadata)) {
     throw TypeError(`Expected an array, got ${typeof metadata}`);
   }
 
+  const trackers: Tracker[] = [];
   for (const tracker of metadata) {
     if (!isTracker(tracker)) {
-      console.log(
+      console.warn(
         "Invalid tracker detected and ignored, see contents below:",
         tracker,
       );

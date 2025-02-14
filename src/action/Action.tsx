@@ -15,7 +15,7 @@ import ActionHeader from "./ActionHeader";
 import ReportBugButton from "../components/ReportBugButton";
 import { useSceneSettingsStore } from "../useSceneSettingsStore";
 
-export function Action(): JSX.Element {
+export function Action(): React.JSX.Element {
   const mode = useOwlbearStore((state) => state.themeMode);
   const role = useOwlbearStore((state) => state.role);
 

@@ -25,7 +25,7 @@ export default function App({
   initialMode: "DARK" | "LIGHT";
   initialRole: "PLAYER" | "GM";
   editorProps: EditorAppConfig;
-}): JSX.Element {
+}): React.JSX.Element {
   useOwlbearStoreSync();
 
   const setRole = useOwlbearStore((state) => state.setRole);
