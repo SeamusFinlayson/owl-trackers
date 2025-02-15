@@ -77,8 +77,6 @@ export function isTracker(
 /////////////////////////////////////////////////////////////////////
 
 export const MAX_TRACKER_COUNT = 12;
-export const MAX_BUBBLE_COUNT = MAX_TRACKER_COUNT;
-export const MAX_BAR_COUNT = MAX_TRACKER_COUNT;
 export const TRACKER_METADATA_ID: string = "trackers";
 export const HIDDEN_METADATA_ID: string = "hidden";
 

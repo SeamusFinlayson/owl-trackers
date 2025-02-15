@@ -5,7 +5,6 @@ import NameInput from "../components/NameInput";
 import PartiallyControlledInput from "../components/PartiallyControlledInput";
 import { TrackerInput } from "../components/TrackerInput";
 import CheckedCircle from "../icons/CheckedCircle";
-import DeleteIcon from "../icons/DeleteIcon";
 import MathIcon from "../icons/MathIcon";
 import NoMathIcon from "../icons/NoMathIcon";
 import NotOnMap from "../icons/NotOnMap";
@@ -13,7 +12,7 @@ import OnMap from "../icons/OnMap";
 import SimpleMinusIcon from "../icons/SimpleMinusIcon";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
 import UncheckedCircle from "../icons/UncheckedCircle";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker, TrackerVariant } from "../trackerHelpersBasic";
 import { useTrackerStore } from "../useTrackerStore";
 import IconButton from "../components/IconButton";
 import { CSS } from "@dnd-kit/utilities";
@@ -52,6 +51,7 @@ export default function TrackerCard({
       style={style}
       {...attributes}
       className="relative flex cursor-default overflow-clip rounded-md bg-paper drop-shadow-sm dark:bg-paper-dark"
+      tabIndex={-1}
     >
       <div
         className={`${getBackgroundColor(tracker.color)} flex w-full flex-col justify-between`}
@@ -78,7 +78,9 @@ export default function TrackerCard({
                   }
                 />
                 <div className="text-xs text-text-primary dark:text-text-primary-dark">
-                  {tracker.name}
+                  {tracker.name !== undefined && tracker.name.trim() !== ""
+                    ? tracker.name
+                    : convertVariantToLabel(tracker.variant)}
                 </div>
               </button>
             </Tooltip>
@@ -212,4 +214,17 @@ export default function TrackerCard({
       </div>
     </div>
   );
+}
+
+function convertVariantToLabel(variant: TrackerVariant) {
+  switch (variant) {
+    case "checkbox":
+      return "Unnamed Checkbox";
+    case "counter":
+      return "Unnamed Counter";
+    case "value":
+      return "Unnamed Number";
+    case "value-max":
+      return "Unnamed Bar";
+  }
 }

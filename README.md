@@ -8,7 +8,7 @@ System-agnostic token trackers for [Owlbear Rodeo](https://www.owlbear.rodeo/).
 
 Install this extension using the install link: https://owl-trackers.onrender.com/manifest.json
 
-Coming soon: ~~The extension can be installed from the [store page](https://extensions.owlbear.rodeo/owl-trackers).~~
+Coming soon: The extension can be installed from the [store page](https://extensions.owlbear.rodeo/owl-trackers).
 
 ## How it Works
 

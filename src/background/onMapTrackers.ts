@@ -18,10 +18,9 @@ import {
   getTrackersHiddenFromItem,
 } from "../trackerHelpersItem";
 import {
-  MAX_BAR_COUNT,
   TRACKER_METADATA_ID,
   HIDDEN_METADATA_ID,
-  MAX_BUBBLE_COUNT,
+  MAX_TRACKER_COUNT,
 } from "../trackerHelpersBasic";
 import { BubblePosition } from "./trackerPositionHelper";
 import {
@@ -222,7 +221,7 @@ function getChangedItems(items: Image[]): Image[] {
     ) {
       // Bar text attachments must be deleted to prevent ghost selection highlight bug
       deleteItemsArray.push(
-        ...Array(MAX_BAR_COUNT)
+        ...Array(MAX_TRACKER_COUNT)
           .fill(undefined)
           .map((_, barIndex) => getBarTextId(items[i].id, barIndex)),
       );
@@ -268,7 +267,7 @@ async function updateItemTrackers(
     addAllItemAttachmentsToDeleteList(item.id);
   } else if (role === "PLAYER" && trackersHidden) {
     // Display limited trackers depending on GM configuration
-    console.log("Warning: limited view available");
+    console.log("Experimental limited view being displayed");
     createPlayerVisibleTrackers();
   } else {
     // Display full trackers
@@ -290,13 +289,14 @@ async function updateItemTrackers(
     const barHeight = MINIMAL_BAR_HEIGHT;
 
     // Add bar trackers
-    let barIndex = 0;
-    let barCount = 0;
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value-max") {
-        () => {};
-      } else if (tracker.showOnMap === false) {
-        deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
+    const barTrackers = trackers.filter(
+      (tracker) =>
+        tracker.showOnMap !== false && tracker.variant === "value-max",
+    );
+
+    barTrackers.map((tracker, index) => {
+      if (tracker.showOnMap === false) {
+        deleteItemsArray.push(...getBarItemIds(item.id, index));
       } else if (
         tracker.name !== undefined &&
         segmentSettings.has(tracker.name)
@@ -310,25 +310,24 @@ async function updateItemTrackers(
               x: origin.x,
               y:
                 origin.y -
-                barCount * barHeight +
+                index * barHeight +
                 bounds.height / 2 -
                 verticalOffset,
             },
             segmentSettings.get(tracker.name),
+            index,
           ),
         );
-        barCount++;
       }
-      barIndex++;
     });
 
     // Clean up extra bars
-    for (; barIndex < MAX_BAR_COUNT; barIndex++) {
-      deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
+    for (let i = barTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBarItemIds(item.id, i));
     }
 
     // Delete all bar text attachments
-    for (let i = 0; i < MAX_BAR_COUNT; i++) {
+    for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
       deleteItemsArray.push(getBarTextId(item.id, i));
     }
 
@@ -354,20 +353,15 @@ async function updateItemTrackers(
     const barHeight = barHeightIsReduced ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
 
     // Add bar trackers
-    let barIndex = 0;
-    let barCount = 0;
-    let bubbleCount = 0;
-    trackers.forEach((tracker) => {
-      if (tracker.variant === "value") bubbleCount++;
-    });
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value-max") {
-        () => {};
-      } else if (tracker.showOnMap === false) {
+
+    const barTrackers = trackers.filter(
+      (tracker) =>
+        tracker.showOnMap !== false && tracker.variant === "value-max",
+    );
+    barTrackers.map((tracker, index) => {
+      if (tracker.showOnMap === false) {
         // console.log("hidden", barIndex);
-        deleteItemsArray.push(
-          ...getBarItemIds(item.id, barIndex - bubbleCount),
-        );
+        deleteItemsArray.push(...getBarItemIds(item.id, index));
       } else {
         addItemsArray.push(
           ...createTrackerBar(
@@ -378,28 +372,26 @@ async function updateItemTrackers(
               x: origin.x,
               y:
                 origin.y -
-                barCount * barHeight +
+                index * barHeight +
                 bounds.height / 2 -
                 verticalOffset,
             },
+            index,
             barHeightIsReduced,
           ),
         );
-        barCount++;
       }
-      barIndex++;
     });
 
     // Clean up extra bars
-    for (; barIndex - bubbleCount < MAX_BAR_COUNT; barIndex++) {
-      // console.log(barIndex - bubbleCount);
-      deleteItemsArray.push(...getBarItemIds(item.id, barIndex - bubbleCount));
+    for (let i = barTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBarItemIds(item.id, i));
     }
 
     const bubblePosition = new BubblePosition(
       origin,
       bounds,
-      barCount,
+      barTrackers.length,
       barHeight,
       trackersAboveToken,
     );
@@ -421,31 +413,33 @@ async function updateItemTrackers(
     }
 
     // Add bubble trackers
-    let bubbleIndex = 0;
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value") {
-        () => {};
-      } else if (tracker.showOnMap === false) {
-        deleteItemsArray.push(...getBubbleItemIds(item.id, bubbleIndex));
-        () => {};
+    const bubbleTrackers = trackers.filter(
+      (tracker) =>
+        (tracker.showOnMap !== false && tracker.variant === "value") ||
+        tracker.variant === "counter",
+    );
+
+    bubbleTrackers.map((tracker, index) => {
+      if (tracker.showOnMap === false) {
+        deleteItemsArray.push(...getBubbleItemIds(item.id, index));
       } else {
         const position = bubblePosition.getNew();
         addItemsArray.push(
-          ...createTrackerBubble(item, tracker, {
-            x: position.x,
-            y: position.y - verticalOffset,
-          }),
+          ...createTrackerBubble(
+            item,
+            tracker,
+            {
+              x: position.x,
+              y: position.y - verticalOffset,
+            },
+            index,
+          ),
         );
       }
-      bubbleIndex++;
     });
 
-    // Clean up extra bubbles
-    for (; bubbleIndex - barCount < MAX_BUBBLE_COUNT; bubbleIndex++) {
-      // console.log(bubbleIndex - barCount);
-      deleteItemsArray.push(
-        ...getBubbleItemIds(item.id, bubbleIndex - barCount),
-      );
+    for (let i = bubbleTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBubbleItemIds(item.id, i));
     }
   }
 }
@@ -476,7 +470,7 @@ function deleteOrphanAttachments(newItems: Image[]) {
 }
 
 function addAllItemAttachmentsToDeleteList(itemId: string) {
-  for (let i = 0; i < MAX_BAR_COUNT; i++) {
+  for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
   }
   addAllBubbleTrackersToDeleteList(itemId);
@@ -484,7 +478,7 @@ function addAllItemAttachmentsToDeleteList(itemId: string) {
 }
 
 function addAllBubbleTrackersToDeleteList(itemId: string) {
-  for (let i = 0; i < MAX_BUBBLE_COUNT; i++) {
+  for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
     deleteItemsArray.push(...getBubbleItemIds(itemId, i));
   }
 }

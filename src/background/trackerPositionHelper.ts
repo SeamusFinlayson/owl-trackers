@@ -25,7 +25,8 @@ export class BubblePosition {
 
   getNew(): { x: number; y: number } {
     if ((this.rowIndex + 1) * (BUBBLE_DIAMETER + 2) > this.bounds.width) {
-      this.aboveToken ? this.columnIndex-- : this.columnIndex++;
+      if (this.aboveToken) this.columnIndex--;
+      else this.columnIndex++;
       this.rowIndex = 0;
     }
 

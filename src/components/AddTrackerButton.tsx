@@ -36,7 +36,7 @@ export default function AddTrackerButton({
 
   return (
     <div className="flex items-end justify-end">
-      {dense ? (
+      {dense === true ? (
         <IconButton Icon={AddIcon} onClick={handleClick} />
       ) : (
         <Tooltip title="Add Tracker">

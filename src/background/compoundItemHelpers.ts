@@ -32,8 +32,9 @@ export function createTrackerBubble(
   item: Item,
   tracker: Tracker,
   position: { x: number; y: number },
+  index: number,
 ): Item[] {
-  if (tracker.variant !== "value")
+  if (tracker.variant !== "value" && tracker.variant !== "counter")
     throw new Error("Expected value tracker variant");
 
   const bubbleShape = buildShape()
@@ -49,7 +50,7 @@ export function createTrackerBubble(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bubble-bg`)
+    .id(getBubbleBackgroundId(item.id, index))
     .visible(item.visible)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -78,7 +79,7 @@ export function createTrackerBubble(
     .attachedTo(item.id)
     .layer("TEXT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bubble-text`)
+    .id(getBubbleTextId(item.id, index))
     .visible(item.visible)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -108,7 +109,7 @@ export function createImageBubble(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${label}-img-bg`)
+    .id(getImageBackgroundId(item.id, label))
     .visible(item.visible)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -132,7 +133,7 @@ export function createImageBubble(
     .attachedTo(item.id)
     .locked(true)
     .name(`hide icon`)
-    .id(`${item.id}-${label}-img`)
+    .id(getImageId(item.id, label))
     .layer("NOTE")
     .disableHit(DISABLE_HIT)
     .visible(item.visible)
@@ -155,6 +156,7 @@ export function createTrackerBar(
   bounds: { width: number; height: number },
   tracker: Tracker,
   origin: { x: number; y: number },
+  index: number,
   reducedHeight = false,
   segments = 0,
 ): Item[] {
@@ -181,7 +183,7 @@ export function createTrackerBar(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bar-bg`)
+    .id(getBarBackgroundId(item.id, index))
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -201,7 +203,7 @@ export function createTrackerBar(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bar-fill`)
+    .id(getBarFillId(item.id, index))
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -234,7 +236,7 @@ export function createTrackerBar(
     .fillOpacity(1)
     .layer("TEXT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bar-text`)
+    .id(getBarTextId(item.id, index))
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -252,6 +254,7 @@ export function createMinimalTrackerBar(
   tracker: Tracker,
   origin: { x: number; y: number },
   segments = 0,
+  index: number,
 ): Item[] {
   const barHeight = MINIMAL_BAR_HEIGHT;
   const position = {
@@ -276,7 +279,7 @@ export function createMinimalTrackerBar(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bar-bg`)
+    .id(getBarBackgroundId(item.id, index))
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -296,7 +299,7 @@ export function createMinimalTrackerBar(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(`${item.id}-${tracker.position}-bar-fill`)
+    .id(getBarFillId(item.id, index))
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -312,25 +315,38 @@ function getFillPortion(value: number, maxValue: number, segments = 0) {
   return Math.ceil((value / maxValue) * segments) / segments;
 }
 
+export const getBubbleBackgroundId = (itemId: string, position: number) =>
+  `${itemId}-${position}-bubble-bg`;
+export const getBubbleTextId = (itemId: string, position: number) =>
+  `${itemId}-${position}-bubble-text`;
+
+export const getImageBackgroundId = (itemId: string, label: string) =>
+  `${itemId}-${label}-img-bg`;
+export const getImageId = (itemId: string, label: string) =>
+  `${itemId}-${label}-img`;
+
+export const getBarBackgroundId = (itemId: string, position: number) =>
+  `${itemId}-${position}-bar-bg`;
+export const getBarFillId = (itemId: string, position: number) =>
+  `${itemId}-${position}-bar-fill`;
+export const getBarTextId = (itemId: string, position: number) =>
+  `${itemId}-${position}-bar-text`;
+
 export function getBubbleItemIds(itemId: string, position: number) {
   return [
-    `${itemId}-${position}-bubble-bg`,
-    `${itemId}-${position}-bubble-text`,
+    getBubbleBackgroundId(itemId, position),
+    getBubbleTextId(itemId, position),
   ];
 }
 
 export function getImageBubbleItemIds(itemId: string, label: string) {
-  return [`${itemId}-${label}-img-bg`, `${itemId}-${label}-img`];
+  return [getImageBackgroundId(itemId, label), getImageId(itemId, label)];
 }
 
 export function getBarItemIds(itemId: string, position: number) {
   return [
-    `${itemId}-${position}-bar-bg`,
-    `${itemId}-${position}-bar-fill`,
-    `${itemId}-${position}-bar-text`,
+    getBarBackgroundId(itemId, position),
+    getBarFillId(itemId, position),
+    getBarTextId(itemId, position),
   ];
-}
-
-export function getBarTextId(itemId: string, position: number) {
-  return `${itemId}-${position}-bar-text`;
 }

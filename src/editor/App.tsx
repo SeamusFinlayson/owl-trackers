@@ -40,9 +40,9 @@ export default function App({
   const selection = useOwlbearStore((state) => state.selection);
   const items = useOwlbearStore((state) => state.items);
 
-  const item = items.find((value) => {
-    if (selection !== undefined) return value.id === selection[0];
-  });
+  const item = items.find(
+    (value) => selection !== undefined && value.id === selection[0],
+  );
 
   const [initDone, setInitDone] = useState<{
     trackers: boolean;
