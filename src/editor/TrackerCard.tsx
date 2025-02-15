@@ -146,6 +146,7 @@ export default function TrackerCard({
                 onConfirm={(content) =>
                   updateTrackerField(tracker.id, "value", content)
                 }
+                previousHint
               />
             ) : tracker.variant === "value-max" ? (
               <div className="flex gap-2" key={tracker.id}>
@@ -154,6 +155,7 @@ export default function TrackerCard({
                   onConfirm={(content) =>
                     updateTrackerField(tracker.id, "value", content)
                   }
+                  previousHint
                 />
                 <div>/</div>
                 <TrackerInput
@@ -161,6 +163,7 @@ export default function TrackerCard({
                   onConfirm={(content) =>
                     updateTrackerField(tracker.id, "max", content)
                   }
+                  previousHint
                 />
               </div>
             ) : tracker.variant === "checkbox" ? (

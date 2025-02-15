@@ -143,14 +143,14 @@ export function createImageBubble(
   return [bubbleShape, image];
 }
 
-// Constants used in createHealthBar()
+// Constants used in createBarTacker()
 const BAR_PADDING = 2;
 const FILL_OPACITY = 0.8;
 export const FULL_BAR_HEIGHT = 20;
 export const REDUCED_BAR_HEIGHT = 16;
 const BACKGROUND_OPACITY = 0.46;
 
-/** Creates health bar component items */
+/** Creates bar component items */
 export function createTrackerBar(
   item: Item,
   bounds: { width: number; height: number },
@@ -191,7 +191,7 @@ export function createTrackerBar(
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
-  const healthShape = buildShape()
+  const fillShape = buildShape()
     .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
     .height(barHeight)
     .shapeType("RECTANGLE")
@@ -216,7 +216,7 @@ export function createTrackerBar(
     ? REDUCED_BAR_HEIGHT + 2
     : FULL_BAR_HEIGHT + 2;
 
-  const healthText = buildText()
+  const barText = buildText()
     .position({
       x: position.x,
       y: position.y + TEXT_VERTICAL_OFFSET + -5.3 - (reducedHeight ? -0.8 : 0),
@@ -242,12 +242,12 @@ export function createTrackerBar(
     .disableHit(DISABLE_HIT)
     .build();
 
-  return [backgroundShape, healthShape, healthText];
+  return [backgroundShape, fillShape, barText];
 }
 
 export const MINIMAL_BAR_HEIGHT = 12;
 
-/** Creates health bar component items */
+/** Creates bar component items */
 export function createMinimalTrackerBar(
   item: Item,
   bounds: { width: number; height: number },
@@ -287,7 +287,7 @@ export function createMinimalTrackerBar(
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
-  const healthShape = buildShape()
+  const fillShape = buildShape()
     .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
     .height(barHeight)
     .shapeType("RECTANGLE")
@@ -305,7 +305,7 @@ export function createMinimalTrackerBar(
     .disableHit(DISABLE_HIT)
     .build();
 
-  return [backgroundShape, healthShape];
+  return [backgroundShape, fillShape];
 }
 
 function getFillPortion(value: number, maxValue: number, segments = 0) {

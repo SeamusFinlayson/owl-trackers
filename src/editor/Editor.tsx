@@ -55,7 +55,7 @@ export default function Editor({
     }),
   );
 
-  if (trackersHidden.value !== undefined && role === "PLAYER") {
+  if (trackersHidden.value === true && role === "PLAYER") {
     OBR.popover.close(getPluginId("editor"));
   }
 
@@ -100,7 +100,7 @@ export default function Editor({
 
         <div className="overflow-y-auto overflow-x-clip">
           {trackers.length !== 0 ? (
-            <div className="lg:grid-cols-3 md:grid-cols-2 grid w-full grid-cols-1 gap-x-2 gap-y-2 px-2 py-3">
+            <div className="grid w-full grid-cols-1 gap-x-2 gap-y-2 px-2 py-3 md:grid-cols-2 lg:grid-cols-3">
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}

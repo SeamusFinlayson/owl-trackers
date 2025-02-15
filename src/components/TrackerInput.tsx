@@ -6,16 +6,20 @@ export const TrackerInput = ({
   value,
   onConfirm,
   inputProps,
+  previousHint,
+  fullWidth,
 }: {
   value: string;
   onConfirm: (content: string) => void;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
+  previousHint?: boolean;
+  fullWidth?: boolean;
 }) => {
   const [hasFocus, setHasFocus] = useState(false);
   const [hasHover, setHasHover] = useState(false);
 
   return (
-    <div>
+    <div className={cn({ "w-full": fullWidth === true })}>
       <PartiallyControlledInput
         {...inputProps}
         parentValue={value.toString()}
@@ -48,11 +52,13 @@ export const TrackerInput = ({
           )}
         />
       </div>
-      <div
-        className={`pointer-events-none w-full  max-w-full -translate-y-2 overflow-clip text-nowrap text-2xs opacity-0 transition-all duration-150 peer-focus-within:translate-y-0 peer-focus-within:opacity-100`}
-      >
-        {value}
-      </div>
+      {previousHint === true && (
+        <div
+          className={`pointer-events-none w-full  max-w-full -translate-y-2 overflow-clip text-nowrap text-2xs opacity-0 transition-all duration-150 peer-focus-within:translate-y-0 peer-focus-within:opacity-100`}
+        >
+          {value}
+        </div>
+      )}
     </div>
   );
 };

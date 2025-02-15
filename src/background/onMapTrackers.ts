@@ -25,6 +25,7 @@ import {
 import { BubblePosition } from "./trackerPositionHelper";
 import {
   BAR_HEIGHT_METADATA_ID,
+  SEGMENTS_ENABLED_METADATA_ID,
   TRACKERS_ABOVE_METADATA_ID,
   VERTICAL_OFFSET_METADATA_ID,
   readBooleanFromMetadata,
@@ -41,20 +42,15 @@ let userRoleLast: "GM" | "PLAYER";
 let verticalOffset = 0;
 let trackersAboveToken = false;
 let barHeightIsReduced = false;
-const segmentsEnabled = false;
-// const segmentSettingsArray: [string, number][] = [
-//   ["health", 2],
-//   ["drive", 0],
-// ];
-// const segmentSettings = new Map<string, number>(segmentSettingsArray);
-// console.log(segmentSettings);
-const segmentSettings = new Map<string, number>([]);
+let segmentsEnabled = true;
+let segmentSettings = new Map<string, number>();
 
 export async function initOnMapTrackers() {
   // Handle when the scene is either changed or made ready after extension load
   OBR.scene.onReadyChange(async (isReady) => {
     if (isReady) {
       await getGlobalSettings();
+      await getSegmentSettings();
       await refreshAllTrackers();
       await startTrackerUpdates();
     }
@@ -64,31 +60,68 @@ export async function initOnMapTrackers() {
   const isReady = await OBR.scene.isReady();
   if (isReady) {
     await getGlobalSettings();
+    await getSegmentSettings();
     await refreshAllTrackers();
     await startTrackerUpdates();
   }
 }
 
+/** returns true if global settings have changed */
 async function getGlobalSettings(sceneMetadata?: Metadata): Promise<boolean> {
   // load settings from scene metadata if not passed to function
   if (typeof sceneMetadata === "undefined") {
     sceneMetadata = await OBR.scene.getMetadata();
   }
 
-  const [newVerticalOffset, newTrackersAboveToken, newBarHeightIsReduced] = [
+  const [
+    newVerticalOffset,
+    newTrackersAboveToken,
+    newBarHeightIsReduced,
+    newSegmentsEnabled,
+  ] = [
     readNumberFromMetadata(sceneMetadata, VERTICAL_OFFSET_METADATA_ID),
     readBooleanFromMetadata(sceneMetadata, TRACKERS_ABOVE_METADATA_ID),
     readBooleanFromMetadata(sceneMetadata, BAR_HEIGHT_METADATA_ID),
+    readBooleanFromMetadata(sceneMetadata, SEGMENTS_ENABLED_METADATA_ID),
   ];
 
   const doRefresh =
     newVerticalOffset !== verticalOffset ||
     newTrackersAboveToken !== trackersAboveToken ||
-    newBarHeightIsReduced !== barHeightIsReduced;
+    newBarHeightIsReduced !== barHeightIsReduced ||
+    newSegmentsEnabled !== segmentsEnabled;
 
   verticalOffset = newVerticalOffset;
   trackersAboveToken = newTrackersAboveToken;
   barHeightIsReduced = newBarHeightIsReduced;
+  segmentsEnabled = newSegmentsEnabled;
+
+  return doRefresh;
+}
+
+/** Returns true is segment settings have changed*/
+async function getSegmentSettings(sceneMetadata?: Metadata): Promise<boolean> {
+  // load settings from scene metadata if not passed to function
+  if (typeof sceneMetadata === "undefined") {
+    sceneMetadata = await OBR.scene.getMetadata();
+  }
+
+  let doRefresh = false;
+
+  const newSegmentSettings = sceneMetadata[getPluginId("segmentSettings")] as
+    | [string, number][]
+    | undefined;
+  if (newSegmentSettings !== undefined) {
+    if (newSegmentSettings.length !== segmentSettings.size) doRefresh = true;
+    for (const setting of newSegmentSettings) {
+      if (
+        !segmentSettings.has(setting[0]) ||
+        segmentSettings.get(setting[0]) !== setting[1]
+      )
+        doRefresh = true;
+    }
+    segmentSettings = new Map(newSegmentSettings);
+  }
 
   return doRefresh;
 }
@@ -144,7 +177,10 @@ async function startTrackerUpdates() {
     // Handle Global settings changes
     const unsubscribeFromSceneMetadata = OBR.scene.onMetadataChange(
       async (metadata) => {
-        if (await getGlobalSettings(metadata)) refreshAllTrackers();
+        const globalSettingsChanged = await getGlobalSettings(metadata);
+        const segmentSettingsChanged = await getSegmentSettings(metadata);
+        if (globalSettingsChanged || segmentSettingsChanged)
+          refreshAllTrackers();
       },
     );
 
@@ -289,18 +325,17 @@ async function updateItemTrackers(
     const barHeight = MINIMAL_BAR_HEIGHT;
 
     // Add bar trackers
+    const segmentSettingsNames = [...segmentSettings.keys()];
     const barTrackers = trackers.filter(
       (tracker) =>
-        tracker.showOnMap !== false && tracker.variant === "value-max",
+        tracker.name !== undefined &&
+        segmentSettingsNames.includes(tracker.name) &&
+        tracker.showOnMap !== false &&
+        tracker.variant === "value-max",
     );
 
     barTrackers.map((tracker, index) => {
-      if (tracker.showOnMap === false) {
-        deleteItemsArray.push(...getBarItemIds(item.id, index));
-      } else if (
-        tracker.name !== undefined &&
-        segmentSettings.has(tracker.name)
-      ) {
+      if (tracker.name !== undefined && segmentSettings.has(tracker.name)) {
         addItemsArray.push(
           ...createMinimalTrackerBar(
             item,

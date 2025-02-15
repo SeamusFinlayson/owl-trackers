@@ -60,7 +60,7 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
           tracker.variant === "value-max" ||
           tracker.variant === "counter")
       ) {
-        value = inlineMath(
+        value = parseContentForNumber(
           content,
           tracker.value,
           tracker.inlineMath !== false,
@@ -70,7 +70,11 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
         typeof content === "string" &&
         tracker.variant === "value-max"
       ) {
-        value = inlineMath(content, tracker.max, tracker.inlineMath !== false);
+        value = parseContentForNumber(
+          content,
+          tracker.max,
+          tracker.inlineMath !== false,
+        );
       } else {
         value = content;
       }
@@ -160,10 +164,11 @@ function sideEffects(state: TrackerState) {
   state.writeToSaveLocation(state.trackers);
 }
 
-function inlineMath(
+export function parseContentForNumber(
   inputContent: string,
   previousValue: number,
   doInlineMath = true,
+  bounds?: { min?: number; max?: number },
 ): number {
   if (inputContent.startsWith("=")) {
     inputContent = inputContent.substring(1).trim();
@@ -178,6 +183,11 @@ function inlineMath(
     (inputContent.startsWith("+") || inputContent.startsWith("-"))
   ) {
     return Math.trunc(previousValue + Math.trunc(newValue));
+  }
+
+  if (bounds !== undefined) {
+    if (bounds.max !== undefined && newValue > bounds.max) return bounds.max;
+    if (bounds.min !== undefined && newValue < bounds.min) return bounds.min;
   }
 
   return newValue;

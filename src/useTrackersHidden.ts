@@ -34,12 +34,13 @@ export const useTrackersHidden = (): {
   return { value: trackersHidden, toggle: toggleTrackersHidden };
 };
 
-async function getTrackersHiddenFromSelection(items: Item[]): Promise<boolean> {
+async function getTrackersHiddenFromSelection(
+  items: Item[],
+): Promise<boolean | undefined> {
   const selection = await OBR.player.getSelection();
   const selectedItem = items.find((item) => item.id === selection?.[0]);
 
-  if (selectedItem === undefined)
-    throw new Error("Could not find selected item");
+  if (selectedItem === undefined) return undefined;
 
   return getTrackersHiddenFromItem(selectedItem);
 }

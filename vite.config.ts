@@ -17,8 +17,8 @@ export default defineConfig({
       },
     },
   },
-  // server: {
-  //   // cors: true,
-  //   // origin: "https://www.owlbear.rodeo",
-  // },
+  server: {
+    cors: true,
+    // origin: "https://www.owlbear.rodeo",
+  },
 });
