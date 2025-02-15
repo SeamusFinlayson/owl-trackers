@@ -2,12 +2,14 @@ import {
   AttachmentBehavior,
   Image,
   Item,
+  buildCurve,
   buildImage,
   buildShape,
   buildText,
 } from "@owlbear-rodeo/sdk";
 import { getColor } from "../colorHelpers";
 import { Tracker } from "../trackerHelpersBasic";
+import { createRoundedRectangle, getFillPortion } from "./mathHelpers";
 
 // Constants used in multiple functions
 const FONT = "Roboto, sans-serif";
@@ -148,7 +150,8 @@ const BAR_PADDING = 2;
 const FILL_OPACITY = 0.8;
 export const FULL_BAR_HEIGHT = 20;
 export const REDUCED_BAR_HEIGHT = 16;
-const BACKGROUND_OPACITY = 0.46;
+const BACKGROUND_OPACITY = 0.7;
+const BAR_CORNER_RADIUS = FULL_BAR_HEIGHT / 2;
 
 /** Creates bar component items */
 export function createTrackerBar(
@@ -172,10 +175,7 @@ export function createTrackerBar(
 
   const trackerBackgroundColor = "black"; // "#A4A4A4";
 
-  const backgroundShape = buildShape()
-    .width(barWidth)
-    .height(barHeight)
-    .shapeType("RECTANGLE")
+  const backgroundShape = buildCurve()
     .fillColor(trackerBackgroundColor)
     .fillOpacity(BACKGROUND_OPACITY)
     .strokeWidth(0)
@@ -187,14 +187,14 @@ export function createTrackerBar(
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
+    .tension(0)
+    .closed(true)
+    .points(createRoundedRectangle(barWidth, barHeight, BAR_CORNER_RADIUS))
     .build();
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
-  const fillShape = buildShape()
-    .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
-    .height(barHeight)
-    .shapeType("RECTANGLE")
+  const fillShape = buildCurve()
     .fillColor(getColor(tracker.color))
     .fillOpacity(FILL_OPACITY)
     .strokeWidth(0)
@@ -207,6 +207,16 @@ export function createTrackerBar(
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
+    .tension(0)
+    .closed(true)
+    .points(
+      createRoundedRectangle(
+        barWidth,
+        barHeight,
+        BAR_CORNER_RADIUS,
+        fillPortion,
+      ),
+    )
     .build();
 
   const barTextHeight = reducedHeight
@@ -268,10 +278,7 @@ export function createMinimalTrackerBar(
 
   const trackerBackgroundColor = "black"; // "#A4A4A4";
 
-  const backgroundShape = buildShape()
-    .width(barWidth)
-    .height(barHeight)
-    .shapeType("RECTANGLE")
+  const backgroundShape = buildCurve()
     .fillColor(trackerBackgroundColor)
     .fillOpacity(BACKGROUND_OPACITY)
     .strokeWidth(0)
@@ -283,14 +290,14 @@ export function createMinimalTrackerBar(
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
+    .tension(0)
+    .closed(true)
+    .points(createRoundedRectangle(barWidth, barHeight, BAR_CORNER_RADIUS))
     .build();
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
 
-  const fillShape = buildShape()
-    .width(fillPortion === 0 ? 0 : barWidth * fillPortion)
-    .height(barHeight)
-    .shapeType("RECTANGLE")
+  const fillShape = buildCurve()
     .fillColor(getColor(tracker.color))
     .fillOpacity(FILL_OPACITY)
     .strokeWidth(0)
@@ -303,16 +310,19 @@ export function createMinimalTrackerBar(
     .visible(setVisibilityProperty)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
+    .tension(0)
+    .closed(true)
+    .points(
+      createRoundedRectangle(
+        barWidth,
+        barHeight,
+        BAR_CORNER_RADIUS,
+        fillPortion,
+      ),
+    )
     .build();
 
   return [backgroundShape, fillShape];
-}
-
-function getFillPortion(value: number, maxValue: number, segments = 0) {
-  if (value <= 0) return 0;
-  if (value >= maxValue) return 1;
-  if (segments === 0) return value / maxValue;
-  return Math.ceil((value / maxValue) * segments) / segments;
 }
 
 export const getBubbleBackgroundId = (itemId: string, position: number) =>

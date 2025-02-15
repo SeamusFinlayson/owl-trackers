@@ -32,7 +32,6 @@ import {
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
 
-let tokenIds: string[] = []; // for orphan health bar management
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
 const deleteItemsArray: string[] = []; // for bulk deletion of scene items
@@ -140,21 +139,15 @@ async function refreshAllTrackers() {
   const roll = await OBR.player.getRole();
   const sceneDpi = await OBR.scene.grid.getDpi();
   for (const item of items) {
-    await updateItemTrackers(item, roll, sceneDpi);
+    updateItemTrackers(item, roll, sceneDpi);
   }
 
   await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
-  await OBR.scene.local.addItems(addItemsArray); //bulk add items
+  await batchAddToScene(addItemsArray);
+  // await OBR.scene.local.addItems(addItemsArray); //bulk add items
   //clear add and delete arrays arrays
   addItemsArray.length = 0;
   deleteItemsArray.length = 0;
-
-  //update global item id list for orphaned health bar monitoring
-  const itemIds: string[] = [];
-  for (const item of items) {
-    itemIds.push(item.id);
-  }
-  tokenIds = itemIds;
 }
 
 async function startTrackerUpdates() {
@@ -198,9 +191,6 @@ async function startTrackerUpdates() {
           }
         }
 
-        //get rid of tracker attachments that no longer attach to anything
-        deleteOrphanAttachments(imagesFromCallback);
-
         const changedItems = getChangedItems(imagesFromCallback);
 
         //update array of all items currently on the board
@@ -211,7 +201,7 @@ async function startTrackerUpdates() {
         const sceneDpi = await OBR.scene.grid.getDpi();
 
         for (const item of changedItems) {
-          await updateItemTrackers(item, role, sceneDpi);
+          updateItemTrackers(item, role, sceneDpi);
         }
 
         await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
@@ -285,7 +275,7 @@ function getChangedItems(items: Image[]): Image[] {
   return changedItems;
 }
 
-async function updateItemTrackers(
+function updateItemTrackers(
   item: Image,
   role: "PLAYER" | "GM",
   sceneDpi: number,
@@ -486,24 +476,6 @@ const getImageBounds = (item: Image, dpi: number) => {
   return { width, height };
 };
 
-function deleteOrphanAttachments(newItems: Image[]) {
-  const newItemIds: string[] = [];
-  for (const item of newItems) {
-    newItemIds.push(item.id);
-  }
-
-  //check for orphaned health bars
-  for (const oldId of tokenIds) {
-    if (!newItemIds.includes(oldId)) {
-      // delete orphaned health bar
-      addAllItemAttachmentsToDeleteList(oldId);
-    }
-  }
-
-  // update item list with current values
-  tokenIds = newItemIds;
-}
-
 function addAllItemAttachmentsToDeleteList(itemId: string) {
   for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
@@ -520,4 +492,14 @@ function addAllBubbleTrackersToDeleteList(itemId: string) {
 
 function addHideBubbleToDeleteList(itemId: string) {
   deleteItemsArray.push(...getImageBubbleItemIds(itemId, "hide"));
+}
+
+// Prevent errors when many items are added at onces
+const MAX_UPDATE_LENGTH = 100;
+async function batchAddToScene(items: Item[]) {
+  for (let i = 0; i < Math.ceil(items.length / MAX_UPDATE_LENGTH); i++) {
+    await OBR.scene.local.addItems(
+      items.slice(i * MAX_UPDATE_LENGTH, (i + 1) * MAX_UPDATE_LENGTH),
+    );
+  }
 }

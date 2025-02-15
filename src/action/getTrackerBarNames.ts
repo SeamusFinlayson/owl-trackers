@@ -1,9 +1,10 @@
-import OBR, { Item } from "@owlbear-rodeo/sdk";
+import OBR, { Item, Metadata } from "@owlbear-rodeo/sdk";
 import { getTrackersFromItem } from "../trackerHelpersItem";
 import { useEffect, useState } from "react";
+import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
 
 export function useTrackerBarNames() {
-  const [trackerBarNames, setTrackerBarNames] = useState<string[]>([]);
+  const [itemTrackerBarNames, setItemTrackerBarNames] = useState<string[]>([]);
 
   useEffect(() => {
     const getTrackerBarNames = (items: Item[]) => {
@@ -16,12 +17,32 @@ export function useTrackerBarNames() {
         }
       }
 
-      setTrackerBarNames([...trackerBarNames]);
+      setItemTrackerBarNames([...trackerBarNames]);
     };
 
     OBR.scene.items.getItems().then(getTrackerBarNames);
     return OBR.scene.items.onChange(getTrackerBarNames);
   }, []);
 
-  return trackerBarNames;
+  const [sceneTrackerBarNames, setSceneTrackerBarNames] = useState<string[]>(
+    [],
+  );
+
+  useEffect(() => {
+    const getTrackerBarNames = (sceneMetadata: Metadata) => {
+      const trackerBarNames = new Set<string>();
+      const trackers = getTrackersFromSceneMetadata(sceneMetadata);
+      for (const tracker of trackers) {
+        if (tracker.variant === "value-max" && tracker.name !== undefined)
+          trackerBarNames.add(tracker.name);
+      }
+
+      setSceneTrackerBarNames([...trackerBarNames]);
+    };
+
+    OBR.scene.getMetadata().then(getTrackerBarNames);
+    return OBR.scene.onMetadataChange(getTrackerBarNames);
+  }, []);
+
+  return [...new Set([...itemTrackerBarNames, ...sceneTrackerBarNames])];
 }
