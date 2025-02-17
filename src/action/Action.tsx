@@ -1,6 +1,5 @@
 import { useOwlbearStore } from "../useOwlbearStore";
 import IconButton from "../components/IconButton";
-import MoreIcon from "../icons/MoreIcon";
 import OBR, { Metadata } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import ToggleButton from "../components/ToggleButton";
@@ -22,6 +21,7 @@ import DeleteIcon from "../icons/DeleteIcon";
 import { TrackerInput } from "../components/TrackerInput";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
 import { parseContentForNumber } from "../useTrackerStore";
+import OpenInNewIcon from "../icons/OpenInNewIcon";
 
 export function Action(): React.JSX.Element {
   const mode = useOwlbearStore((state) => state.themeMode);
@@ -127,7 +127,7 @@ export function Action(): React.JSX.Element {
                   Set scene default trackers
                 </h2>
                 <IconButton
-                  Icon={MoreIcon}
+                  Icon={OpenInNewIcon}
                   onClick={() =>
                     OBR.popover.open({
                       id: getPluginId("scene-editor"),
