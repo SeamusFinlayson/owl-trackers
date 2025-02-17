@@ -98,7 +98,7 @@ export default function Editor({
           </div>
         </div>
 
-        <div className="overflow-y-auto overflow-x-clip">
+        <div className="h-full overflow-y-auto overflow-x-clip">
           {trackers.length !== 0 ? (
             <div className="grid w-full grid-cols-1 gap-x-2 gap-y-2 px-2 py-3 md:grid-cols-2 lg:grid-cols-3">
               <DndContext
@@ -135,12 +135,14 @@ export default function Editor({
               </DndContext>
             </div>
           ) : autofillTrackers.length !== 0 ? (
-            <button
-              className="mt-3 rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline shadow hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
-              onClick={() => overWriteTrackers(autofillTrackers)}
-            >
-              Use scene trackers
-            </button>
+            <div className="flex justify-center">
+              <button
+                className="mt-3 rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline shadow hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
+                onClick={() => overWriteTrackers(autofillTrackers)}
+              >
+                Use scene trackers
+              </button>
+            </div>
           ) : (
             <div className="mt-2 rounded-lg border-none p-[6px] text-center text-text-secondary no-underline dark:text-text-secondary-dark">
               Scene trackers not set
