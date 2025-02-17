@@ -2,7 +2,7 @@
 title: Owl Trackers
 description: Elegant system-agnostic token trackers
 author: Seamus Finlayson
-image: https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/f09269a8-295e-4dca-af31-3f70c1d1bde0
+image: https://github.com/user-attachments/assets/d44f48ff-bb1b-4683-af7a-e991acb614ee
 icon: https://owl-trackers.onrender.com/owl-trackers-logo.svg
 tags:
   - combat
@@ -16,35 +16,41 @@ _Elegant system-agnostic token trackers_
 
 ## How it Works
 
-This extension allows you to track up to eight stats on your tokens for any gaming system you use.
+This extension allows you to track up to twelve stats on your tokens for any gaming system you use.
 
 ### The Basics
 
 **Right click** on a token to access the **context menu embed** and edit a token's stats.
 
-![context menu embed](https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/e5a0069d-49e0-469e-b46e-0a275d24ae99)
+![Context Menu](https://github.com/user-attachments/assets/03a5a0db-0ba1-4a8a-acf1-4fdae8e572aa)
 
-**Inline math** lets you do addition or subtraction inside a tracker's text field. To add 2 to your stat type +2 and press "enter" or click away. To subtract 2 from your stat type -2 and press "enter" or click away.
+**Inline math** lets you do addition or subtraction inside a tracker's text field.
 
-<img name="Use Scene Defaults" src="https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/b2798de9-ce51-4381-b1fc-59e6bd5bbeb6" width=500>
+<img name="Inline Math" src="https://github.com/user-attachments/assets/44df0133-b004-46ea-a331-835d7dcac15b" width=500>
 
-The **three dots icon** in the context embed opens the **editor** which gives you more in depth control over a token's trackers. In the editor you can give a tracker a name, a colour, toggle whether or not it is displayed on the map, and toggle whether or not inline math is enabled. You should disable inline math if you want ot store negative numbers in the tracker.
+There are three different inline math commands, using 7 as an example number:
 
-![editor](https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/6229be01-72e5-4af0-b89c-1f6de9b4257d)
+- "-7" subtract 7 from the current tracker value
+- "+7" add 7 to the current tracker value
+- "=-7" set the trackers value to -7
+
+The **three dots icon** in the context embed opens the **editor** which gives you more in depth control over a token's trackers.
+
+In the editor you can give a tracker a name, a colour, toggle whether or not it is displayed on the map, toggle whether or not inline math is enabled, and rearrange the trackers. You may want to disable inline math if you want to store negative numbers in the tracker.
+
+![Editor](https://github.com/user-attachments/assets/070fa0ae-6191-4a7c-acf9-98bd7e837e9a)
 
 ### Scene Defaults
 
 You can set default trackers for the scene in the **action popover** by clicking the three dots icon next to the "Set scene default trackers" label.
 
-<img name="Action Menu" src="https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/7be4db79-32cb-46c9-a03d-5ac16479f4bd" width=326>
-
 This will open the **scene defaults editor**, which is very similar to the editor but for the scene instead of a specific token. Say, for example, that you play D&D. You might want every creature to have Hit Points, Temporary Hit Points and Armor Class.
 
-![Screenshot 2024-03-11 193035](https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/42de88f5-5981-43e2-b164-4ddc308838b7)
+![Scene Trackers](https://github.com/user-attachments/assets/eb41f257-422a-4983-9321-054b197fd479)
 
 Once you've set the defaults for the scene you can add them to any token with a single click.
 
-<img name="Use Scene Defaults" src="https://github.com/SeamusFinlayson/owl-trackers/assets/77430559/0a13f96d-ecec-4b96-b496-2421dfb4a805" width=500>
+<img name="Use Scene Defaults" src="https://github.com/user-attachments/assets/cf9cadfb-b9f6-48ca-810b-03680d35aba6" width=500>
 
 ### Uninstalling
 
@@ -59,3 +65,7 @@ I may accept feature requests but - as I have limited time and development plans
 If you need support for this extension you can message me in the [Owlbear Rodeo Discord](https://discord.gg/yWSErB6Qaj) @Seamus or open an issue on [GitHub](https://github.com/SeamusFinlayson/owl-trackers).
 
 If you like using this extension consider [supporting me on Patreon](https://www.patreon.com/SeamusFinlayson) where paid members can request features. You can also follow along there as a free member for updates.
+
+## Attributions
+
+The logo uses the image "[Owl Origami](https://www.svgrepo.com/svg/423815/owl-origami-paper)" by [Lima Studios](https://dribbble.com/limastd?ref=svgrepo.com), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
