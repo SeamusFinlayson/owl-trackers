@@ -6,6 +6,7 @@ import {
   readBooleanFromMetadata,
   TRACKERS_ABOVE_METADATA_ID,
   BAR_HEIGHT_METADATA_ID,
+  SEGMENTS_ENABLED_METADATA_ID,
 } from "./sceneMetadataHelpers";
 import { useOwlbearStore } from "./useOwlbearStore";
 import { useSceneSettingsStore } from "./useSceneSettingsStore";
@@ -22,6 +23,9 @@ export function useSceneSettingsStoreSync() {
   const setBarHeightIsReduced = useSceneSettingsStore(
     (state) => state.setBarHeightIsReduced,
   );
+  const setSegmentsEnabled = useSceneSettingsStore(
+    (state) => state.setSegmentsEnabled,
+  );
 
   const setSettings = (metadata: Metadata) => {
     setVerticalOffset(
@@ -32,6 +36,9 @@ export function useSceneSettingsStoreSync() {
     );
     setBarHeightIsReduced(
       readBooleanFromMetadata(metadata, BAR_HEIGHT_METADATA_ID),
+    );
+    setSegmentsEnabled(
+      readBooleanFromMetadata(metadata, SEGMENTS_ENABLED_METADATA_ID),
     );
   };
 

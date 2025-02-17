@@ -1,6 +1,6 @@
 import { IconProps } from "../components/IconPropsType";
 
-export default function NotOnMap(props: IconProps): JSX.Element {
+export default function NotOnMap(props: IconProps): React.JSX.Element {
   return (
     <svg
       {...props}

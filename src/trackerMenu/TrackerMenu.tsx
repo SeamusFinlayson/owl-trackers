@@ -1,127 +1,167 @@
 import { useEffect, useState } from "react";
 import { useOwlbearStore } from "../useOwlbearStore";
 import "../index.css";
-import BubbleInput from "../components/BubbleInput";
+import NumberTrackerInput from "../components/NumberTrackerInput";
 import IconButton from "../components/IconButton";
-import AddIcon from "../icons/AddIcon";
-import AddSquareIcon from "../icons/AddSquareIcon";
 import VisibleIcon from "../icons/VisibleIcon";
 import NotVisibleIcon from "../icons/NotVisibleIcon";
-import BarInput from "../components/BarInput";
-import {
-  addTrackerBar,
-  addTrackerBubble,
-  getTrackersFromSelection,
-  overwriteTrackers,
-  toggleTrackersHidden,
-  updateTrackerField,
-} from "../trackerHelpersItem";
-import OBR from "@owlbear-rodeo/sdk";
+
+import OBR, { Item, Metadata } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
-import MoreIcon from "../icons/MoreIcon";
-import { Tracker, checkOccupiedSpaces } from "../trackerHelpersBasic";
+import { Tracker } from "../trackerHelpersBasic";
 import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
-// import "./temp.css";
+import { useTrackersHidden } from "../useTrackersHidden";
+import { useTrackerStore } from "../useTrackerStore";
+import { getTrackersFromSelection } from "../trackerHelpersItem";
+import BarTrackerInput from "../components/BarTrackerInput";
+import CheckboxTrackerInput from "../components/CheckboxTrackerInput";
+import OpenInNewIcon from "../icons/OpenInNewIcon";
+import AddTrackerButton from "../components/AddTrackerButton";
+import CounterTrackerInput from "../components/CounterTrackerInput";
 
 export default function TrackerMenu({
-  initialHidden,
-  initialTrackers,
   initialSceneTrackers,
 }: {
-  initialHidden: boolean;
-  initialTrackers: Tracker[];
   initialSceneTrackers: Tracker[];
-}): JSX.Element {
+}): React.JSX.Element {
   const role = useOwlbearStore((state) => state.role);
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
 
-  const [trackersHidden, setTrackersHidden] = useState(initialHidden);
-  const [trackers, setTrackers] = useState<Tracker[]>(initialTrackers);
+  const trackers = useTrackerStore((state) => state.trackers);
+  const setTrackers = useTrackerStore((state) => state.setTrackers);
+  const overWriteTrackers = useTrackerStore((state) => state.overWriteTrackers);
+  const updateTrackerField = useTrackerStore(
+    (state) => state.updateTrackerField,
+  );
+
+  const trackersHidden = useTrackersHidden();
   const [sceneTrackers, setSceneTrackers] =
     useState<Tracker[]>(initialSceneTrackers);
 
-  useEffect(
-    () =>
-      OBR.scene.items.onChange((items) =>
-        getTrackersFromSelection(items).then(
-          ([newTracker, newTrackersHidden]) => {
-            setTrackers(newTracker);
-            setTrackersHidden(newTrackersHidden);
-          },
-        ),
-      ),
-    [],
-  );
+  const [initDone, setInitDone] = useState<{
+    trackers: boolean;
+    sceneTrackers: boolean;
+  }>({ trackers: false, sceneTrackers: false });
 
-  useEffect(
-    () =>
-      OBR.scene.onMetadataChange((metadata) =>
-        setSceneTrackers(getTrackersFromSceneMetadata(metadata)),
-      ),
-    [],
-  );
+  useEffect(() => {
+    const updateTrackers = (items: Item[]) => {
+      getTrackersFromSelection(items).then((newTracker) => {
+        setTrackers(newTracker);
+      });
+    };
+    OBR.scene.items
+      .getItems()
+      .then(updateTrackers)
+      .then(() => setInitDone((prev) => ({ ...prev, trackers: true })));
+    return OBR.scene.items.onChange(updateTrackers);
+  }, []);
 
-  const generateInput = (tracker: Tracker): JSX.Element => {
+  useEffect(() => {
+    const updateSceneTrackers = (metadata: Metadata) => {
+      setSceneTrackers(getTrackersFromSceneMetadata(metadata));
+    };
+    OBR.scene
+      .getMetadata()
+      .then(updateSceneTrackers)
+      .then(() => {
+        setInitDone((prev) => ({ ...prev, sceneTrackers: true }));
+      });
+    return OBR.scene.onMetadataChange(updateSceneTrackers);
+  }, []);
+
+  const generateInput = (tracker: Tracker): React.JSX.Element => {
     if (tracker.variant === "value") {
       return (
-        <BubbleInput
+        <NumberTrackerInput
           key={tracker.id}
           tracker={tracker}
           color={tracker.color}
           updateHandler={(content: string) =>
-            updateTrackerField(tracker.id, "value", content, setTrackers)
+            updateTrackerField(tracker.id, "value", content)
           }
           animateOnlyWhenRootActive={true}
-        ></BubbleInput>
+        />
       );
-    }
-    return (
-      <BarInput
-        key={tracker.id}
-        tracker={tracker}
-        color={tracker.color}
-        updateValueMetadata={(content: string) =>
-          updateTrackerField(tracker.id, "value", content, setTrackers)
-        }
-        updateMaxMetadata={(content: string) =>
-          updateTrackerField(tracker.id, "max", content, setTrackers)
-        }
-        animateOnlyWhenRootActive={true}
-      ></BarInput>
-    );
+    } else if (tracker.variant === "value-max") {
+      return (
+        <BarTrackerInput
+          key={tracker.id}
+          tracker={tracker}
+          color={tracker.color}
+          valueUpdateHandler={(content: string) =>
+            updateTrackerField(tracker.id, "value", content)
+          }
+          maxUpdateHandler={(content: string) =>
+            updateTrackerField(tracker.id, "max", content)
+          }
+          animateOnlyWhenRootActive={true}
+        />
+      );
+    } else if (tracker.variant === "counter") {
+      return (
+        <CounterTrackerInput
+          key={tracker.id}
+          tracker={tracker}
+          color={tracker.color}
+          updateHandler={(content: string) =>
+            updateTrackerField(tracker.id, "value", content)
+          }
+          increment={() =>
+            updateTrackerField(
+              tracker.id,
+              "value",
+              `=${(tracker.value + 1).toString()}`,
+            )
+          }
+          decrement={() =>
+            updateTrackerField(
+              tracker.id,
+              "value",
+              `=${(tracker.value - 1).toString()}`,
+            )
+          }
+          animateOnlyWhenRootActive={true}
+        />
+      );
+    } else
+      return (
+        <CheckboxTrackerInput
+          key={tracker.id}
+          tracker={tracker}
+          color={tracker.color}
+          updateHandler={(checked) =>
+            updateTrackerField(tracker.id, "checked", checked)
+          }
+          animateOnlyWhenRootActive={true}
+        />
+      );
   };
 
+  if (!initDone.trackers || !initDone.sceneTrackers) return <></>;
+
   return (
-    // <button className="box"></button>
     <div
       className={`${mode === "DARK" ? "dark" : ""} h-screen overflow-y-auto`}
     >
-      <div
-        className={`flex flex-col gap-2 ${checkOccupiedSpaces(trackers) === 5 ? "px-8" : "px-4"} py-1`}
-      >
-        <div className="flex flex-row justify-center self-center rounded-full bg-white/25 dark:bg-black/25">
-          <IconButton
-            Icon={AddIcon}
-            onClick={() => addTrackerBubble(trackers, setTrackers)}
-          ></IconButton>
-          <IconButton
-            Icon={AddSquareIcon}
-            onClick={() => addTrackerBar(trackers, setTrackers)}
-          ></IconButton>
+      <div className={`flex flex-col gap-2 px-2 py-1`}>
+        <div className="flex flex-row justify-center gap-1 self-center rounded-full bg-white/25 p-0.5 dark:bg-black/25">
           {role === "GM" && (
             <IconButton
-              Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-              onClick={() => toggleTrackersHidden(setTrackersHidden)}
+              Icon={
+                trackersHidden.value === true ? NotVisibleIcon : VisibleIcon
+              }
+              onClick={() => trackersHidden.toggle()}
             ></IconButton>
           )}
+          <AddTrackerButton dense />
           <IconButton
-            Icon={MoreIcon}
+            Icon={OpenInNewIcon}
             onClick={() => {
               OBR.popover.open({
                 id: getPluginId("editor"),
                 url: "/src/editor/editor.html",
-                height: 600,
-                width: 500,
+                height: 550,
+                width: 430,
                 anchorOrigin: { horizontal: "CENTER", vertical: "CENTER" },
                 transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
               });
@@ -129,13 +169,13 @@ export default function TrackerMenu({
           ></IconButton>
         </div>
         {trackers.length !== 0 ? (
-          <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 rounded-xl bg-white/0">
+          <div className="flex flex-wrap justify-center gap-x-2 gap-y-1 rounded-xl bg-white/0">
             {trackers.map((tracker) => generateInput(tracker))}
           </div>
         ) : sceneTrackers.length !== 0 ? (
           <button
             className="self-center justify-self-center rounded-lg border-none bg-white/30 p-[6px] text-center text-text-primary no-underline hover:bg-white/20 dark:bg-black/15 dark:text-text-primary-dark dark:hover:bg-black/35"
-            onClick={() => overwriteTrackers(sceneTrackers, setTrackers)}
+            onClick={() => overWriteTrackers(sceneTrackers)}
           >
             Use scene trackers
           </button>

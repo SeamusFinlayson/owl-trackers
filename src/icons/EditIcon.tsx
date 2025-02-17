@@ -1,6 +1,6 @@
 import { IconProps } from "../components/IconPropsType";
 
-export default function EditIcon(svgProps: IconProps): JSX.Element {
+export default function EditIcon(svgProps: IconProps): React.JSX.Element {
   return (
     <svg
       {...svgProps}

@@ -3,31 +3,31 @@ export function getBackgroundColor(colorNumber: number) {
   switch (colorNumber % 9) {
     default:
     case 0:
-      color = "bg-tracker-light-fuchsia dark:bg-fuchsia-500/40";
+      color = "bg-tracker-light-fuchsia  dark:bg-tracker-dark-fuchsia";
       break;
     case 1:
-      color = "bg-tracker-light-pink dark:bg-pink-600/50";
+      color = "bg-tracker-light-pink dark:bg-tracker-dark-pink";
       break;
     case 2:
-      color = "bg-tracker-light-red dark:bg-red-700/70";
+      color = "bg-tracker-light-red dark:bg-tracker-dark-red";
       break;
     case 3:
-      color = "bg-tracker-light-orange dark:bg-orange-600/60";
+      color = "bg-tracker-light-orange dark:bg-tracker-dark-orange";
       break;
     case 4:
-      color = "bg-tracker-light-yellow dark:bg-yellow-500/40";
+      color = "bg-tracker-light-yellow dark:bg-tracker-dark-yellow";
       break;
     case 5:
-      color = "bg-tracker-light-lime dark:bg-lime-400/30";
+      color = "bg-tracker-light-lime dark:bg-tracker-dark-lime";
       break;
     case 6:
-      color = "bg-tracker-light-emerald dark:bg-emerald-400/30";
+      color = "bg-tracker-light-emerald dark:bg-tracker-dark-emerald";
       break;
     case 7:
-      color = "bg-tracker-light-cyan dark:bg-cyan-300/30";
+      color = "bg-tracker-light-cyan dark:bg-tracker-dark-cyan";
       break;
     case 8:
-      color = "bg-tracker-light-blue dark:bg-blue-500/30";
+      color = "bg-tracker-light-blue dark:bg-tracker-dark-blue";
       break;
   }
   return color;

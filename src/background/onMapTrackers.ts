@@ -13,23 +13,25 @@ import {
   MINIMAL_BAR_HEIGHT,
   createMinimalTrackerBar,
 } from "./compoundItemHelpers";
-import { getTrackersFromItem } from "../trackerHelpersItem";
 import {
-  MAX_BAR_COUNT,
+  getTrackersFromItem,
+  getTrackersHiddenFromItem,
+} from "../trackerHelpersItem";
+import {
   TRACKER_METADATA_ID,
   HIDDEN_METADATA_ID,
-  MAX_BUBBLE_COUNT,
+  MAX_TRACKER_COUNT,
 } from "../trackerHelpersBasic";
 import { BubblePosition } from "./trackerPositionHelper";
 import {
   BAR_HEIGHT_METADATA_ID,
+  SEGMENTS_ENABLED_METADATA_ID,
   TRACKERS_ABOVE_METADATA_ID,
   VERTICAL_OFFSET_METADATA_ID,
   readBooleanFromMetadata,
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
 
-let tokenIds: string[] = []; // for orphan health bar management
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
 const deleteItemsArray: string[] = []; // for bulk deletion of scene items
@@ -39,20 +41,15 @@ let userRoleLast: "GM" | "PLAYER";
 let verticalOffset = 0;
 let trackersAboveToken = false;
 let barHeightIsReduced = false;
-const segmentsEnabled = false;
-// const segmentSettingsArray: [string, number][] = [
-//   ["health", 2],
-//   ["drive", 0],
-// ];
-// const segmentSettings = new Map<string, number>(segmentSettingsArray);
-// console.log(segmentSettings);
-const segmentSettings = new Map<string, number>([]);
+let segmentsEnabled = true;
+let segmentSettings = new Map<string, number>();
 
 export async function initOnMapTrackers() {
   // Handle when the scene is either changed or made ready after extension load
   OBR.scene.onReadyChange(async (isReady) => {
     if (isReady) {
       await getGlobalSettings();
+      await getSegmentSettings();
       await refreshAllTrackers();
       await startTrackerUpdates();
     }
@@ -62,31 +59,68 @@ export async function initOnMapTrackers() {
   const isReady = await OBR.scene.isReady();
   if (isReady) {
     await getGlobalSettings();
+    await getSegmentSettings();
     await refreshAllTrackers();
     await startTrackerUpdates();
   }
 }
 
+/** returns true if global settings have changed */
 async function getGlobalSettings(sceneMetadata?: Metadata): Promise<boolean> {
   // load settings from scene metadata if not passed to function
   if (typeof sceneMetadata === "undefined") {
     sceneMetadata = await OBR.scene.getMetadata();
   }
 
-  const [newVerticalOffset, newTrackersAboveToken, newBarHeightIsReduced] = [
+  const [
+    newVerticalOffset,
+    newTrackersAboveToken,
+    newBarHeightIsReduced,
+    newSegmentsEnabled,
+  ] = [
     readNumberFromMetadata(sceneMetadata, VERTICAL_OFFSET_METADATA_ID),
     readBooleanFromMetadata(sceneMetadata, TRACKERS_ABOVE_METADATA_ID),
     readBooleanFromMetadata(sceneMetadata, BAR_HEIGHT_METADATA_ID),
+    readBooleanFromMetadata(sceneMetadata, SEGMENTS_ENABLED_METADATA_ID),
   ];
 
   const doRefresh =
     newVerticalOffset !== verticalOffset ||
     newTrackersAboveToken !== trackersAboveToken ||
-    newBarHeightIsReduced !== barHeightIsReduced;
+    newBarHeightIsReduced !== barHeightIsReduced ||
+    newSegmentsEnabled !== segmentsEnabled;
 
   verticalOffset = newVerticalOffset;
   trackersAboveToken = newTrackersAboveToken;
   barHeightIsReduced = newBarHeightIsReduced;
+  segmentsEnabled = newSegmentsEnabled;
+
+  return doRefresh;
+}
+
+/** Returns true is segment settings have changed*/
+async function getSegmentSettings(sceneMetadata?: Metadata): Promise<boolean> {
+  // load settings from scene metadata if not passed to function
+  if (typeof sceneMetadata === "undefined") {
+    sceneMetadata = await OBR.scene.getMetadata();
+  }
+
+  let doRefresh = false;
+
+  const newSegmentSettings = sceneMetadata[getPluginId("segmentSettings")] as
+    | [string, number][]
+    | undefined;
+  if (newSegmentSettings !== undefined) {
+    if (newSegmentSettings.length !== segmentSettings.size) doRefresh = true;
+    for (const setting of newSegmentSettings) {
+      if (
+        !segmentSettings.has(setting[0]) ||
+        segmentSettings.get(setting[0]) !== setting[1]
+      )
+        doRefresh = true;
+    }
+    segmentSettings = new Map(newSegmentSettings);
+  }
 
   return doRefresh;
 }
@@ -105,21 +139,15 @@ async function refreshAllTrackers() {
   const roll = await OBR.player.getRole();
   const sceneDpi = await OBR.scene.grid.getDpi();
   for (const item of items) {
-    await updateItemTrackers(item, roll, sceneDpi);
+    updateItemTrackers(item, roll, sceneDpi);
   }
 
   await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
-  await OBR.scene.local.addItems(addItemsArray); //bulk add items
+  await batchAddToScene(addItemsArray);
+  // await OBR.scene.local.addItems(addItemsArray); //bulk add items
   //clear add and delete arrays arrays
   addItemsArray.length = 0;
   deleteItemsArray.length = 0;
-
-  //update global item id list for orphaned health bar monitoring
-  const itemIds: string[] = [];
-  for (const item of items) {
-    itemIds.push(item.id);
-  }
-  tokenIds = itemIds;
 }
 
 async function startTrackerUpdates() {
@@ -142,7 +170,10 @@ async function startTrackerUpdates() {
     // Handle Global settings changes
     const unsubscribeFromSceneMetadata = OBR.scene.onMetadataChange(
       async (metadata) => {
-        if (await getGlobalSettings(metadata)) refreshAllTrackers();
+        const globalSettingsChanged = await getGlobalSettings(metadata);
+        const segmentSettingsChanged = await getSegmentSettings(metadata);
+        if (globalSettingsChanged || segmentSettingsChanged)
+          refreshAllTrackers();
       },
     );
 
@@ -160,9 +191,6 @@ async function startTrackerUpdates() {
           }
         }
 
-        //get rid of tracker attachments that no longer attach to anything
-        deleteOrphanAttachments(imagesFromCallback);
-
         const changedItems = getChangedItems(imagesFromCallback);
 
         //update array of all items currently on the board
@@ -173,7 +201,7 @@ async function startTrackerUpdates() {
         const sceneDpi = await OBR.scene.grid.getDpi();
 
         for (const item of changedItems) {
-          await updateItemTrackers(item, role, sceneDpi);
+          updateItemTrackers(item, role, sceneDpi);
         }
 
         await OBR.scene.local.deleteItems(deleteItemsArray); //bulk delete items
@@ -219,7 +247,7 @@ function getChangedItems(items: Image[]): Image[] {
     ) {
       // Bar text attachments must be deleted to prevent ghost selection highlight bug
       deleteItemsArray.push(
-        ...Array(MAX_BAR_COUNT)
+        ...Array(MAX_TRACKER_COUNT)
           .fill(undefined)
           .map((_, barIndex) => getBarTextId(items[i].id, barIndex)),
       );
@@ -247,13 +275,14 @@ function getChangedItems(items: Image[]): Image[] {
   return changedItems;
 }
 
-async function updateItemTrackers(
+function updateItemTrackers(
   item: Image,
   role: "PLAYER" | "GM",
   sceneDpi: number,
 ) {
   // Extract metadata from the token
-  const [trackers, trackersHidden] = getTrackersFromItem(item);
+  const trackers = getTrackersFromItem(item);
+  const trackersHidden = getTrackersHiddenFromItem(item);
 
   if (
     (role === "GM" && trackers.length === 0 && !trackersHidden) ||
@@ -264,7 +293,7 @@ async function updateItemTrackers(
     addAllItemAttachmentsToDeleteList(item.id);
   } else if (role === "PLAYER" && trackersHidden) {
     // Display limited trackers depending on GM configuration
-    console.log("Warning: limited view available");
+    console.log("Experimental limited view being displayed");
     createPlayerVisibleTrackers();
   } else {
     // Display full trackers
@@ -286,14 +315,17 @@ async function updateItemTrackers(
     const barHeight = MINIMAL_BAR_HEIGHT;
 
     // Add bar trackers
-    let barIndex = 0;
-    let barCount = 0;
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value-max") {
-        () => {};
-      } else if (!tracker.showOnMap) {
-        deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
-      } else if (segmentSettings.has(tracker.name)) {
+    const segmentSettingsNames = [...segmentSettings.keys()];
+    const barTrackers = trackers.filter(
+      (tracker) =>
+        tracker.name !== undefined &&
+        segmentSettingsNames.includes(tracker.name) &&
+        tracker.showOnMap !== false &&
+        tracker.variant === "value-max",
+    );
+
+    barTrackers.map((tracker, index) => {
+      if (tracker.name !== undefined && segmentSettings.has(tracker.name)) {
         addItemsArray.push(
           ...createMinimalTrackerBar(
             item,
@@ -303,25 +335,24 @@ async function updateItemTrackers(
               x: origin.x,
               y:
                 origin.y -
-                barCount * barHeight +
+                index * barHeight +
                 bounds.height / 2 -
                 verticalOffset,
             },
             segmentSettings.get(tracker.name),
+            index,
           ),
         );
-        barCount++;
       }
-      barIndex++;
     });
 
     // Clean up extra bars
-    for (; barIndex < MAX_BAR_COUNT; barIndex++) {
-      deleteItemsArray.push(...getBarItemIds(item.id, barIndex));
+    for (let i = barTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBarItemIds(item.id, i));
     }
 
     // Delete all bar text attachments
-    for (let i = 0; i < MAX_BAR_COUNT; i++) {
+    for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
       deleteItemsArray.push(getBarTextId(item.id, i));
     }
 
@@ -347,20 +378,15 @@ async function updateItemTrackers(
     const barHeight = barHeightIsReduced ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
 
     // Add bar trackers
-    let barIndex = 0;
-    let barCount = 0;
-    let bubbleCount = 0;
-    trackers.forEach((tracker) => {
-      if (tracker.variant === "value") bubbleCount++;
-    });
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value-max") {
-        () => {};
-      } else if (!tracker.showOnMap) {
+
+    const barTrackers = trackers.filter(
+      (tracker) =>
+        tracker.showOnMap !== false && tracker.variant === "value-max",
+    );
+    barTrackers.map((tracker, index) => {
+      if (tracker.showOnMap === false) {
         // console.log("hidden", barIndex);
-        deleteItemsArray.push(
-          ...getBarItemIds(item.id, barIndex - bubbleCount),
-        );
+        deleteItemsArray.push(...getBarItemIds(item.id, index));
       } else {
         addItemsArray.push(
           ...createTrackerBar(
@@ -371,28 +397,26 @@ async function updateItemTrackers(
               x: origin.x,
               y:
                 origin.y -
-                barCount * barHeight +
+                index * barHeight +
                 bounds.height / 2 -
                 verticalOffset,
             },
+            index,
             barHeightIsReduced,
           ),
         );
-        barCount++;
       }
-      barIndex++;
     });
 
     // Clean up extra bars
-    for (; barIndex - bubbleCount < MAX_BAR_COUNT; barIndex++) {
-      // console.log(barIndex - bubbleCount);
-      deleteItemsArray.push(...getBarItemIds(item.id, barIndex - bubbleCount));
+    for (let i = barTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBarItemIds(item.id, i));
     }
 
     const bubblePosition = new BubblePosition(
       origin,
       bounds,
-      barCount,
+      barTrackers.length,
       barHeight,
       trackersAboveToken,
     );
@@ -414,31 +438,33 @@ async function updateItemTrackers(
     }
 
     // Add bubble trackers
-    let bubbleIndex = 0;
-    trackers.map((tracker) => {
-      if (tracker.variant !== "value") {
-        () => {};
-      } else if (!tracker.showOnMap) {
-        deleteItemsArray.push(...getBubbleItemIds(item.id, bubbleIndex));
-        () => {};
+    const bubbleTrackers = trackers.filter(
+      (tracker) =>
+        (tracker.showOnMap !== false && tracker.variant === "value") ||
+        tracker.variant === "counter",
+    );
+
+    bubbleTrackers.map((tracker, index) => {
+      if (tracker.showOnMap === false) {
+        deleteItemsArray.push(...getBubbleItemIds(item.id, index));
       } else {
         const position = bubblePosition.getNew();
         addItemsArray.push(
-          ...createTrackerBubble(item, tracker, {
-            x: position.x,
-            y: position.y - verticalOffset,
-          }),
+          ...createTrackerBubble(
+            item,
+            tracker,
+            {
+              x: position.x,
+              y: position.y - verticalOffset,
+            },
+            index,
+          ),
         );
       }
-      bubbleIndex++;
     });
 
-    // Clean up extra bubbles
-    for (; bubbleIndex - barCount < MAX_BUBBLE_COUNT; bubbleIndex++) {
-      // console.log(bubbleIndex - barCount);
-      deleteItemsArray.push(
-        ...getBubbleItemIds(item.id, bubbleIndex - barCount),
-      );
+    for (let i = bubbleTrackers.length; i < MAX_TRACKER_COUNT; i++) {
+      deleteItemsArray.push(...getBubbleItemIds(item.id, i));
     }
   }
 }
@@ -450,26 +476,8 @@ const getImageBounds = (item: Image, dpi: number) => {
   return { width, height };
 };
 
-function deleteOrphanAttachments(newItems: Image[]) {
-  const newItemIds: string[] = [];
-  for (const item of newItems) {
-    newItemIds.push(item.id);
-  }
-
-  //check for orphaned health bars
-  for (const oldId of tokenIds) {
-    if (!newItemIds.includes(oldId)) {
-      // delete orphaned health bar
-      addAllItemAttachmentsToDeleteList(oldId);
-    }
-  }
-
-  // update item list with current values
-  tokenIds = newItemIds;
-}
-
 function addAllItemAttachmentsToDeleteList(itemId: string) {
-  for (let i = 0; i < MAX_BAR_COUNT; i++) {
+  for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
     deleteItemsArray.push(...getBarItemIds(itemId, i));
   }
   addAllBubbleTrackersToDeleteList(itemId);
@@ -477,11 +485,21 @@ function addAllItemAttachmentsToDeleteList(itemId: string) {
 }
 
 function addAllBubbleTrackersToDeleteList(itemId: string) {
-  for (let i = 0; i < MAX_BUBBLE_COUNT; i++) {
+  for (let i = 0; i < MAX_TRACKER_COUNT; i++) {
     deleteItemsArray.push(...getBubbleItemIds(itemId, i));
   }
 }
 
 function addHideBubbleToDeleteList(itemId: string) {
   deleteItemsArray.push(...getImageBubbleItemIds(itemId, "hide"));
+}
+
+// Prevent errors when many items are added at onces
+const MAX_UPDATE_LENGTH = 100;
+async function batchAddToScene(items: Item[]) {
+  for (let i = 0; i < Math.ceil(items.length / MAX_UPDATE_LENGTH); i++) {
+    await OBR.scene.local.addItems(
+      items.slice(i * MAX_UPDATE_LENGTH, (i + 1) * MAX_UPDATE_LENGTH),
+    );
+  }
 }

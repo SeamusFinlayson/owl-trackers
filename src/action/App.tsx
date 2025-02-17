@@ -6,12 +6,12 @@ import { Action } from "./Action.tsx";
 import ActionHeader from "./ActionHeader.tsx";
 import { useSceneSettingsStoreSync } from "../useSceneSettingsStoreSync.ts";
 
-export default function App(): JSX.Element {
+export default function App(): React.JSX.Element {
   useOwlbearStoreSync();
   useSceneSettingsStoreSync();
 
   const sceneReady = useOwlbearStore((state) => state.sceneReady);
-  const mode = useOwlbearStore((state) => state.mode);
+  const mode = useOwlbearStore((state) => state.themeMode);
 
   if (sceneReady) {
     return <Action></Action>;

@@ -1,79 +1,115 @@
 import { useOwlbearStore } from "../useOwlbearStore";
 import IconButton from "../components/IconButton";
-import MoreIcon from "../icons/MoreIcon";
-import OBR from "@owlbear-rodeo/sdk";
+import OBR, { Metadata } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import ToggleButton from "../components/ToggleButton";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "../components/Input";
 import {
   BAR_HEIGHT_METADATA_ID,
+  SEGMENTS_ENABLED_METADATA_ID,
   TRACKERS_ABOVE_METADATA_ID,
   VERTICAL_OFFSET_METADATA_ID,
 } from "../sceneMetadataHelpers";
 import ActionHeader from "./ActionHeader";
 import ReportBugButton from "../components/ReportBugButton";
 import { useSceneSettingsStore } from "../useSceneSettingsStore";
+import { Collapse } from "@mui/material";
+import { cn } from "../lib/utils";
+import { useTrackerBarNames } from "./getTrackerBarNames";
+import DeleteIcon from "../icons/DeleteIcon";
+import { TrackerInput } from "../components/TrackerInput";
+import SimplePlusIcon from "../icons/SimplePlusIcon";
+import { parseContentForNumber } from "../useTrackerStore";
+import OpenInNewIcon from "../icons/OpenInNewIcon";
 
-export function Action(): JSX.Element {
-  const mode = useOwlbearStore((state) => state.mode);
+export function Action(): React.JSX.Element {
+  const mode = useOwlbearStore((state) => state.themeMode);
   const role = useOwlbearStore((state) => state.role);
 
-  useEffect(() => {
-    if (role === "GM") OBR.action.setHeight(313);
-    else OBR.action.setHeight(197);
-  }, [role]);
-
   const verticalOffset = useSceneSettingsStore((state) => state.verticalOffset);
-  const trackersAboveToken = useSceneSettingsStore(
-    (state) => state.trackersAboveToken,
-  );
-  const barHeightIsReduced = useSceneSettingsStore(
-    (state) => state.barHeightIsReduced,
-  );
-
   const setVerticalOffset = useSceneSettingsStore(
     (state) => state.setVerticalOffset,
   );
+
+  const trackersAboveToken = useSceneSettingsStore(
+    (state) => state.trackersAboveToken,
+  );
   const setTrackersAboveToken = useSceneSettingsStore(
     (state) => state.setTrackersAboveToken,
+  );
+
+  const barHeightIsReduced = useSceneSettingsStore(
+    (state) => state.barHeightIsReduced,
   );
   const setBarHeightIsReduced = useSceneSettingsStore(
     (state) => state.setBarHeightIsReduced,
   );
 
-  // const [segmentsEnabled, setSegmentsEnabled] = useState(false);
+  const segmentsEnabled = useSceneSettingsStore(
+    (state) => state.segmentsEnabled,
+  );
+  const setSegmentsEnabled = useSceneSettingsStore(
+    (state) => state.setSegmentsEnabled,
+  );
 
-  // const [hideScrollbar, setHideScrollbar] = useState(false);
+  const trackerBarNames = useTrackerBarNames();
 
-  // const baseHeight = 373;
+  const [segmentSettings, setSegmentSettings] = useState<[string, number][]>(
+    [],
+  );
 
-  // OBR.action.getHeight().then((value) => console.log(value));
-  // console.log(window.innerHeight);
+  const updateSegmentSettings = (segmentSettings: [string, number][]) => {
+    OBR.scene.setMetadata({
+      [getPluginId("segmentSettings")]: segmentSettings,
+    });
+    setSegmentSettings(segmentSettings);
+  };
 
-  // sync action height with segments dropdown
-  // useEffect(() => {
-  //   let newHeight: number;
-  //   if (segmentsEnabled) {
-  //     newHeight = baseHeight + 156;
-  //   } else {
-  //     newHeight = baseHeight;
-  //   }
-  //   if (newHeight < window.innerHeight) {
-  //     // console.log(true);
-  //     // setHideScrollbar(true);
-  //     // setTimeout(() => setHideScrollbar(false), 300);
-  //   }
-  //   OBR.action.setHeight(newHeight);
-  // }, [segmentsEnabled]);
+  useEffect(() => {
+    const handleSceneMetadata = (sceneMetadata: Metadata) => {
+      const segmentSettings = sceneMetadata[getPluginId("segmentSettings")];
+      if (segmentSettings == undefined) setSegmentSettings([]);
+      else setSegmentSettings(segmentSettings as [string, number][]);
+    };
+    OBR.scene.getMetadata().then(handleSceneMetadata);
+    return OBR.scene.onMetadataChange(handleSceneMetadata);
+  }, []);
+
+  const trackerNamesWithSegmentsDisabled = trackerBarNames.filter(
+    (name) => !segmentSettings.map((value) => value[0]).includes(name),
+  );
+
+  const baseHeight = 0;
+  const divRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (divRef.current) {
+      const resizeObserver = new ResizeObserver((entries) => {
+        if (entries.length > 0) {
+          const entry = entries[0];
+          // Get the height of the border box
+          // In the future you can use `entry.borderBoxSize`
+          // however as of this time the property isn't widely supported (iOS)
+          const borderHeight = entry.contentRect.bottom + entry.contentRect.top;
+          // Set a minimum height of 64px
+          const listHeight = Math.max(borderHeight);
+          // Set the action height to the list height + the card header height + the divider + margin
+          OBR.action.setHeight(listHeight + baseHeight);
+          // console.log(listHeight);
+        }
+      });
+      resizeObserver.observe(divRef.current);
+      return () => {
+        resizeObserver.disconnect();
+        // Reset height when unmounted
+        OBR.action.setHeight(129);
+      };
+    }
+  }, [divRef]);
 
   return (
-    <div
-      className={
-        "h-screen " + "overflow-y-auto" + (mode === "DARK" ? " dark" : "")
-      }
-    >
-      <div>
+    <div className={cn("h-screen overflow-y-auto", { dark: mode === "DARK" })}>
+      <div ref={divRef}>
         {/* Header */}
         <ActionHeader></ActionHeader>
 
@@ -91,13 +127,13 @@ export function Action(): JSX.Element {
                   Set scene default trackers
                 </h2>
                 <IconButton
-                  Icon={MoreIcon}
+                  Icon={OpenInNewIcon}
                   onClick={() =>
                     OBR.popover.open({
                       id: getPluginId("scene-editor"),
                       url: "/src/sceneEditor/sceneEditor.html",
-                      height: 600,
-                      width: 500,
+                      height: 550,
+                      width: 430,
                       anchorOrigin: {
                         horizontal: "CENTER",
                         vertical: "CENTER",
@@ -153,57 +189,102 @@ export function Action(): JSX.Element {
                 ></ToggleButton>
 
                 {/* Segments */}
-                {/* <h2 className="justify-self-start text-sm text-text-primary dark:text-text-primary-dark">
+                <h2 className="justify-self-start text-sm text-text-primary dark:text-text-primary-dark">
                   Enable Segments
                 </h2>
                 <ToggleButton
                   isChecked={segmentsEnabled}
-                  setIsChecked={setSegmentsEnabled}
-                ></ToggleButton> */}
+                  changeHandler={(isChecked: boolean) => {
+                    setSegmentsEnabled(isChecked);
+                    OBR.scene.setMetadata({
+                      [getPluginId(SEGMENTS_ENABLED_METADATA_ID)]: isChecked,
+                    });
+                  }}
+                ></ToggleButton>
               </div>
 
               {/* Segments dropdown */}
-              {/* <div
-                className={
-                  "transition-height overflow-hidden ease-in-out " +
-                  (segmentsEnabled
-                    ? "h-[156px] duration-300"
-                    : "h-0 duration-0")
-                }
-              >
-                <div
-                  className={
-                    "relative flex flex-col gap-4 bg-black/15 px-2 py-3 duration-300 ease-in-out" +
-                    (segmentsEnabled
-                      ? "opacity-100 transition-all"
-                      : " invisible w-full -translate-y-full opacity-0")
-                  }
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="rounded-lg px-2">
-                      <p className="text-sm text-text-primary dark:text-text-primary-dark">
-                        Tracker Name
-                      </p>
-                    </div>
-                    <div className="flex rounded-lg bg-white/5 p-2">
-                      <p className="text-sm text-text-primary dark:text-text-primary-dark">
-                        Stamina
-                      </p>
-                    </div>
-                    <div className=" rounded-lg bg-white/5 p-2"></div>
+              <div>
+                <Collapse in={segmentsEnabled}>
+                  <div className={"my-1 flex flex-col gap-2 bg-black/15 p-2"}>
+                    {segmentSettings.length > 0 && (
+                      <div className="flex flex-col gap-2">
+                        {[...segmentSettings].map((setting) => (
+                          <div
+                            key={setting[0]}
+                            className="overflow-clip rounded-lg bg-white/5 p-2 pb-3 pl-3"
+                          >
+                            <div className="flex w-full items-start justify-between">
+                              <div>
+                                <h1 className="text-text-primary dark:text-text-primary-dark">
+                                  {setting[0]}
+                                </h1>
+                                <p className="text-xs text-text-secondary dark:text-text-secondary-dark">
+                                  Segments
+                                </p>
+                              </div>
+                              <IconButton
+                                Icon={DeleteIcon}
+                                className="rounded-md"
+                                onClick={() =>
+                                  updateSegmentSettings(
+                                    segmentSettings.filter(
+                                      (value) => value !== setting,
+                                    ),
+                                  )
+                                }
+                              />
+                            </div>
+                            <div className="flex justify-between pr-1 pt-2">
+                              <TrackerInput
+                                fullWidth
+                                value={setting[1].toString()}
+                                onConfirm={(content) => {
+                                  const index = segmentSettings.findIndex(
+                                    (value) => value[0] === setting[0],
+                                  );
+                                  if (index !== -1) {
+                                    segmentSettings[index][1] = Math.trunc(
+                                      parseContentForNumber(content, 0, false, {
+                                        min: 0,
+                                      }),
+                                    );
+                                    updateSegmentSettings([...segmentSettings]);
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {trackerNamesWithSegmentsDisabled.length > 0 && (
+                      <div className="flex flex-row flex-wrap gap-2 py-1">
+                        {trackerNamesWithSegmentsDisabled.map((name) => (
+                          <button
+                            key={name}
+                            className="flex items-center gap-2 rounded-full px-3 py-1 pl-2 text-sm text-text-primary outline outline-1 outline-white/30 hover:bg-black/20 dark:text-text-primary-dark"
+                            onClick={() =>
+                              updateSegmentSettings([
+                                ...segmentSettings,
+                                [name, 0],
+                              ])
+                            }
+                          >
+                            <SimplePlusIcon />
+                            <div className="pt-0.5">{name}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex flex-row gap-2 ">
-                    <button className="rounded-full px-6 py-1 text-sm text-text-primary outline outline-1 outline-white/30 hover:bg-black/20 dark:text-text-primary-dark">
-                      + Health
-                    </button>
-                  </div>
-                </div>
-              </div> */}
+                </Collapse>
+              </div>
             </>
           )}
 
           {/* Report Bug button */}
-          <ReportBugButton></ReportBugButton>
+          <ReportBugButton />
         </div>
       </div>
     </div>
