@@ -66,7 +66,7 @@ export default function TrackerCard({
             >
               <button
                 {...listeners}
-                className="flex h-full w-full cursor-grab flex-col items-center gap-0.5 active:cursor-grabbing active:bg-transparent dark:active:bg-transparent"
+                className="flex h-full w-full cursor-grab touch-none flex-col items-center gap-0.5 active:cursor-grabbing active:bg-transparent dark:active:bg-transparent"
                 onMouseDown={() => setDragActive(true)}
                 onMouseUp={() => setDragActive(false)}
                 onMouseEnter={() => setDragHover(true)}
