@@ -14,8 +14,6 @@ import {
   createMinimalTrackerBar,
   getImageId,
   getImageBackgroundId,
-  getBubbleTextId,
-  getBubbleBackgroundId,
 } from "./compoundItemHelpers";
 import {
   getTrackersFromItem,
@@ -35,7 +33,6 @@ import {
   readBooleanFromMetadata,
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
-import { getColor } from "../colorHelpers";
 
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
