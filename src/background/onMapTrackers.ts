@@ -12,6 +12,10 @@ import {
   REDUCED_BAR_HEIGHT,
   MINIMAL_BAR_HEIGHT,
   createMinimalTrackerBar,
+  getImageId,
+  getImageBackgroundId,
+  getBubbleTextId,
+  getBubbleBackgroundId,
 } from "./compoundItemHelpers";
 import {
   getTrackersFromItem,
@@ -31,6 +35,7 @@ import {
   readBooleanFromMetadata,
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
+import { getColor } from "../colorHelpers";
 
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
@@ -255,16 +260,21 @@ function getChangedItems(items: Image[]): Image[] {
     } else if (
       //check position, visibility, and metadata changes
       !(
-        itemsLast[i + s].position.x === items[i].position.x &&
-        itemsLast[i + s].position.y === items[i].position.y &&
-        itemsLast[i + s].visible === items[i].visible &&
-        JSON.stringify(
-          itemsLast[i + s].metadata[getPluginId(TRACKER_METADATA_ID)],
-        ) ===
-          JSON.stringify(items[i].metadata[getPluginId(TRACKER_METADATA_ID)]) &&
-        JSON.stringify(
-          itemsLast[i + s].metadata[getPluginId(HIDDEN_METADATA_ID)],
-        ) === JSON.stringify(items[i].metadata[getPluginId(HIDDEN_METADATA_ID)])
+        // itemsLast[i + s].position.x === items[i].position.x &&
+        // itemsLast[i + s].position.y === items[i].position.y &&
+        (
+          itemsLast[i + s].visible === items[i].visible &&
+          JSON.stringify(
+            itemsLast[i + s].metadata[getPluginId(TRACKER_METADATA_ID)],
+          ) ===
+            JSON.stringify(
+              items[i].metadata[getPluginId(TRACKER_METADATA_ID)],
+            ) &&
+          JSON.stringify(
+            itemsLast[i + s].metadata[getPluginId(HIDDEN_METADATA_ID)],
+          ) ===
+            JSON.stringify(items[i].metadata[getPluginId(HIDDEN_METADATA_ID)])
+        )
       )
     ) {
       //update items
@@ -378,12 +388,11 @@ function updateItemTrackers(
     const barHeight = barHeightIsReduced ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
 
     // Add bar trackers
-
     const barTrackers = trackers.filter(
-      (tracker) =>
-        tracker.showOnMap !== false && tracker.variant === "value-max",
+      (tracker) => tracker.variant === "value-max",
     );
-    barTrackers.map((tracker, index) => {
+
+    barTrackers.forEach((tracker, index) => {
       if (tracker.showOnMap === false) {
         // console.log("hidden", barIndex);
         deleteItemsArray.push(...getBarItemIds(item.id, index));
@@ -422,8 +431,9 @@ function updateItemTrackers(
     );
 
     // Add hidden indicator
+    const hideLabelName = "hide";
     if (!trackersHidden) {
-      deleteItemsArray.push(...getImageBubbleItemIds(item.id, "hide"));
+      deleteItemsArray.push(...getImageBubbleItemIds(item.id, hideLabelName));
     } else {
       const position = bubblePosition.getNew();
       const hideIndicator = createImageBubble(
@@ -432,7 +442,8 @@ function updateItemTrackers(
         { x: position.x, y: position.y - verticalOffset },
         "black",
         "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
-        "hide",
+        getImageId(item.id, hideLabelName),
+        getImageBackgroundId(item.id, hideLabelName),
       );
       addItemsArray.push(...hideIndicator);
     }
@@ -440,11 +451,12 @@ function updateItemTrackers(
     // Add bubble trackers
     const bubbleTrackers = trackers.filter(
       (tracker) =>
-        (tracker.showOnMap !== false && tracker.variant === "value") ||
-        tracker.variant === "counter",
+        tracker.variant === "value" ||
+        tracker.variant === "counter" ||
+        tracker.variant === "checkbox",
     );
 
-    bubbleTrackers.map((tracker, index) => {
+    bubbleTrackers.forEach((tracker, index) => {
       if (tracker.showOnMap === false) {
         deleteItemsArray.push(...getBubbleItemIds(item.id, index));
       } else {

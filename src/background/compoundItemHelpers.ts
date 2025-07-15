@@ -36,8 +36,12 @@ export function createTrackerBubble(
   position: { x: number; y: number },
   index: number,
 ): Item[] {
-  if (tracker.variant !== "value" && tracker.variant !== "counter")
-    throw new Error("Expected value tracker variant");
+  if (
+    tracker.variant !== "value" &&
+    tracker.variant !== "counter" &&
+    tracker.variant !== "checkbox"
+  )
+    throw new Error("Expected value or counter tracker variant");
 
   const bubbleShape = buildShape()
     .width(BUBBLE_DIAMETER)
@@ -58,7 +62,14 @@ export function createTrackerBubble(
     .disableHit(DISABLE_HIT)
     .build();
 
-  const valueText = tracker.value.toString();
+  const valueText =
+    tracker.variant === "checkbox"
+      ? tracker.checked === true
+        ? "✓"
+        : "◯"
+      : tracker.value.toString();
+
+  if (tracker.variant === "checkbox") position.y += 3;
 
   const bubbleText = buildText()
     .position({
@@ -96,7 +107,8 @@ export function createImageBubble(
   position: { x: number; y: number },
   color: string,
   url: string,
-  label: string,
+  imageLabel: string,
+  backgroundLabel: string,
 ): Item[] {
   const bubbleShape = buildShape()
     .width(BUBBLE_DIAMETER)
@@ -111,7 +123,7 @@ export function createImageBubble(
     .attachedTo(item.id)
     .layer("ATTACHMENT")
     .locked(true)
-    .id(getImageBackgroundId(item.id, label))
+    .id(backgroundLabel)
     .visible(item.visible)
     .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
     .disableHit(DISABLE_HIT)
@@ -134,8 +146,7 @@ export function createImageBubble(
     .position(position)
     .attachedTo(item.id)
     .locked(true)
-    .name(`hide icon`)
-    .id(getImageId(item.id, label))
+    .id(imageLabel)
     .layer("NOTE")
     .disableHit(DISABLE_HIT)
     .visible(item.visible)
