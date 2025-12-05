@@ -1,7 +1,6 @@
 import OBR, { Image, Item, Metadata, isImage } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
 import {
-  FULL_BAR_HEIGHT,
   createTrackerBubble,
   createTrackerBar,
   getBarItemIds,
@@ -9,7 +8,6 @@ import {
   getBubbleItemIds,
   createImageBubble,
   getImageBubbleItemIds,
-  REDUCED_BAR_HEIGHT,
   MINIMAL_BAR_HEIGHT,
   createMinimalTrackerBar,
   getImageId,
@@ -26,7 +24,8 @@ import {
 } from "../trackerHelpersBasic";
 import { BubblePosition } from "./trackerPositionHelper";
 import {
-  BAR_HEIGHT_METADATA_ID,
+  BASE_BAR_HEIGHT_METADATA_ID,
+  BASE_BUBBLE_DIAMETER_METADATA_ID,
   SEGMENTS_ENABLED_METADATA_ID,
   TRACKERS_ABOVE_METADATA_ID,
   VERTICAL_OFFSET_METADATA_ID,
@@ -34,7 +33,9 @@ import {
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
 import { getImageCenter } from "./mathHelpers";
+import { DEFAULT_BAR_HEIGHT, DEFAULT_BUBBLE_DIAMETER } from "../useSceneSettingsStore";
 
+// Module state - allows changes to scene metadata to affect all tokens simultaneously
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
 const deleteItemsArray: string[] = []; // for bulk deletion of scene items
@@ -43,7 +44,8 @@ let userRoleLast: "GM" | "PLAYER";
 
 let verticalOffset = 0;
 let trackersAboveToken = false;
-let barHeightIsReduced = false;
+let baseBarHeight = DEFAULT_BAR_HEIGHT;
+let baseBubbleDiameter = DEFAULT_BUBBLE_DIAMETER;
 let segmentsEnabled = true;
 let segmentSettings = new Map<string, number>();
 
@@ -78,24 +80,28 @@ async function getGlobalSettings(sceneMetadata?: Metadata): Promise<boolean> {
   const [
     newVerticalOffset,
     newTrackersAboveToken,
-    newBarHeightIsReduced,
+    newBaseBarHeight,
+    newBaseBubbleDiameter,
     newSegmentsEnabled,
   ] = [
     readNumberFromMetadata(sceneMetadata, VERTICAL_OFFSET_METADATA_ID),
     readBooleanFromMetadata(sceneMetadata, TRACKERS_ABOVE_METADATA_ID),
-    readBooleanFromMetadata(sceneMetadata, BAR_HEIGHT_METADATA_ID),
+    readNumberFromMetadata(sceneMetadata, BASE_BAR_HEIGHT_METADATA_ID) || DEFAULT_BAR_HEIGHT,
+    readNumberFromMetadata(sceneMetadata, BASE_BUBBLE_DIAMETER_METADATA_ID) || DEFAULT_BUBBLE_DIAMETER,
     readBooleanFromMetadata(sceneMetadata, SEGMENTS_ENABLED_METADATA_ID),
   ];
 
   const doRefresh =
     newVerticalOffset !== verticalOffset ||
     newTrackersAboveToken !== trackersAboveToken ||
-    newBarHeightIsReduced !== barHeightIsReduced ||
+    newBaseBarHeight !== baseBarHeight ||
+    newBaseBubbleDiameter !== baseBubbleDiameter ||
     newSegmentsEnabled !== segmentsEnabled;
 
   verticalOffset = newVerticalOffset;
   trackersAboveToken = newTrackersAboveToken;
-  barHeightIsReduced = newBarHeightIsReduced;
+  baseBarHeight = newBaseBarHeight;
+  baseBubbleDiameter = newBaseBubbleDiameter;
   segmentsEnabled = newSegmentsEnabled;
 
   return doRefresh;
@@ -375,18 +381,20 @@ function updateItemTrackers(
     const origin = getImageCenter(item, sceneDpi);
     if (trackersAboveToken) origin.y -= bounds.height;
 
-    const barHeight = barHeightIsReduced ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
-
     // Add bar trackers
     const barTrackers = trackers.filter(
       (tracker) => tracker.variant === "value-max",
     );
 
+    let cumulativeBarHeight = 0;
     barTrackers.forEach((tracker, index) => {
       if (tracker.showOnMap === false) {
         // console.log("hidden", barIndex);
         deleteItemsArray.push(...getBarItemIds(item.id, index));
       } else {
+        const sizeScale = (tracker.sizePercentage ?? 100) / 100;
+        const scaledBarHeight = baseBarHeight * sizeScale;
+
         addItemsArray.push(
           ...createTrackerBar(
             item,
@@ -396,14 +404,16 @@ function updateItemTrackers(
               x: origin.x,
               y:
                 origin.y -
-                index * barHeight +
+                cumulativeBarHeight +
                 bounds.height / 2 -
                 verticalOffset,
             },
             index,
-            barHeightIsReduced,
+            baseBarHeight,
           ),
         );
+
+        cumulativeBarHeight += scaledBarHeight;
       }
     });
 
@@ -415,8 +425,8 @@ function updateItemTrackers(
     const bubblePosition = new BubblePosition(
       origin,
       bounds,
-      barTrackers.length,
-      barHeight,
+      cumulativeBarHeight,
+      baseBubbleDiameter,
       trackersAboveToken,
     );
 
@@ -434,6 +444,7 @@ function updateItemTrackers(
         "https://raw.githubusercontent.com/SeamusFinlayson/owl-trackers/main/src/assets/visibility_off.png",
         getImageId(item.id, hideLabelName),
         getImageBackgroundId(item.id, hideLabelName),
+        baseBubbleDiameter,
       );
       addItemsArray.push(...hideIndicator);
     }
@@ -450,7 +461,8 @@ function updateItemTrackers(
       if (tracker.showOnMap === false) {
         deleteItemsArray.push(...getBubbleItemIds(item.id, index));
       } else {
-        const position = bubblePosition.getNew();
+        const sizeScale = (tracker.sizePercentage ?? 100) / 100;
+        const position = bubblePosition.getNew(sizeScale);
         addItemsArray.push(
           ...createTrackerBubble(
             item,
@@ -460,6 +472,7 @@ function updateItemTrackers(
               y: position.y - verticalOffset,
             },
             index,
+            baseBubbleDiameter,
           ),
         );
       }

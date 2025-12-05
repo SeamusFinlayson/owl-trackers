@@ -10,6 +10,14 @@ import {
 import { getColor } from "../colorHelpers";
 import { Tracker } from "../trackerHelpersBasic";
 import { createRoundedRectangle, getFillPortion } from "./mathHelpers";
+import {
+  BUBBLE_FONT_SIZE_RATIO,
+  BUBBLE_REDUCED_FONT_SIZE_RATIO,
+  BUBBLE_TEXT_HEIGHT_RATIO,
+  BAR_TEXT_HEIGHT_OFFSET_RATIO,
+  BAR_FONT_SIZE_OFFSET_RATIO,
+  BAR_TEXT_Y_OFFSET_RATIO,
+} from "../useSceneSettingsStore";
 
 // Constants used in multiple functions
 const FONT = "Roboto, sans-serif";
@@ -23,18 +31,13 @@ const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
 ];
 const TEXT_VERTICAL_OFFSET = -1.2;
 
-// Constants used in createStatBubble()
-export const BUBBLE_DIAMETER = 30;
-const CIRCLE_FONT_SIZE = BUBBLE_DIAMETER - 8;
-const REDUCED_CIRCLE_FONT_SIZE = BUBBLE_DIAMETER - 15;
-const CIRCLE_TEXT_HEIGHT = BUBBLE_DIAMETER + 2;
-
 /** Creates Stat Bubble component items */
 export function createTrackerBubble(
   item: Item,
   tracker: Tracker,
   position: { x: number; y: number },
   index: number,
+  baseBubbleDiameter: number,
 ): Item[] {
   if (
     tracker.variant !== "value" &&
@@ -43,9 +46,15 @@ export function createTrackerBubble(
   )
     throw new Error("Expected value or counter tracker variant");
 
+  const sizeScale = (tracker.sizePercentage ?? 100) / 100;
+  const scaledDiameter = baseBubbleDiameter * sizeScale;
+  const scaledFontSize = BUBBLE_FONT_SIZE_RATIO * scaledDiameter;
+  const scaledReducedFontSize = BUBBLE_REDUCED_FONT_SIZE_RATIO * scaledDiameter;
+  const scaledTextHeight = BUBBLE_TEXT_HEIGHT_RATIO * scaledDiameter;
+
   const bubbleShape = buildShape()
-    .width(BUBBLE_DIAMETER)
-    .height(BUBBLE_DIAMETER)
+    .width(scaledDiameter)
+    .height(scaledDiameter)
     .shapeType("CIRCLE")
     .fillColor(getColor(tracker.color))
     .fillOpacity(BUBBLE_OPACITY)
@@ -69,23 +78,24 @@ export function createTrackerBubble(
         : "◯"
       : tracker.value.toString();
 
-  if (tracker.variant === "checkbox") position.y += 3;
+  let adjustedPosition = { ...position };
+  if (tracker.variant === "checkbox") adjustedPosition.y += 3 * sizeScale;
 
   const bubbleText = buildText()
     .position({
-      x: position.x - BUBBLE_DIAMETER / 2,
-      y: position.y - BUBBLE_DIAMETER / 2 + TEXT_VERTICAL_OFFSET,
+      x: adjustedPosition.x - scaledDiameter / 2,
+      y: adjustedPosition.y - scaledDiameter / 2 + TEXT_VERTICAL_OFFSET,
     })
     .plainText(valueText.length > 3 ? String.fromCharCode(0x2026) : valueText)
     .textAlign("CENTER")
     .textAlignVertical("MIDDLE")
     .fontSize(
-      valueText.length === 3 ? REDUCED_CIRCLE_FONT_SIZE : CIRCLE_FONT_SIZE,
+      valueText.length === 3 ? scaledReducedFontSize : scaledFontSize,
     )
     .fontFamily(FONT)
     .textType("PLAIN")
-    .height(CIRCLE_TEXT_HEIGHT)
-    .width(BUBBLE_DIAMETER)
+    .height(scaledTextHeight)
+    .width(scaledDiameter)
     .fontWeight(400)
     //.strokeColor("black")
     //.strokeWidth(0)
@@ -109,10 +119,11 @@ export function createImageBubble(
   url: string,
   imageLabel: string,
   backgroundLabel: string,
+  baseBubbleDiameter: number,
 ): Item[] {
   const bubbleShape = buildShape()
-    .width(BUBBLE_DIAMETER)
-    .height(BUBBLE_DIAMETER)
+    .width(baseBubbleDiameter)
+    .height(baseBubbleDiameter)
     .shapeType("CIRCLE")
     .fillColor(color)
     .fillOpacity(BUBBLE_OPACITY)
@@ -171,10 +182,12 @@ export function createTrackerBar(
   tracker: Tracker,
   origin: { x: number; y: number },
   index: number,
-  reducedHeight = false,
+  baseBarHeight: number,
   segments = 0,
 ): Item[] {
-  const barHeight = reducedHeight ? REDUCED_BAR_HEIGHT : FULL_BAR_HEIGHT;
+  const sizeScale = (tracker.sizePercentage ?? 100) / 100;
+  const barHeight = baseBarHeight * sizeScale;
+  const scaledCornerRadius = ((baseBarHeight / 2) * sizeScale);
   const position = {
     x: origin.x - bounds.width / 2 + BAR_PADDING,
     y: origin.y - barHeight,
@@ -200,7 +213,7 @@ export function createTrackerBar(
     .disableHit(DISABLE_HIT)
     .tension(0)
     .closed(true)
-    .points(createRoundedRectangle(barWidth, barHeight, BAR_CORNER_RADIUS))
+    .points(createRoundedRectangle(barWidth, barHeight, scaledCornerRadius))
     .build();
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
@@ -224,23 +237,20 @@ export function createTrackerBar(
       createRoundedRectangle(
         barWidth,
         barHeight,
-        BAR_CORNER_RADIUS,
+        scaledCornerRadius,
         fillPortion,
       ),
     )
     .build();
 
-  const barTextHeight = reducedHeight
-    ? REDUCED_BAR_HEIGHT + 8
-    : FULL_BAR_HEIGHT + 8;
-  const barFontSize = reducedHeight
-    ? REDUCED_BAR_HEIGHT + 2
-    : FULL_BAR_HEIGHT + 2;
+  const barTextHeight = baseBarHeight * (1 + BAR_TEXT_HEIGHT_OFFSET_RATIO) * sizeScale;
+  const barFontSize = baseBarHeight * (1 + BAR_FONT_SIZE_OFFSET_RATIO) * sizeScale;
+  const barTextYOffset = BAR_TEXT_Y_OFFSET_RATIO * baseBarHeight * sizeScale;
 
   const barText = buildText()
     .position({
       x: position.x,
-      y: position.y + TEXT_VERTICAL_OFFSET + -5.3 - (reducedHeight ? -0.8 : 0),
+      y: position.y + TEXT_VERTICAL_OFFSET + barTextYOffset,
     })
     .plainText(`${tracker.value}/${tracker.max}`)
     .textAlign("CENTER")
@@ -277,7 +287,9 @@ export function createMinimalTrackerBar(
   segments = 0,
   index: number,
 ): Item[] {
-  const barHeight = MINIMAL_BAR_HEIGHT;
+  const sizeScale = (tracker.sizePercentage ?? 100) / 100;
+  const barHeight = MINIMAL_BAR_HEIGHT * sizeScale;
+  const scaledCornerRadius = BAR_CORNER_RADIUS * sizeScale;
   const position = {
     x: origin.x - bounds.width / 2 + BAR_PADDING,
     y: origin.y - barHeight,
@@ -303,7 +315,7 @@ export function createMinimalTrackerBar(
     .disableHit(DISABLE_HIT)
     .tension(0)
     .closed(true)
-    .points(createRoundedRectangle(barWidth, barHeight, BAR_CORNER_RADIUS))
+    .points(createRoundedRectangle(barWidth, barHeight, scaledCornerRadius))
     .build();
 
   const fillPortion = getFillPortion(tracker.value, tracker.max, segments);
@@ -327,7 +339,7 @@ export function createMinimalTrackerBar(
       createRoundedRectangle(
         barWidth,
         barHeight,
-        BAR_CORNER_RADIUS,
+        scaledCornerRadius,
         fillPortion,
       ),
     )
