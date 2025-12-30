@@ -27,7 +27,8 @@ export function getTrackersFromSceneMetadata(sceneMetadata: Metadata) {
   const trackersMetadata = sceneMetadata[getPluginId(TRACKER_METADATA_ID)];
   if (trackersMetadata === undefined) return [];
   if (!Array.isArray(trackersMetadata)) {
-    throw TypeError(`Expected an array, got ${typeof trackersMetadata}`);
+    console.error(`Expected an array, got ${typeof trackersMetadata}`);
+    return [];
   }
 
   const trackers: Tracker[] = [];
