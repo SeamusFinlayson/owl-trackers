@@ -22,6 +22,7 @@ import { TrackerInput } from "../components/TrackerInput";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
 import { parseContentForNumber } from "../useTrackerStore";
 import OpenInNewIcon from "../icons/OpenInNewIcon";
+import { isSegmentSettings } from "../isSegmentSettings";
 
 export function Action(): React.JSX.Element {
   const mode = useOwlbearStore((state) => state.themeMode);
@@ -69,8 +70,8 @@ export function Action(): React.JSX.Element {
   useEffect(() => {
     const handleSceneMetadata = (sceneMetadata: Metadata) => {
       const segmentSettings = sceneMetadata[getPluginId("segmentSettings")];
-      if (segmentSettings == undefined) setSegmentSettings([]);
-      else setSegmentSettings(segmentSettings as [string, number][]);
+      if (!isSegmentSettings(segmentSettings)) setSegmentSettings([]);
+      else setSegmentSettings(segmentSettings);
     };
     OBR.scene.getMetadata().then(handleSceneMetadata);
     return OBR.scene.onMetadataChange(handleSceneMetadata);

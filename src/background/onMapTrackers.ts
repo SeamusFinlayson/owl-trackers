@@ -34,6 +34,7 @@ import {
   readNumberFromMetadata,
 } from "../sceneMetadataHelpers";
 import { getImageCenter } from "./mathHelpers";
+import { isSegmentSettings } from "../isSegmentSettings";
 
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
@@ -113,7 +114,7 @@ async function getSegmentSettings(sceneMetadata?: Metadata): Promise<boolean> {
   const newSegmentSettings = sceneMetadata[getPluginId("segmentSettings")] as
     | [string, number][]
     | undefined;
-  if (newSegmentSettings !== undefined) {
+  if (isSegmentSettings(newSegmentSettings)) {
     if (newSegmentSettings.length !== segmentSettings.size) doRefresh = true;
     for (const setting of newSegmentSettings) {
       if (
