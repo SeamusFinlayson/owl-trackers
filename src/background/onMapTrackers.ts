@@ -48,6 +48,9 @@ let barHeightIsReduced = false;
 let segmentsEnabled = true;
 let segmentSettings = new Map<string, number>();
 
+let extraRefreshIsDone = false;
+const extraRefreshDelay = 1000;
+
 export async function initOnMapTrackers() {
   // Handle when the scene is either changed or made ready after extension load
   OBR.scene.onReadyChange(async (isReady) => {
@@ -56,6 +59,10 @@ export async function initOnMapTrackers() {
       await getSegmentSettings();
       await refreshAllTrackers();
       await startTrackerUpdates();
+      setTimeout(() => {
+        if (!extraRefreshIsDone) refreshAllTrackers();
+        extraRefreshIsDone = true;
+      }, extraRefreshDelay);
     }
   });
 
@@ -66,6 +73,10 @@ export async function initOnMapTrackers() {
     await getSegmentSettings();
     await refreshAllTrackers();
     await startTrackerUpdates();
+    setTimeout(() => {
+      if (!extraRefreshIsDone) refreshAllTrackers();
+      extraRefreshIsDone = true;
+    }, extraRefreshDelay);
   }
 }
 
