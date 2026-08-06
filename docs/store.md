@@ -3,10 +3,10 @@ title: Owl Trackers
 description: Elegant system-agnostic token trackers
 author: Seamus Finlayson
 image: https://github.com/user-attachments/assets/d44f48ff-bb1b-4683-af7a-e991acb614ee
-icon: https://owl-trackers.onrender.com/owl-trackers-logo.svg
+icon: https://owl-trackers.seamus-finlayson.ca/owl-trackers-logo.svg
 tags:
   - combat
-manifest: https://owl-trackers.onrender.com/manifest.json
+manifest: https://owl-trackers.seamus-finlayson.ca/manifest.json
 learn-more: https://github.com/SeamusFinlayson/owl-trackers
 ---
 
