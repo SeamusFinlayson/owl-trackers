@@ -318,9 +318,13 @@ function updateItemTrackers(
 
   function createPlayerVisibleTrackers() {
     // Determine token bounds
-    const bounds = getImageBounds(item, sceneDpi);
-    bounds.width = Math.abs(bounds.width);
-    bounds.height = Math.abs(bounds.height);
+    const unsafeBounds = getImageBounds(item, sceneDpi);
+    unsafeBounds.width = Math.abs(unsafeBounds.width);
+    unsafeBounds.height = Math.abs(unsafeBounds.height);
+    const bounds = {
+      width: Math.max(unsafeBounds.width, sceneDpi),
+      height: Math.max(unsafeBounds.height, sceneDpi),
+    };
 
     // Determine coordinate origin for drawing stats
     const origin = getImageCenter(item, sceneDpi);
@@ -379,9 +383,13 @@ function updateItemTrackers(
 
   function createAllTrackers() {
     // Determine token bounds
-    const bounds = getImageBounds(item, sceneDpi);
-    bounds.width = Math.abs(bounds.width);
-    bounds.height = Math.abs(bounds.height);
+    const unsafeBounds = getImageBounds(item, sceneDpi);
+    unsafeBounds.width = Math.abs(unsafeBounds.width);
+    unsafeBounds.height = Math.abs(unsafeBounds.height);
+    const bounds = {
+      width: Math.max(unsafeBounds.width, sceneDpi),
+      height: Math.max(unsafeBounds.height, sceneDpi),
+    };
 
     // Determine coordinate origin for drawing stats
     const origin = getImageCenter(item, sceneDpi);
