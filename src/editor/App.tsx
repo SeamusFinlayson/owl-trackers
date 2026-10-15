@@ -1,19 +1,12 @@
-import { useEffect, useState } from "react";
-import { useOwlbearStore } from "../useOwlbearStore.ts";
-import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
+import { useEffect } from "react";
+import { getPluginId } from "../getPluginId.ts";
 import "../index.css";
+import { Tracker, TRACKER_METADATA_ID } from "../trackerHelpersBasic.ts";
+import { writeTrackersToSelection } from "../trackerHelpersItem.ts";
 import Editor from "./Editor.tsx";
-import { useTrackerStore } from "../useTrackerStore.ts";
-import {
-  getTrackersFromSelection,
-  writeTrackersToSelection,
-} from "../trackerHelpersItem.ts";
-import OBR, { Item, Metadata } from "@owlbear-rodeo/sdk";
-import {
-  getTrackersFromSceneMetadata,
-  writeTrackersToScene,
-} from "../trackerHelpersScene.ts";
-import { Tracker } from "../trackerHelpersBasic.ts";
+import { useTrackersState } from "./new/useSelectionTrackers.ts";
+import OBR from "@owlbear-rodeo/sdk";
+import { Button } from "@mui/material";
 
 export type EditorAppConfig = { type: "scene" } | { type: "item" };
 
@@ -26,96 +19,46 @@ export default function App({
   initialRole: "PLAYER" | "GM";
   editorProps: EditorAppConfig;
 }): React.JSX.Element {
-  useOwlbearStoreSync();
+  const { trackersState, trackersStateDispatch } = useTrackersState();
 
-  const setRole = useOwlbearStore((state) => state.setRole);
-  const setMode = useOwlbearStore((state) => state.setThemeMode);
+  const updateTrackers = (trackers: Tracker[]) => {
+    writeTrackersToSelection(trackers);
+    const modifiedItem = trackersState.selectedItem;
+    if (!modifiedItem) return;
+    modifiedItem.metadata[getPluginId(TRACKER_METADATA_ID)] = trackers;
+    trackersStateDispatch({
+      type: "handleItemsChange",
+      items: [
+        ...trackersState.items.map((item) =>
+          item.id === trackersState.selectedItem?.id ? modifiedItem : item,
+        ),
+      ],
+    });
+  };
 
-  const trackers = useTrackerStore((state) => state.trackers);
-  const setTrackers = useTrackerStore((state) => state.setTrackers);
-  const setWriteToSaveLocation = useTrackerStore(
-    (state) => state.setWriteToSaveLocation,
+  return (
+    <div className={`${initialMode === "DARK" ? "dark" : ""} over h-screen`}>
+      <div className="flex h-full flex-col bg-default dark:bg-default-dark">
+        {trackersState.selectedItem ? (
+          <Editor
+            playerRole={initialRole}
+            title={trackersState.selectedItem?.name ?? ""}
+            trackers={trackersState.selectionTrackers}
+            autofillTrackers={trackersState.sceneTrackers}
+            updateTrackers={updateTrackers}
+          />
+        ) : (
+          <div className="flex h-full flex-col p-4 ">
+            <div className="grow">Could not find token.</div>
+            <Button
+              variant="outlined"
+              onClick={() => OBR.popover.close(getPluginId("editor"))}
+            >
+              Close
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
-
-  const selection = useOwlbearStore((state) => state.selection);
-  const items = useOwlbearStore((state) => state.items);
-
-  const item = items.find(
-    (value) => selection !== undefined && value.id === selection[0],
-  );
-
-  const [initDone, setInitDone] = useState<{
-    trackers: boolean;
-    sceneTrackers: boolean;
-    misc: boolean;
-  }>({ trackers: false, sceneTrackers: false, misc: false });
-
-  // Prevent flash on startup
-  useEffect(() => {
-    setMode(initialMode);
-    setRole(initialRole);
-    setWriteToSaveLocation(
-      editorProps.type === "item"
-        ? writeTrackersToSelection
-        : writeTrackersToScene,
-    );
-    setInitDone((prev) => ({ ...prev, misc: true }));
-  }, []);
-
-  useEffect(
-    editorProps.type === "item"
-      ? () => {
-          const updateTrackers = (items: Item[]) => {
-            getTrackersFromSelection(items).then((newTracker) => {
-              setTrackers(newTracker);
-            });
-          };
-          OBR.scene.items
-            .getItems()
-            .then(updateTrackers)
-            .then(() => setInitDone((prev) => ({ ...prev, trackers: true })));
-          return OBR.scene.items.onChange(updateTrackers);
-        }
-      : () => {},
-    [],
-  );
-
-  const [autofillTrackers, setAutofillTrackers] = useState<Tracker[]>([]);
-  useEffect(() => {
-    const updateSceneTrackers = (metadata: Metadata) => {
-      setAutofillTrackers(getTrackersFromSceneMetadata(metadata));
-    };
-    const updateTrackers = (metadata: Metadata) => {
-      setTrackers(getTrackersFromSceneMetadata(metadata));
-    };
-    OBR.scene
-      .getMetadata()
-      .then(editorProps.type === "scene" ? updateTrackers : updateSceneTrackers)
-      .then(() => {
-        setInitDone((prev) => ({ ...prev, sceneTrackers: true }));
-        if (editorProps.type === "scene")
-          setInitDone((prev) => ({ ...prev, trackers: true }));
-      });
-    return OBR.scene.onMetadataChange(updateSceneTrackers);
-  }, []);
-
-  if (!initDone.trackers || !initDone.sceneTrackers || !initDone.misc)
-    return <></>;
-  if (editorProps.type === "item") {
-    return (
-      <Editor
-        title={item ? item.name : ""}
-        trackers={trackers}
-        autofillTrackers={autofillTrackers}
-      />
-    );
-  } else {
-    return (
-      <Editor
-        title="Set Scene Defaults"
-        trackers={trackers}
-        autofillTrackers={[]}
-      />
-    );
-  }
 }
