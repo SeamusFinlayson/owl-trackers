@@ -33,7 +33,7 @@ export default function Input({
 
   return (
     <input
-      className="h-[32px] w-[54px] rounded-lg bg-black/10 px-[2px] py-[1px] text-center outline-none duration-150 hover:bg-black/15 focus:bg-black/40"
+      className="h-[32px] w-[54px] rounded-lg bg-black/10 px-[2px] py-px text-center outline-hidden duration-150 hover:bg-black/15 focus:bg-black/40"
       value={content}
       onChange={(e) => setContent(e.target.value)}
       onBlur={(e) => runUpdateHandler(e)}

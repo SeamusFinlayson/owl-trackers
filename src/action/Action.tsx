@@ -264,7 +264,7 @@ export function Action(): React.JSX.Element {
                         {trackerNamesWithSegmentsDisabled.map((name) => (
                           <button
                             key={name}
-                            className="flex items-center gap-2 rounded-full px-3 py-1 pl-2 text-sm text-text-primary outline outline-1 outline-white/30 hover:bg-black/20 dark:text-text-primary-dark"
+                            className="flex items-center gap-2 rounded-full px-3 py-1 pl-2 text-sm text-text-primary outline-solid outline-1 outline-white/30 hover:bg-black/20 dark:text-text-primary-dark"
                             onClick={() =>
                               updateSegmentSettings([
                                 ...segmentSettings,

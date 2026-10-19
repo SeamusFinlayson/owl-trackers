@@ -29,7 +29,7 @@ export default function NumberTrackerInput({
       {...inputProps}
       parentValue={tracker.value.toString()}
       onUserConfirm={(target) => updateHandler(target.value)}
-      className="h-[44px] w-full bg-transparent text-center outline-none"
+      className="h-[44px] w-full bg-transparent text-center outline-hidden"
       clearContentOnFocus
     />
   );

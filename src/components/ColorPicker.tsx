@@ -21,7 +21,7 @@ export default function ColorPicker({
         onClick={() => {
           setColorNumber(i);
         }}
-        className="group flex size-[34px] items-center justify-center outline-none"
+        className="group flex size-[34px] items-center justify-center outline-hidden"
       >
         <div
           className={cn(
