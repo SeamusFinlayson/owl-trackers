@@ -62,7 +62,7 @@ export default function Editor({
   return (
     <div className={`${mode === "DARK" ? "dark" : ""} over h-screen`}>
       <div className="flex h-full flex-col bg-default dark:bg-default-dark">
-        <div className="w-full  bg-paper p-1 pb-0.5 shadow dark:bg-paper-dark/55">
+        <div className="w-full  bg-paper p-1 pb-0.5 shadow-sm dark:bg-paper-dark/55">
           <div className="text  text-center text-xs font-semibold text-text-secondary dark:text-text-secondary-dark">
             {title}
           </div>
@@ -137,7 +137,7 @@ export default function Editor({
           ) : autofillTrackers.length !== 0 ? (
             <div className="flex justify-center">
               <button
-                className="mt-3 rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline shadow hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
+                className="mt-3 rounded-lg border-none bg-paper/90 p-[6px] text-center text-text-primary no-underline shadow-sm hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50"
                 onClick={() => overWriteTrackers(autofillTrackers)}
               >
                 Use scene trackers

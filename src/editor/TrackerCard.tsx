@@ -50,7 +50,7 @@ export default function TrackerCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="relative flex cursor-default overflow-clip rounded-md bg-paper drop-shadow-sm dark:bg-paper-dark"
+      className="relative flex cursor-default overflow-clip rounded-md bg-paper drop-shadow-xs dark:bg-paper-dark"
       tabIndex={-1}
     >
       <div
@@ -194,7 +194,7 @@ export default function TrackerCard({
                   onUserConfirm={(target) =>
                     updateTrackerField(tracker.id, "value", target.value)
                   }
-                  className="w-full shrink bg-transparent text-center outline-none"
+                  className="w-full shrink bg-transparent text-center outline-hidden"
                   clearContentOnFocus
                 />
 

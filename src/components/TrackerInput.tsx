@@ -25,7 +25,7 @@ export const TrackerInput = ({
         parentValue={value.toString()}
         onUserConfirm={(target) => onConfirm(target.value)}
         className={cn(
-          "peer w-full bg-transparent outline-none",
+          "peer w-full bg-transparent outline-hidden",
           inputProps?.className,
         )}
         clearContentOnFocus

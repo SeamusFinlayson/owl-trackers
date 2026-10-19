@@ -32,7 +32,7 @@ export default function BarTrackerInput({
   const ValueInput = (
     <PartiallyControlledInput
       {...valueInputProps}
-      className="h-full w-full bg-transparent text-center outline-none"
+      className="h-full w-full bg-transparent text-center outline-hidden"
       parentValue={tracker.value.toString()}
       onFocus={() => setFocusTarget("value")}
       onUserConfirm={(target) => valueUpdateHandler(target.value)}
@@ -42,7 +42,7 @@ export default function BarTrackerInput({
   const MaxInput = (
     <PartiallyControlledInput
       {...maxInputProps}
-      className="h-full w-full bg-transparent text-center outline-none"
+      className="h-full w-full bg-transparent text-center outline-hidden"
       parentValue={tracker.max.toString()}
       onFocus={() => setFocusTarget("max")}
       onUserConfirm={(target) => maxUpdateHandler(target.value)}
