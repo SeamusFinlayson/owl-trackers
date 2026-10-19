@@ -8,12 +8,21 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        index: resolve(__dirname, "index.html"),
-        background: resolve(__dirname, "src/background/background.html"),
-        context_embed: resolve(__dirname, "src/trackerMenu/trackerMenu.html"),
-        item_editor: resolve(__dirname, "src/editor/editor.html"),
-        action: resolve(__dirname, "src/action/action.html"),
-        scene_editor: resolve(__dirname, "src/sceneEditor/sceneEditor.html"),
+        index: resolve(import.meta.dirname, "index.html"),
+        background: resolve(
+          import.meta.dirname,
+          "src/background/background.html",
+        ),
+        context_embed: resolve(
+          import.meta.dirname,
+          "src/trackerMenu/trackerMenu.html",
+        ),
+        item_editor: resolve(import.meta.dirname, "src/editor/editor.html"),
+        action: resolve(import.meta.dirname, "src/action/action.html"),
+        scene_editor: resolve(
+          import.meta.dirname,
+          "src/sceneEditor/sceneEditor.html",
+        ),
       },
     },
   },
