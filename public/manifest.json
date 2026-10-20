@@ -11,7 +11,7 @@
     "title": "Owl Trackers",
     "icon": "/owl-trackers-logo-outline.svg",
     "popover": "/src/action/action.html",
-    "height": 313,
+    "height": 400,
     "width": 300
   }
 }

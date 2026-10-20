@@ -10,7 +10,7 @@ export const defaultSettings: Settings = {
 };
 
 export const defaultTrackersState: TrackersState = {
-  sceneIsReady: true,
+  sceneIsReady: false,
   items: [],
   selection: undefined,
   sceneMetadata: {},
@@ -22,5 +22,5 @@ export const defaultTrackersState: TrackersState = {
   selectionTrackers: undefined,
   selectionTrackersHidden: false,
   sceneTrackers: [],
-  setting: defaultSettings,
+  settings: defaultSettings,
 };

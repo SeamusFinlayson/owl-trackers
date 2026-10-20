@@ -15,5 +15,5 @@ export type TrackersState = {
   selectionTrackers: Tracker[] | undefined;
   selectionTrackersHidden: boolean | undefined;
   sceneTrackers: Tracker[] | undefined;
-  setting: Settings;
+  settings: Settings;
 };

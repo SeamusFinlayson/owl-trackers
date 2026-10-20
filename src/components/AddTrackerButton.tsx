@@ -1,11 +1,11 @@
 import { MenuItem, MenuList, Popover, Tooltip } from "@mui/material";
 import React from "react";
-import { useOwlbearStore } from "../useOwlbearStore";
 import AddIcon from "../icons/AddIcon";
 import IconButton from "./IconButton";
 import { MetadataUpdate } from "../state/updateItems/UpdatesType";
 import { Tracker } from "../trackerHelpersBasic";
-import { ModifyTrackers } from "../state/trackerManipulation/modifyTrackers";
+import { ModifyTrackers } from "../state/helpers/modifyTrackers";
+import { useTheme } from "@mui/material/styles";
 
 export default function AddTrackerButton({
   dense,
@@ -16,7 +16,7 @@ export default function AddTrackerButton({
   trackers: Tracker[];
   updateTrackers: (update: MetadataUpdate) => void;
 }): React.JSX.Element {
-  const mode = useOwlbearStore((state) => state.themeMode);
+  const mode = useTheme().palette.mode;
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null,
@@ -58,7 +58,7 @@ export default function AddTrackerButton({
           vertical: "top",
           horizontal: "center",
         }}
-        className={mode === "DARK" ? "dark" : ""}
+        className={mode === "dark" ? "dark" : ""}
       >
         <MenuList dense={dense} disablePadding>
           <MenuItem

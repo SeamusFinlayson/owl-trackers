@@ -13,8 +13,8 @@ import OpenInNewIcon from "../icons/OpenInNewIcon";
 import AddTrackerButton from "../components/AddTrackerButton";
 import CounterTrackerInput from "../components/CounterTrackerInput";
 import { TrackersState } from "../state/TrackersStateType";
-import { ModifyTrackers } from "../state/trackerManipulation/modifyTrackers";
-import { MetadataUpdate } from "../state/updateItems/UpdatesType";
+import { ModifyTrackers } from "../state/helpers/modifyTrackers";
+import { TrackersUpdate } from "../state/helpers/updateState";
 
 export default function TrackerMenu({
   playerRole,
@@ -29,7 +29,7 @@ export default function TrackerMenu({
     TrackersState["selectionTrackersHidden"]
   >;
   sceneTrackers: NonNullable<TrackersState["sceneTrackers"]>;
-  updateTrackers: (update: MetadataUpdate) => void;
+  updateTrackers: (update: TrackersUpdate) => void;
 }): React.JSX.Element {
   const generateInput = (tracker: Tracker): React.JSX.Element => {
     if (tracker.variant === "value") {

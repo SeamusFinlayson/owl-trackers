@@ -1,4 +1,4 @@
-import OBR, { Item } from "@owlbear-rodeo/sdk";
+import { Item } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
 import {
   isTracker,
@@ -6,39 +6,6 @@ import {
   HIDDEN_METADATA_ID,
   Tracker,
 } from "./trackerHelpersBasic";
-
-/////////////////////////////////////////////////////////////////////
-// Interacting with stored trackers in an item
-/////////////////////////////////////////////////////////////////////
-
-/** Write local trackers to selected item */
-export async function writeTrackersToSelection(trackers: Tracker[]) {
-  const selection = await OBR.player.getSelection();
-  const selectedItems = await OBR.scene.items.getItems(selection);
-
-  if (typeof selection === "undefined" || selection.length !== 1) {
-    throw `Error: Player has selected ${selection?.length} items selected, expected 1.`;
-  }
-
-  OBR.scene.items.updateItems(selectedItems, (items) => {
-    for (const item of items) {
-      item.metadata[getPluginId(TRACKER_METADATA_ID)] = trackers;
-    }
-  });
-}
-
-/** Get trackers from selected item */
-export async function getTrackersFromSelection(
-  items?: Item[],
-): Promise<Tracker[]> {
-  if (items === undefined) items = await OBR.scene.items.getItems();
-
-  const selection = await OBR.player.getSelection();
-  const selectedItem = items.find((item) => item.id === selection?.[0]);
-  if (selectedItem === undefined) throw TypeError;
-
-  return getTrackersFromItem(selectedItem);
-}
 
 export function getTrackersFromItem(item: Item) {
   const metadata = item.metadata[getPluginId(TRACKER_METADATA_ID)];

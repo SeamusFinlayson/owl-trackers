@@ -25,7 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToFirstScrollableAncestor } from "@dnd-kit/modifiers";
 import { MetadataUpdate } from "../state/updateItems/UpdatesType.ts";
-import { ModifyTrackers } from "../state/trackerManipulation/modifyTrackers.ts";
+import { ModifyTrackers } from "../state/helpers/modifyTrackers.ts";
 
 export default function Editor({
   trackers,

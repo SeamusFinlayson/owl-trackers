@@ -2,10 +2,8 @@ import { ThemeProvider } from "@emotion/react";
 import { Metadata } from "@owlbear-rodeo/sdk";
 import Editor from "../editor/Editor";
 import { getTheme } from "../getTheme";
-import { MetadataUpdate } from "../state/updateItems/UpdatesType";
 import { useTrackersState } from "../state/useSelectionTrackers";
-import { updateSceneMetadata } from "../state/updateItems/updateSceneMetadata";
-import { updateStateSceneMetadata } from "../state/updateItems/updateStateSceneMetadata";
+import { TrackersUpdate, UpdateState } from "../state/helpers/updateState";
 
 export function App() {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -18,9 +16,8 @@ export function App() {
   if (sceneTrackers === undefined) return <></>;
   if (theme === undefined) return <></>;
 
-  const updateTrackers = (update: MetadataUpdate) => {
-    updateSceneMetadata(update);
-    updateStateSceneMetadata(
+  const updateTrackers = (update: TrackersUpdate) => {
+    UpdateState.sceneMetadata(
       update,
       trackersState.sceneMetadata,
       (sceneMetadata: Metadata) =>

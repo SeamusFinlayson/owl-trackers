@@ -4,12 +4,8 @@ import Editor from "./Editor.tsx";
 import { useTrackersState } from "../state/useSelectionTrackers.ts";
 import OBR, { Item } from "@owlbear-rodeo/sdk";
 import { Button, ThemeProvider } from "@mui/material";
-import { MetadataUpdate } from "../state/updateItems/UpdatesType.ts";
-import { updateSceneItems } from "../state/updateItems/updateSceneItems.ts";
-import { updateStateSceneItems } from "../state/updateItems/updateStateSceneItems.ts";
 import { getTheme } from "../getTheme.ts";
-
-export type EditorAppConfig = { type: "scene" } | { type: "item" };
+import { TrackersUpdate, UpdateState } from "../state/helpers/updateState.ts";
 
 export default function App(): React.JSX.Element {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -28,11 +24,10 @@ export default function App(): React.JSX.Element {
   if (sceneTrackers === undefined) return <></>;
   if (theme === undefined) return <></>;
 
-  const updateTrackers = (update: MetadataUpdate) => {
+  const updateTrackers = (update: TrackersUpdate) => {
     const updates = [{ itemId: selectedItem.id, ...update }];
 
-    updateSceneItems(updates);
-    updateStateSceneItems(updates, trackersState.items, (items: Item[]) =>
+    UpdateState.items(updates, trackersState.items, (items: Item[]) =>
       trackersStateDispatch({
         type: "handleItemsChange",
         items,

@@ -48,7 +48,7 @@ function getDerivedState(
       roomMetadata[getPluginId("settings")],
     );
     if (parseResult.success) {
-      derivedState.setting = { ...defaultSettings, ...parseResult.data };
+      derivedState.settings = { ...defaultSettings, ...parseResult.data };
     }
   }
 
@@ -100,9 +100,6 @@ function reducer(state: TrackersState, action: ReducerAction): TrackersState {
       };
     }
     case "handleSceneReadyChange": {
-      if (!action.sceneIsReady)
-        return { ...defaultTrackersState, sceneIsReady: action.sceneIsReady };
-
       return {
         ...state,
         sceneIsReady: action.sceneIsReady,
@@ -121,14 +118,6 @@ export function useTrackersState() {
   );
 
   useEffect(() => {
-    const handleItems = (items: Item[]) => {
-      trackersStateDispatch({ type: "handleItemsChange", items });
-    };
-    OBR.scene.items.getItems().then(handleItems);
-    return OBR.scene.items.onChange(handleItems);
-  }, []);
-
-  useEffect(() => {
     const handleSelection = (selection: Player["selection"] | undefined) => {
       trackersStateDispatch({ type: "handleSelectionChange", selection });
     };
@@ -143,14 +132,6 @@ export function useTrackersState() {
   }, []);
 
   useEffect(() => {
-    const handleMetadata = (sceneMetadata: Metadata) => {
-      trackersStateDispatch({ type: "handleSceneMetadata", sceneMetadata });
-    };
-    OBR.scene.getMetadata().then(handleMetadata);
-    return OBR.scene.onMetadataChange(handleMetadata);
-  }, []);
-
-  useEffect(() => {
     const handleTheme = (theme: Theme) => {
       trackersStateDispatch({ type: "handleTheme", theme });
     };
@@ -162,9 +143,34 @@ export function useTrackersState() {
     const handleSceneReady = (sceneIsReady: boolean) => {
       trackersStateDispatch({ type: "handleSceneReadyChange", sceneIsReady });
     };
+
     OBR.scene.isReady().then(handleSceneReady);
     return OBR.scene.onReadyChange(handleSceneReady);
   }, []);
+
+  useEffect(() => {
+    const handleMetadata = (sceneMetadata: Metadata) => {
+      trackersStateDispatch({ type: "handleSceneMetadata", sceneMetadata });
+    };
+    if (trackersState.sceneIsReady) {
+      OBR.scene.getMetadata().then(handleMetadata);
+      return OBR.scene.onMetadataChange(handleMetadata);
+    } else {
+      handleMetadata({});
+    }
+  }, [trackersState.sceneIsReady]);
+
+  useEffect(() => {
+    const handleItems = (items: Item[]) => {
+      trackersStateDispatch({ type: "handleItemsChange", items });
+    };
+    if (trackersState.sceneIsReady) {
+      OBR.scene.items.getItems().then(handleItems);
+      return OBR.scene.items.onChange(handleItems);
+    } else {
+      handleItems([]);
+    }
+  }, [trackersState.sceneIsReady]);
 
   return { trackersState, trackersStateDispatch };
 }
