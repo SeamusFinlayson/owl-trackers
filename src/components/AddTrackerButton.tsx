@@ -3,21 +3,20 @@ import React from "react";
 import { useOwlbearStore } from "../useOwlbearStore";
 import AddIcon from "../icons/AddIcon";
 import IconButton from "./IconButton";
-import { useTrackerStore } from "../useTrackerStore";
+import { ItemUpdate } from "../state/updateItems/ItemsUpdatesType";
+import { Tracker } from "../trackerHelpersBasic";
+import { createTracker } from "../state/trackerManipulation/createTracker";
 
 export default function AddTrackerButton({
   dense,
+  trackers,
+  updateTrackers,
 }: {
   dense?: boolean;
+  trackers: Tracker[];
+  updateTrackers: (update: Omit<ItemUpdate, "itemId">) => void;
 }): React.JSX.Element {
   const mode = useOwlbearStore((state) => state.themeMode);
-
-  const addTrackerBubble = useTrackerStore((state) => state.addTrackerBubble);
-  const addCounterTracker = useTrackerStore((state) => state.addCounterTracker);
-  const addTrackerBar = useTrackerStore((state) => state.addTrackerBar);
-  const addCheckboxTracker = useTrackerStore(
-    (state) => state.addCheckboxTracker,
-  );
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null,
@@ -64,32 +63,40 @@ export default function AddTrackerButton({
         <MenuList dense={dense} disablePadding>
           <MenuItem
             onClick={() => {
-              addCheckboxTracker();
-              handleClose();
+              const { trackers: newTrackers, changed } =
+                createTracker.checkbox(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
             }}
           >
             Checkbox
           </MenuItem>
           <MenuItem
             onClick={() => {
-              addTrackerBubble();
-              handleClose();
+              const { trackers: newTrackers, changed } =
+                createTracker.checkbox(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
             }}
           >
             Number
           </MenuItem>
           <MenuItem
             onClick={() => {
-              addCounterTracker();
-              handleClose();
+              const { trackers: newTrackers, changed } =
+                createTracker.checkbox(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
             }}
           >
             Counter
           </MenuItem>
           <MenuItem
             onClick={() => {
-              addTrackerBar();
-              handleClose();
+              const { trackers: newTrackers, changed } =
+                createTracker.checkbox(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
             }}
           >
             Bar

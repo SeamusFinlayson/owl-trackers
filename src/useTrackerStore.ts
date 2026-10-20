@@ -4,7 +4,7 @@ import {
   createBubble,
   createBar,
   MAX_TRACKER_COUNT,
-  createCheckboxTracker,
+  createCheckbox,
   createCounter,
 } from "./trackerHelpersBasic";
 
@@ -118,10 +118,7 @@ export const useTrackerStore = create<TrackerState>()((set) => ({
   addCheckboxTracker: () =>
     set((state) => {
       if (state.trackers.length < MAX_TRACKER_COUNT) {
-        state.trackers = [
-          ...state.trackers,
-          createCheckboxTracker(state.trackers),
-        ];
+        state.trackers = [...state.trackers, createCheckbox(state.trackers)];
       }
       sideEffects(state);
       return { ...state };

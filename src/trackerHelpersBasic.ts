@@ -128,7 +128,7 @@ export const createBar = (trackers: Tracker[]): Tracker => {
   };
 };
 
-export const createCheckboxTracker = (trackers: Tracker[]): Tracker => {
+export const createCheckbox = (trackers: Tracker[]): Tracker => {
   return {
     id: createId(),
     variant: "checkbox",

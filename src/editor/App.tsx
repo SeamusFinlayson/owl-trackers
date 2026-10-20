@@ -4,7 +4,7 @@ import "../index.css";
 import { Tracker, TRACKER_METADATA_ID } from "../trackerHelpersBasic.ts";
 import { writeTrackersToSelection } from "../trackerHelpersItem.ts";
 import Editor from "./Editor.tsx";
-import { useTrackersState } from "./new/useSelectionTrackers.ts";
+import { useTrackersState } from "../state/useSelectionTrackers.ts";
 import OBR from "@owlbear-rodeo/sdk";
 import { Button } from "@mui/material";
 
@@ -38,7 +38,7 @@ export default function App({
 
   return (
     <div className={`${initialMode === "DARK" ? "dark" : ""} over h-screen`}>
-      <div className="flex h-full flex-col bg-default dark:bg-default-dark">
+      <div className="bg-default dark:bg-default-dark flex h-full flex-col">
         {trackersState.selectedItem ? (
           <Editor
             playerRole={initialRole}
@@ -48,7 +48,7 @@ export default function App({
             updateTrackers={updateTrackers}
           />
         ) : (
-          <div className="flex h-full flex-col p-4 ">
+          <div className="flex h-full flex-col p-4">
             <div className="grow">Could not find token.</div>
             <Button
               variant="outlined"
