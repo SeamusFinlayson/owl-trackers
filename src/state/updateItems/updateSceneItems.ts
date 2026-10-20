@@ -4,9 +4,9 @@ import {
   TRACKER_METADATA_ID,
 } from "../../trackerHelpersBasic";
 import { getPluginId } from "../../getPluginId";
-import { ItemUpdate } from "./ItemsUpdatesType";
+import { ItemMetadataUpdate } from "./UpdatesType";
 
-export function updateSceneItems(updates: ItemUpdate[]) {
+export function updateSceneItems(updates: ItemMetadataUpdate[]) {
   const itemIds = updates.map((update) => update.itemId);
 
   OBR.scene.items.updateItems(itemIds, (items) => {

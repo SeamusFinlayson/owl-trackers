@@ -12,9 +12,9 @@ import CheckboxTrackerInput from "../components/CheckboxTrackerInput";
 import OpenInNewIcon from "../icons/OpenInNewIcon";
 import AddTrackerButton from "../components/AddTrackerButton";
 import CounterTrackerInput from "../components/CounterTrackerInput";
-import { updateTrackerField } from "../state/trackerManipulation/updateTrackerField";
 import { TrackersState } from "../state/TrackersStateType";
-import { ItemUpdate } from "../state/updateItems/ItemsUpdatesType";
+import { ModifyTrackers } from "../state/trackerManipulation/modifyTrackers";
+import { MetadataUpdate } from "../state/updateItems/UpdatesType";
 
 export default function TrackerMenu({
   playerRole,
@@ -29,7 +29,7 @@ export default function TrackerMenu({
     TrackersState["selectionTrackersHidden"]
   >;
   sceneTrackers: NonNullable<TrackersState["sceneTrackers"]>;
-  updateTrackers: (update: Omit<ItemUpdate, "itemId">) => void;
+  updateTrackers: (update: MetadataUpdate) => void;
 }): React.JSX.Element {
   const generateInput = (tracker: Tracker): React.JSX.Element => {
     if (tracker.variant === "value") {
@@ -39,7 +39,7 @@ export default function TrackerMenu({
           tracker={tracker}
           color={tracker.color}
           updateHandler={(content: string) => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "value",
@@ -57,7 +57,7 @@ export default function TrackerMenu({
           tracker={tracker}
           color={tracker.color}
           valueUpdateHandler={(content: string) => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "value",
@@ -66,7 +66,7 @@ export default function TrackerMenu({
             updateTrackers({ trackers });
           }}
           maxUpdateHandler={(content: string) => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "max",
@@ -84,7 +84,7 @@ export default function TrackerMenu({
           tracker={tracker}
           color={tracker.color}
           updateHandler={(content: string) => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "value",
@@ -93,7 +93,7 @@ export default function TrackerMenu({
             updateTrackers({ trackers });
           }}
           increment={() => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "value",
@@ -102,7 +102,7 @@ export default function TrackerMenu({
             updateTrackers({ trackers });
           }}
           decrement={() => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "value",
@@ -120,7 +120,7 @@ export default function TrackerMenu({
           tracker={tracker}
           color={tracker.color}
           updateHandler={(checked) => {
-            const trackers = updateTrackerField(
+            const trackers = ModifyTrackers.update.field(
               selectionTrackers,
               tracker.id,
               "checked",

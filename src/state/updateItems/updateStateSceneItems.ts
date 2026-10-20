@@ -4,10 +4,10 @@ import {
   TRACKER_METADATA_ID,
 } from "../../trackerHelpersBasic";
 import { getPluginId } from "../../getPluginId";
-import { ItemUpdate } from "./ItemsUpdatesType";
+import { ItemMetadataUpdate } from "./UpdatesType";
 
-export function updateStateItems(
-  updates: ItemUpdate[],
+export function updateStateSceneItems(
+  updates: ItemMetadataUpdate[],
   items: Item[],
   updateItems: (items: Item[]) => void,
 ) {

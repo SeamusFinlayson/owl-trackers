@@ -3,9 +3,9 @@ import React from "react";
 import { useOwlbearStore } from "../useOwlbearStore";
 import AddIcon from "../icons/AddIcon";
 import IconButton from "./IconButton";
-import { ItemUpdate } from "../state/updateItems/ItemsUpdatesType";
+import { MetadataUpdate } from "../state/updateItems/UpdatesType";
 import { Tracker } from "../trackerHelpersBasic";
-import { createTracker } from "../state/trackerManipulation/createTracker";
+import { ModifyTrackers } from "../state/trackerManipulation/modifyTrackers";
 
 export default function AddTrackerButton({
   dense,
@@ -14,7 +14,7 @@ export default function AddTrackerButton({
 }: {
   dense?: boolean;
   trackers: Tracker[];
-  updateTrackers: (update: Omit<ItemUpdate, "itemId">) => void;
+  updateTrackers: (update: MetadataUpdate) => void;
 }): React.JSX.Element {
   const mode = useOwlbearStore((state) => state.themeMode);
 
@@ -64,7 +64,7 @@ export default function AddTrackerButton({
           <MenuItem
             onClick={() => {
               const { trackers: newTrackers, changed } =
-                createTracker.checkbox(trackers);
+                ModifyTrackers.create.checkbox(trackers);
               if (!changed) return;
               updateTrackers({ trackers: newTrackers });
             }}
@@ -74,7 +74,7 @@ export default function AddTrackerButton({
           <MenuItem
             onClick={() => {
               const { trackers: newTrackers, changed } =
-                createTracker.checkbox(trackers);
+                ModifyTrackers.create.bubble(trackers);
               if (!changed) return;
               updateTrackers({ trackers: newTrackers });
             }}
@@ -84,7 +84,7 @@ export default function AddTrackerButton({
           <MenuItem
             onClick={() => {
               const { trackers: newTrackers, changed } =
-                createTracker.checkbox(trackers);
+                ModifyTrackers.create.counter(trackers);
               if (!changed) return;
               updateTrackers({ trackers: newTrackers });
             }}
@@ -94,7 +94,7 @@ export default function AddTrackerButton({
           <MenuItem
             onClick={() => {
               const { trackers: newTrackers, changed } =
-                createTracker.checkbox(trackers);
+                ModifyTrackers.create.bar(trackers);
               if (!changed) return;
               updateTrackers({ trackers: newTrackers });
             }}

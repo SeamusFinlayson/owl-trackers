@@ -4,9 +4,9 @@ import { useTrackersState } from "../state/useSelectionTrackers";
 import { ThemeProvider } from "@mui/material";
 import { getTheme } from "../getTheme.ts";
 import { Item } from "@owlbear-rodeo/sdk";
-import { ItemUpdate } from "../state/updateItems/ItemsUpdatesType.ts";
 import { updateSceneItems } from "../state/updateItems/updateSceneItems.ts";
-import { updateStateItems } from "../state/updateItems/updateStateItems.ts";
+import { updateStateSceneItems } from "../state/updateItems/updateStateSceneItems.ts";
+import { MetadataUpdate } from "../state/updateItems/UpdatesType.ts";
 
 export default function App(): React.JSX.Element {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -25,11 +25,11 @@ export default function App(): React.JSX.Element {
   if (sceneTrackers === undefined) return <></>;
   if (theme === undefined) return <></>;
 
-  const updateTrackers = (update: Omit<ItemUpdate, "itemId">) => {
+  const updateTrackers = (update: MetadataUpdate) => {
     const updates = [{ itemId: selectedItem.id, ...update }];
 
     updateSceneItems(updates);
-    updateStateItems(updates, trackersState.items, (items: Item[]) =>
+    updateStateSceneItems(updates, trackersState.items, (items: Item[]) =>
       trackersStateDispatch({
         type: "handleItemsChange",
         items,
