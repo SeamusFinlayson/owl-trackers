@@ -2,10 +2,10 @@ import { MenuItem, MenuList, Popover, Tooltip } from "@mui/material";
 import React from "react";
 import AddIcon from "../icons/AddIcon";
 import IconButton from "./IconButton";
-import { MetadataUpdate } from "../state/updateItems/UpdatesType";
 import { Tracker } from "../trackerHelpersBasic";
 import { ModifyTrackers } from "../state/helpers/modifyTrackers";
 import { useTheme } from "@mui/material/styles";
+import { TrackersUpdate } from "../state/helpers/updateState";
 
 export default function AddTrackerButton({
   dense,
@@ -14,7 +14,7 @@ export default function AddTrackerButton({
 }: {
   dense?: boolean;
   trackers: Tracker[];
-  updateTrackers: (update: MetadataUpdate) => void;
+  updateTrackers: (update: TrackersUpdate) => void;
 }): React.JSX.Element {
   const mode = useTheme().palette.mode;
 

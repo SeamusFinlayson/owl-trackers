@@ -24,8 +24,8 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { restrictToFirstScrollableAncestor } from "@dnd-kit/modifiers";
-import { MetadataUpdate } from "../state/updateItems/UpdatesType.ts";
 import { ModifyTrackers } from "../state/helpers/modifyTrackers.ts";
+import { TrackersUpdate } from "../state/helpers/updateState.ts";
 
 export default function Editor({
   trackers,
@@ -40,7 +40,7 @@ export default function Editor({
   autofillTrackers: Tracker[];
   title: string;
   playerRole: "PLAYER" | "GM";
-  updateTrackers: (update: MetadataUpdate) => void;
+  updateTrackers: (update: TrackersUpdate) => void;
 }): React.JSX.Element {
   const [editing, setEditing] = useState(false);
 

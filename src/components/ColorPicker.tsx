@@ -3,15 +3,15 @@ import { getBackgroundColor } from "../colorHelpers";
 import { Popover, Tooltip } from "@mui/material";
 import IconButton from "./IconButton";
 import Palette from "../icons/Palette";
-import { useOwlbearStore } from "../useOwlbearStore";
 import { cn } from "../lib/utils";
+import { useTheme } from "@mui/material/styles";
 
 export default function ColorPicker({
   setColorNumber,
 }: {
   setColorNumber: (color: number) => void;
 }): React.JSX.Element {
-  const mode = useOwlbearStore((state) => state.themeMode);
+  const mode = useTheme().palette.mode;
 
   const colorButtons: React.JSX.Element[] = [];
   for (let i = 0; i < 9; i++) {
@@ -31,7 +31,7 @@ export default function ColorPicker({
         />
         <div
           className={cn(
-            "absolute h-[24px] w-[24px] rounded-full  duration-100 group-hover:h-[32px] group-hover:w-[32px] group-focus-visible:h-[32px] group-focus-visible:w-[32px]",
+            "absolute h-[24px] w-[24px] rounded-full duration-100 group-hover:h-[32px] group-hover:w-[32px] group-focus-visible:h-[32px] group-focus-visible:w-[32px]",
             getBackgroundColor(i),
           )}
         />
@@ -73,7 +73,7 @@ export default function ColorPicker({
         <div
           className={cn(
             "grid size-[120px] grid-cols-3 place-items-center p-1",
-            { dark: mode === "DARK" },
+            { dark: mode === "dark" },
           )}
         >
           {colorButtons}

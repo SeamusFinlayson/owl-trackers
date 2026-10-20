@@ -6,7 +6,7 @@ import {
   createCounter,
   createBar,
 } from "../../trackerHelpersBasic";
-import { parseContentForNumber } from "../../useTrackerStore";
+import { parseContentForNumber } from "../../parseContentForNumber";
 
 export const ModifyTrackers = {
   create: {

@@ -9,7 +9,7 @@ import { Collapse } from "@mui/material";
 import DeleteIcon from "../icons/DeleteIcon";
 import { TrackerInput } from "../components/TrackerInput";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
-import { parseContentForNumber } from "../useTrackerStore";
+import { parseContentForNumber } from "../parseContentForNumber";
 import OpenInNewIcon from "../icons/OpenInNewIcon";
 import { Settings } from "../state/SettingsZod";
 import { getTrackersFromItem } from "../trackerHelpersItem";
