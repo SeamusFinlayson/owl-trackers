@@ -47,6 +47,7 @@ function getDerivedState(
     const parseResult = SettingsZod.safeParse(
       roomMetadata[getPluginId("settings")],
     );
+    console.log(parseResult);
     if (parseResult.success) {
       derivedState.settings = { ...defaultSettings, ...parseResult.data };
     }
@@ -146,6 +147,15 @@ export function useTrackersState() {
 
     OBR.scene.isReady().then(handleSceneReady);
     return OBR.scene.onReadyChange(handleSceneReady);
+  }, []);
+
+  useEffect(() => {
+    const handleRoomMetadata = (roomMetadata: Metadata) => {
+      trackersStateDispatch({ type: "handleRoomMetadata", roomMetadata });
+    };
+
+    OBR.room.getMetadata().then(handleRoomMetadata);
+    return OBR.room.onMetadataChange(handleRoomMetadata);
   }, []);
 
   useEffect(() => {
