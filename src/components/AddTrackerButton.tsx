@@ -43,8 +43,6 @@ export default function AddTrackerButton({
         </Tooltip>
       )}
 
-      <button></button>
-
       <Popover
         id={id}
         open={open}

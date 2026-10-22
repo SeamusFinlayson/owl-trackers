@@ -81,27 +81,23 @@ export default function Editor({
                 {title}
               </div>
             )}
-            <div className="grid grid-cols-2 items-stretch gap-2 p-1">
-              <div>
-                {playerRole === "GM" && trackersHidden !== undefined && (
-                  <Tooltip
-                    title={trackersHidden ? "Show Trackers" : "Hide Trackers"}
-                    placement="bottom-start"
-                  >
-                    <IconButton
-                      className="size-full h-8 rounded-lg bg-black/5 dark:bg-white/5"
+            <div className="flex gap-2 p-1">
+              {playerRole === "GM" && trackersHidden !== undefined && (
+                <Tooltip
+                  title={trackersHidden ? "Show Trackers" : "Hide Trackers"}
+                  placement="bottom"
+                >
+                  <IconButton
+                    className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
 
-                      Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
-                      onClick={() =>
-                        updateTrackers({ hidden: !trackersHidden })
-                      }
-                    />
-                  </Tooltip>
-                )}
-              </div>
-              <Tooltip title={"Toggle Edit themeMode"} placement="bottom-end">
+                    Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
+                    onClick={() => updateTrackers({ hidden: !trackersHidden })}
+                  />
+                </Tooltip>
+              )}
+              <Tooltip title={"Toggle Edit themeMode"} placement="bottom">
                 <IconButton
-                  className="size-full h-8 rounded-lg bg-black/5 dark:bg-white/5"
+                  className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
                   Icon={editing ? EditOffIcon : EditIcon}
                   onClick={() => setEditing(!editing)}
                 />

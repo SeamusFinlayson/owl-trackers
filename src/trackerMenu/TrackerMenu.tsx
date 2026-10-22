@@ -17,6 +17,7 @@ import { ModifyTrackers } from "../state/helpers/modifyTrackers";
 import { TrackersUpdate } from "../state/helpers/updateState";
 import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover";
 import { Divider } from "../components/Divider";
+import DeleteTrackerButton from "../components/DeleteTrackerButton";
 
 export default function TrackerMenu({
   playerRole,
@@ -167,7 +168,16 @@ export default function TrackerMenu({
       </div>
       {selectionTrackers.length !== 0 ? (
         <div className="flex flex-wrap justify-center gap-x-2 gap-y-1 rounded-xl bg-white/0">
-          {selectionTrackers.map((tracker) => generateInput(tracker))}
+          {selectionTrackers.map((tracker) => (
+            <DeleteTrackerButton
+              key={tracker.id}
+              trackerId={tracker.id}
+              trackers={selectionTrackers}
+              updateTrackers={updateTrackers}
+            >
+              {generateInput(tracker)}
+            </DeleteTrackerButton>
+          ))}
         </div>
       ) : (
         <div className="w-full space-y-2">
