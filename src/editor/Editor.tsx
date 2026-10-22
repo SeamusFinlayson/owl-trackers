@@ -3,11 +3,10 @@ import "../index.css";
 import IconButton from "../components/IconButton.tsx";
 import VisibleIcon from "../icons/VisibleIcon.tsx";
 import NotVisibleIcon from "../icons/NotVisibleIcon.tsx";
-import { ThemeProvider, Tooltip } from "@mui/material";
+import { Button, ThemeProvider, Tooltip } from "@mui/material";
 import { Tracker } from "../TrackerZod.ts";
 import EditOffIcon from "../icons/EditOffIcon.tsx";
 import EditIcon from "../icons/EditIcon.tsx";
-import AddTrackerButton from "../components/AddTrackerButton.tsx";
 import TrackerCard from "./TrackerCard.tsx";
 import {
   closestCenter,
@@ -31,6 +30,7 @@ import { cn } from "../lib/utils.ts";
 import { Theme } from "@owlbear-rodeo/sdk";
 import { Divider } from "../components/Divider.tsx";
 import PartiallyControlledInput from "../components/PartiallyControlledInput.tsx";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function Editor({
   trackers,
@@ -81,7 +81,7 @@ export default function Editor({
                 {title}
               </div>
             )}
-            <div className="grid grid-cols-3">
+            <div className="grid grid-cols-2 items-stretch gap-2 p-1">
               <div>
                 {playerRole === "GM" && trackersHidden !== undefined && (
                   <Tooltip
@@ -89,6 +89,8 @@ export default function Editor({
                     placement="bottom-start"
                   >
                     <IconButton
+                      className="size-full h-8 rounded-lg bg-black/5 dark:bg-white/5"
+
                       Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
                       onClick={() =>
                         updateTrackers({ hidden: !trackersHidden })
@@ -97,22 +99,13 @@ export default function Editor({
                   </Tooltip>
                 )}
               </div>
-              <div className="flex justify-self-center">
-                <AddTrackerButton
-                  trackers={trackers}
-                  updateTrackers={updateTrackers}
+              <Tooltip title={"Toggle Edit themeMode"} placement="bottom-end">
+                <IconButton
+                  className="size-full h-8 rounded-lg bg-black/5 dark:bg-white/5"
+                  Icon={editing ? EditOffIcon : EditIcon}
+                  onClick={() => setEditing(!editing)}
                 />
-              </div>
-              <div className="justify-self-end">
-                <Tooltip title={"Toggle Edit themeMode"} placement="bottom-end">
-                  <div className="rounded-full">
-                    <IconButton
-                      Icon={editing ? EditOffIcon : EditIcon}
-                      onClick={() => setEditing(!editing)}
-                    />
-                  </div>
-                </Tooltip>
-              </div>
+              </Tooltip>
             </div>
           </div>
 
@@ -217,7 +210,66 @@ export default function Editor({
                   </div>
                 ))
             )}
+            <div className="h-[163px] sm:h-[85.6px]" />
           </div>
+        </div>
+        <div className="pointer-events-none absolute right-0 bottom-0 flex max-w-40 flex-row-reverse flex-wrap-reverse gap-2 p-2 sm:max-w-64">
+          <Button
+            className="pointer-events-auto"
+            onClick={() => {
+              const { trackers: newTrackers, changed } =
+                ModifyTrackers.create.checkbox(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
+            }}
+            size="small"
+            startIcon={<AddIcon />}
+            variant="contained"
+          >
+            Checkbox
+          </Button>
+          <Button
+            className="pointer-events-auto"
+            onClick={() => {
+              const { trackers: newTrackers, changed } =
+                ModifyTrackers.create.bubble(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
+            }}
+            size="small"
+            startIcon={<AddIcon />}
+            variant="contained"
+          >
+            Number
+          </Button>
+          <Button
+            className="pointer-events-auto"
+            onClick={() => {
+              const { trackers: newTrackers, changed } =
+                ModifyTrackers.create.counter(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
+            }}
+            size="small"
+            startIcon={<AddIcon />}
+            variant="contained"
+          >
+            Counter
+          </Button>
+          <Button
+            className="pointer-events-auto"
+            onClick={() => {
+              const { trackers: newTrackers, changed } =
+                ModifyTrackers.create.bar(trackers);
+              if (!changed) return;
+              updateTrackers({ trackers: newTrackers });
+            }}
+            size="small"
+            startIcon={<AddIcon />}
+            variant="contained"
+          >
+            Bar
+          </Button>
         </div>
       </ThemeProvider>
     </div>

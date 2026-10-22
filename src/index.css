@@ -1,5 +1,4 @@
-
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -7,6 +6,7 @@
   --breakpoint-*: initial;
   --breakpoint-lg: 400px;
   --breakpoint-md: 320px;
+  --breakpoint-sm: 260px;
 
   --text-2xs: 0.6rem;
 
@@ -64,7 +64,9 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
-  button {cursor: pointer;}
+  button {
+    cursor: pointer;
+  }
 }
 
 @layer base {

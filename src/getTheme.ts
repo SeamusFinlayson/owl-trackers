@@ -11,6 +11,9 @@ export function getTheme(theme?: Theme) {
       ? {
           mode: theme.mode === "LIGHT" ? "light" : "dark",
           text: theme.text,
+          info: {
+            main: theme.mode === "LIGHT" ? "#000" : "#fff",
+          },
           primary: theme.primary,
           secondary: theme.secondary,
           background: theme?.background,

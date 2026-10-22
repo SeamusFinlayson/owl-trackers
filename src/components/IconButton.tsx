@@ -2,8 +2,7 @@ import React, { ComponentType } from "react";
 import { IconProps } from "./IconPropsType";
 import { cn } from "../lib/utils";
 
-interface IconButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   Icon: ComponentType<IconProps>;
   className?: string;
 }

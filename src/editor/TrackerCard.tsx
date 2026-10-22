@@ -132,6 +132,7 @@ export default function TrackerCard({
             <Button
               fullWidth
               variant="outlined"
+              color={"info"}
               onClick={() => deleteTracker()}
             >
               Delete
