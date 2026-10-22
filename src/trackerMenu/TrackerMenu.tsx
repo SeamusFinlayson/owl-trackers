@@ -137,15 +137,16 @@ export default function TrackerMenu({
   };
 
   return (
-    <div className={`flex flex-col gap-2 px-2 py-1`}>
-      <div className="flex flex-row justify-center gap-1 self-center rounded-full bg-white/25 p-0.5 dark:bg-black/25">
+    <div className={`flex flex-col gap-1 px-2 py-2`}>
+      <div className="flex flex-row gap-1">
         {playerRole === "GM" && (
           <IconButton
+            className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
             Icon={
               selectionTrackersHidden === true ? NotVisibleIcon : VisibleIcon
             }
             onClick={() => updateTrackers({ hidden: !selectionTrackersHidden })}
-          ></IconButton>
+          />
         )}
         <AddTrackerButton
           dense
@@ -153,6 +154,7 @@ export default function TrackerMenu({
           updateTrackers={updateTrackers}
         />
         <IconButton
+          className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
           Icon={OpenInNewIcon}
           onClick={() => {
             OBR.popover.open({
@@ -164,7 +166,7 @@ export default function TrackerMenu({
               transformOrigin: { horizontal: "CENTER", vertical: "CENTER" },
             });
           }}
-        ></IconButton>
+        />
       </div>
       {selectionTrackers.length !== 0 ? (
         <div className="flex flex-wrap justify-center gap-x-2 gap-y-1 rounded-xl bg-white/0">

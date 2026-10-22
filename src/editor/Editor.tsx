@@ -89,7 +89,6 @@ export default function Editor({
                 >
                   <IconButton
                     className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
-
                     Icon={trackersHidden ? NotVisibleIcon : VisibleIcon}
                     onClick={() => updateTrackers({ hidden: !trackersHidden })}
                   />

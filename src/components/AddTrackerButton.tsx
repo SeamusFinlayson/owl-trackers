@@ -34,12 +34,20 @@ export default function AddTrackerButton({
   const id = open ? "simple-popover" : undefined;
 
   return (
-    <div className="flex items-end justify-end">
+    <div className="flex size-full items-end justify-end">
       {dense === true ? (
-        <IconButton Icon={AddIcon} onClick={handleClick} />
+        <IconButton
+          className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
+          Icon={AddIcon}
+          onClick={handleClick}
+        />
       ) : (
         <Tooltip title="Add Tracker">
-          <IconButton Icon={AddIcon} onClick={handleClick} />
+          <IconButton
+            className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
+            Icon={AddIcon}
+            onClick={handleClick}
+          />
         </Tooltip>
       )}
 
