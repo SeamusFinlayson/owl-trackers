@@ -101,6 +101,7 @@ export default function TrackerCard({
           <div className="flex flex-col gap-y-2 p-2">
             <div className="flex justify-around">
               <ColorPicker
+                colorNumber={tracker.color}
                 setColorNumber={(color) => updateTracker("color", color)}
               />
               <Tooltip
