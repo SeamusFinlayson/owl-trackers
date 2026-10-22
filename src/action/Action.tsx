@@ -83,7 +83,7 @@ export function Action({
         <div className="grid w-full auto-rows-fr grid-cols-[auto_50px] items-center justify-items-center gap-x-1 gap-y-1 px-4">
           {/* Default trackers */}
           <h2 className="text-text-primary dark:text-text-primary-dark justify-self-start text-sm">
-            Vertical Offset
+            Vertical offset
           </h2>
           <Input
             value={verticalOffset}
@@ -116,7 +116,7 @@ export function Action({
 
           {/* Segments */}
           <h2 className="text-text-primary dark:text-text-primary-dark justify-self-start text-sm">
-            Enable Segments
+            Enable segments
           </h2>
           <ToggleButton
             isChecked={segmentsEnabled}
