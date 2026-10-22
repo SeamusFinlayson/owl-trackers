@@ -6,7 +6,7 @@ import NotVisibleIcon from "../icons/NotVisibleIcon";
 
 import OBR from "@owlbear-rodeo/sdk";
 import { getPluginId } from "../getPluginId";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import BarTrackerInput from "../components/BarTrackerInput";
 import CheckboxTrackerInput from "../components/CheckboxTrackerInput";
 import OpenInNewIcon from "../icons/OpenInNewIcon";

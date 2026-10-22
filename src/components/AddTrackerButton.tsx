@@ -2,7 +2,7 @@ import { MenuItem, MenuList, Popover, Tooltip } from "@mui/material";
 import React from "react";
 import AddIcon from "../icons/AddIcon";
 import IconButton from "./IconButton";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import { ModifyTrackers } from "../state/helpers/modifyTrackers";
 import { useTheme } from "@mui/material/styles";
 import { TrackersUpdate } from "../state/helpers/updateState";

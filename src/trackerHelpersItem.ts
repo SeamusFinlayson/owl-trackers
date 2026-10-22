@@ -4,8 +4,8 @@ import {
   isTracker,
   TRACKER_METADATA_ID,
   HIDDEN_METADATA_ID,
-  Tracker,
 } from "./trackerHelpersBasic";
+import { Tracker } from "./TrackerZod";
 
 export function getTrackersFromItem(item: Item) {
   const metadata = item.metadata[getPluginId(TRACKER_METADATA_ID)];

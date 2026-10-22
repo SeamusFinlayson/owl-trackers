@@ -4,7 +4,7 @@ import IconButton from "../components/IconButton.tsx";
 import VisibleIcon from "../icons/VisibleIcon.tsx";
 import NotVisibleIcon from "../icons/NotVisibleIcon.tsx";
 import { ThemeProvider, Tooltip } from "@mui/material";
-import { Tracker } from "../trackerHelpersBasic.ts";
+import { Tracker } from "../TrackerZod.ts";
 import EditOffIcon from "../icons/EditOffIcon.tsx";
 import EditIcon from "../icons/EditIcon.tsx";
 import AddTrackerButton from "../components/AddTrackerButton.tsx";

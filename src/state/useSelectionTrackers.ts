@@ -5,7 +5,7 @@ import { TrackersState } from "./TrackersStateType";
 import { defaultSettings, defaultTrackersState } from "./defaultTrackersState";
 import { SettingsZod } from "./SettingsZod";
 import { getPluginId } from "../getPluginId";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
 import {
   getTrackersFromItem,

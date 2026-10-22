@@ -1,6 +1,6 @@
 import { Item, Metadata, Player, Theme } from "@owlbear-rodeo/sdk";
 import { Settings } from "./SettingsZod";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 
 export type TrackersState = {
   sceneIsReady: boolean;

@@ -3,8 +3,8 @@ import { getPluginId } from "../../getPluginId";
 import {
   TRACKER_METADATA_ID,
   HIDDEN_METADATA_ID,
-  Tracker,
 } from "../../trackerHelpersBasic";
+import { Tracker } from "../../TrackerZod";
 import { Settings } from "../SettingsZod";
 
 export type TrackersUpdate = {

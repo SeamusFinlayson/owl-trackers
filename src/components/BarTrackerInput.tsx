@@ -1,6 +1,6 @@
 import { InputHTMLAttributes, useState } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import PartiallyControlledInput from "./PartiallyControlledInput";
 
 export default function BarTrackerInput({
@@ -52,14 +52,14 @@ export default function BarTrackerInput({
 
   return (
     <div className="group text-text-primary dark:text-text-primary-dark">
-      <div className=" grid">
+      <div className="grid">
         <div
-          className={`${animationDuration300} col-start-1 row-start-1 min-h-[14.5px] w-full overflow-clip text-nowrap text-center text-2xs opacity-0 transition-opacity  group-focus-within:opacity-100`}
+          className={`${animationDuration300} text-2xs col-start-1 row-start-1 min-h-[14.5px] w-full overflow-clip text-center text-nowrap opacity-0 transition-opacity group-focus-within:opacity-100`}
         >
           {focusTarget === "value" ? tracker.value : tracker.max}
         </div>
         <div
-          className={`${animationDuration300} col-start-1 row-start-1 min-h-[14.5px] w-full overflow-clip text-nowrap text-center text-2xs opacity-100 transition-opacity  group-focus-within:opacity-0`}
+          className={`${animationDuration300} text-2xs col-start-1 row-start-1 min-h-[14.5px] w-full overflow-clip text-center text-nowrap opacity-100 transition-opacity group-focus-within:opacity-0`}
         >
           {tracker.name}
         </div>

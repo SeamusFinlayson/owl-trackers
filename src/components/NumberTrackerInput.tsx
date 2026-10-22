@@ -1,6 +1,6 @@
 import { InputHTMLAttributes } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import PartiallyControlledInput from "./PartiallyControlledInput";
 import { cn } from "../lib/utils";
 
@@ -40,7 +40,7 @@ export default function NumberTrackerInput({
         <div
           className={cn(
             animationDuration300,
-            "col-start-1 row-start-1 min-h-[14.5px] max-w-[44px] overflow-clip text-nowrap text-center text-2xs  opacity-0 transition-opacity  group-focus-within:opacity-100",
+            "text-2xs col-start-1 row-start-1 min-h-[14.5px] max-w-[44px] overflow-clip text-center text-nowrap opacity-0 transition-opacity group-focus-within:opacity-100",
           )}
         >
           {tracker.value}
@@ -48,7 +48,7 @@ export default function NumberTrackerInput({
         <div
           className={cn(
             animationDuration300,
-            "col-start-1 row-start-1 min-h-[14.5px] max-w-[44px] overflow-clip text-nowrap text-center text-2xs  opacity-100 transition-opacity  group-focus-within:opacity-0",
+            "text-2xs col-start-1 row-start-1 min-h-[14.5px] max-w-[44px] overflow-clip text-center text-nowrap opacity-100 transition-opacity group-focus-within:opacity-0",
           )}
         >
           {tracker.name}

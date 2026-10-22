@@ -1,6 +1,6 @@
 import { InputHTMLAttributes } from "react";
 import { getBackgroundColor } from "../colorHelpers";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import PartiallyControlledInput from "./PartiallyControlledInput";
 import { cn } from "../lib/utils";
 import IconButton from "./IconButton";
@@ -36,7 +36,7 @@ export default function CounterTrackerInput({
       <div
         className={cn(
           animationDuration300,
-          "col-start-1 row-start-1 min-h-[14.5px] max-w-[100px] overflow-clip text-nowrap text-center text-2xs",
+          "text-2xs col-start-1 row-start-1 min-h-[14.5px] max-w-[100px] overflow-clip text-center text-nowrap",
         )}
       >
         {tracker.name}

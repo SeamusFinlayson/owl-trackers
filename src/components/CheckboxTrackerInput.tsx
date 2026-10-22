@@ -1,5 +1,5 @@
 import { getBackgroundColor } from "../colorHelpers";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import IconButton from "./IconButton";
 import CheckedCircle from "../icons/CheckedCircle";
 import UncheckedCircle from "../icons/UncheckedCircle";
@@ -26,7 +26,7 @@ export default function CheckboxTrackerInput({
   return (
     <div className="group text-text-primary dark:text-text-primary-dark">
       <div
-        className={`${animationDuration300} min-h-[14.5px] max-w-[44px] overflow-clip text-nowrap text-center text-2xs`}
+        className={`${animationDuration300} text-2xs min-h-[14.5px] max-w-[44px] overflow-clip text-center text-nowrap`}
       >
         {tracker.name}
       </div>
@@ -34,7 +34,7 @@ export default function CheckboxTrackerInput({
       <div
         className={cn(
           getBackgroundColor(color),
-          " flex h-[44px] w-[44px] items-center justify-center overflow-clip rounded-2xl",
+          "flex h-[44px] w-[44px] items-center justify-center overflow-clip rounded-2xl",
         )}
       >
         <IconButton

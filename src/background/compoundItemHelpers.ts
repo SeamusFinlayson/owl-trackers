@@ -8,7 +8,7 @@ import {
   buildText,
 } from "@owlbear-rodeo/sdk";
 import { getColor } from "../colorHelpers";
-import { Tracker } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import { createRoundedRectangle, getFillPortion } from "./mathHelpers";
 
 // Constants used in multiple functions

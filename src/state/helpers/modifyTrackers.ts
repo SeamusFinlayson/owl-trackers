@@ -1,11 +1,11 @@
 import {
-  Tracker,
   MAX_TRACKER_COUNT,
   createBubble,
   createCheckbox,
   createCounter,
   createBar,
 } from "../../trackerHelpersBasic";
+import { Tracker } from "../../TrackerZod";
 import { parseContentForNumber } from "../../parseContentForNumber";
 
 export const ModifyTrackers = {

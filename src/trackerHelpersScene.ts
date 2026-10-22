@@ -1,6 +1,7 @@
 import { Metadata } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
-import { Tracker, isTracker, TRACKER_METADATA_ID } from "./trackerHelpersBasic";
+import { isTracker, TRACKER_METADATA_ID } from "./trackerHelpersBasic";
+import { Tracker } from "./TrackerZod";
 
 export function getTrackersFromSceneMetadata(sceneMetadata: Metadata) {
   const trackersMetadata = sceneMetadata[getPluginId(TRACKER_METADATA_ID)];

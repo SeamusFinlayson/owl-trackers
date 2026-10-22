@@ -12,7 +12,7 @@ import OnMap from "../icons/OnMap";
 import SimpleMinusIcon from "../icons/SimpleMinusIcon";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
 import UncheckedCircle from "../icons/UncheckedCircle";
-import { Tracker, TrackerVariant } from "../trackerHelpersBasic";
+import { Tracker } from "../TrackerZod";
 import IconButton from "../components/IconButton";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
@@ -208,7 +208,7 @@ export default function TrackerCard({
   );
 }
 
-function convertVariantToLabel(variant: TrackerVariant) {
+function convertVariantToLabel(variant: Tracker["variant"]) {
   switch (variant) {
     case "checkbox":
       return "Unnamed Checkbox";
