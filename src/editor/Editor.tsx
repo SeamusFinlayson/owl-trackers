@@ -30,11 +30,13 @@ import { getTheme } from "../getTheme.ts";
 import { cn } from "../lib/utils.ts";
 import { Theme } from "@owlbear-rodeo/sdk";
 import { Divider } from "../components/Divider.tsx";
+import PartiallyControlledInput from "../components/PartiallyControlledInput.tsx";
 
 export default function Editor({
   trackers,
   trackersHidden,
   title,
+  editName = false,
   playerRole,
   updateTrackers,
   theme,
@@ -43,6 +45,7 @@ export default function Editor({
   trackers: Tracker[];
   trackersHidden?: boolean;
   title: string;
+  editName?: boolean;
   playerRole: "PLAYER" | "GM";
   updateTrackers: (update: TrackersUpdate) => void;
   theme: Theme;
@@ -65,9 +68,19 @@ export default function Editor({
       <ThemeProvider theme={getTheme(theme)}>
         <div className="bg-default dark:bg-default-dark flex h-full flex-col">
           <div className="bg-paper dark:bg-paper-dark/55 w-full p-1 pb-0.5 shadow">
-            <div className="text text-text-secondary dark:text-text-secondary-dark text-center text-xs font-semibold">
-              {title}
-            </div>
+            {editName ? (
+              <PartiallyControlledInput
+                className="text text-text-secondary dark:text-text-secondary-dark block w-full text-center text-xs font-semibold outline-none"
+                parentValue={title}
+                onUserConfirm={(element) =>
+                  updateTrackers({ name: element.value })
+                }
+              />
+            ) : (
+              <div className="text text-text-secondary dark:text-text-secondary-dark text-center text-xs font-semibold">
+                {title}
+              </div>
+            )}
             <div className="grid grid-cols-3">
               <div>
                 {playerRole === "GM" && trackersHidden !== undefined && (

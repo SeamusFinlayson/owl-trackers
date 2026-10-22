@@ -11,6 +11,7 @@ import { debouncerFactory } from "./debouncerFactory";
 export type TrackersUpdate = {
   trackers?: Tracker[];
   hidden?: boolean;
+  name?: string;
 };
 
 export type ItemTrackersUpdate = {
@@ -42,6 +43,7 @@ export const UpdateState = {
             item.metadata[getPluginId(TRACKER_METADATA_ID)] = update.trackers;
           if ("hidden" in update)
             item.metadata[getPluginId(HIDDEN_METADATA_ID)] = update.hidden;
+          if ("name" in update && update.name) item.name = update.name;
         });
       });
     itemsDebouncer.debounce(sendUpdate);
@@ -54,6 +56,7 @@ export const UpdateState = {
           item.metadata[getPluginId(TRACKER_METADATA_ID)] = update.trackers;
         if ("hidden" in update)
           item.metadata[getPluginId(HIDDEN_METADATA_ID)] = update.hidden;
+        if ("name" in update && update.name) item.name = update.name;
 
         return item;
       }),

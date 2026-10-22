@@ -49,6 +49,7 @@ export default function App(): React.JSX.Element {
       trackersHidden={selectionTrackersHidden}
       updateTrackers={updateTrackers}
       theme={theme}
+      editName
       actions={[
         {
           title: "Scene Default Trackers",
