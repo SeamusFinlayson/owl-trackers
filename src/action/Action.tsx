@@ -61,12 +61,20 @@ export function Action({
     <div>
       <ActionHeader />
 
+      <div className="mx-4 flex items-center gap-2 pt-0 pb-2">
+        <div className="text-text-secondary dark:text-text-secondary-dark text-xs font-semibold">
+          Scene
+        </div>
+
+        <hr className="border-text-primary dark:border-text-primary-dark/10 my-0 grow" />
+      </div>
+
       {/* Settings */}
-      <div className="flex w-full flex-col pt-3">
+      <div className="flex w-full flex-col">
         <div className="grid w-full auto-rows-fr grid-cols-[auto_50px] items-center justify-items-center gap-x-1 gap-y-1 px-4">
           {/* Default trackers */}
           <h2 className="text-text-primary dark:text-text-primary-dark justify-self-start text-sm">
-            Set scene default trackers
+            Default trackers
           </h2>
           <IconButton
             Icon={OpenInNewIcon}
@@ -87,7 +95,17 @@ export function Action({
               })
             }
           />
+        </div>
 
+        <div className="mx-4 flex items-center gap-2 pt-3 pb-2">
+          <div className="text-text-secondary dark:text-text-secondary-dark text-xs font-semibold">
+            Room
+          </div>
+
+          <hr className="border-text-primary dark:border-text-primary-dark/10 my-0 grow" />
+        </div>
+
+        <div className="grid w-full auto-rows-fr grid-cols-[auto_50px] items-center justify-items-center gap-x-1 gap-y-1 px-4">
           {/* Default trackers */}
           <h2 className="text-text-primary dark:text-text-primary-dark justify-self-start text-sm">
             Vertical Offset

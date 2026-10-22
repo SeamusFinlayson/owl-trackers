@@ -42,8 +42,8 @@ export default function App(): React.JSX.Element {
             />
           ) : (
             <div>
-              <ActionHeader />
-              <h2 className="text-text-secondary dark:text-text-secondary-dark justify-self-start px-4 py-2 text-sm">
+              <ActionHeader border />
+              <h2 className="text-text-secondary dark:text-text-secondary-dark justify-self-start px-4 py-3 text-sm">
                 Must have GM access to configure settings.
               </h2>
               <ReportBugButton />
