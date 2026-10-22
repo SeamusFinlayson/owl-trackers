@@ -2,74 +2,51 @@
 // Tracker types
 /////////////////////////////////////////////////////////////////////
 
-export type Tracker = {
-  id: string;
-  color: number;
-  name?: string;
-  showOnMap?: boolean;
-  inlineMath?: boolean;
-} & (
-  | {
-      variant: "value";
-      value: number;
-    }
-  | {
-      variant: "value-max";
-      value: number;
-      max: number;
-    }
-  | {
-      variant: "checkbox";
-      checked: boolean;
-    }
-  | {
-      variant: "counter";
-      value: number;
-    }
-);
+import z from "zod";
+
+const TrackerBaseZod = z.object({
+  id: z.string(),
+  color: z.number(),
+  name: z.string().optional(),
+  showOnMap: z.boolean().optional(),
+  inlineMath: z.boolean().optional(),
+});
+const ValueTracker = z.object({
+  variant: z.literal("value"),
+  value: z.number(),
+  ...TrackerBaseZod.shape,
+});
+const BarTracker = z.object({
+  variant: z.literal("value-max"),
+  value: z.number(),
+  max: z.number(),
+  ...TrackerBaseZod.shape,
+});
+const CheckboxTracker = z.object({
+  variant: z.literal("checkbox"),
+  checked: z.boolean(),
+  ...TrackerBaseZod.shape,
+});
+const CounterTracker = z.object({
+  variant: z.literal("counter"),
+  value: z.number(),
+  ...TrackerBaseZod.shape,
+});
+const Tracker = z.union([
+  ValueTracker,
+  BarTracker,
+  CheckboxTracker,
+  CounterTracker,
+]);
+
+export type Tracker = z.infer<typeof Tracker>;
 
 export type TrackerVariant = "value" | "value-max" | "checkbox" | "counter";
 
 export function isTracker(
   potentialTracker: unknown,
 ): potentialTracker is Tracker {
-  const tracker = potentialTracker as Tracker;
-
-  if (tracker.id === undefined) return false;
-  if (typeof tracker.id !== "string") return false;
-
-  if (tracker.color === undefined) return false;
-  if (typeof tracker.color !== "number") return false;
-
-  if (tracker.name !== undefined && typeof tracker.name !== "string")
-    return false;
-
-  if (tracker.showOnMap !== undefined && typeof tracker.showOnMap !== "boolean")
-    return false;
-
-  if (
-    tracker.inlineMath !== undefined &&
-    typeof tracker.inlineMath !== "boolean"
-  )
-    return false;
-
-  if (tracker.variant === "value") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-  } else if (tracker.variant === "counter") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-  } else if (tracker.variant === "value-max") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-    if (tracker.max === undefined) return false;
-    if (typeof tracker.max !== "number") return false;
-  } else if (tracker.variant === "checkbox") {
-    if (tracker.checked === undefined) return false;
-    if (typeof tracker.checked !== "boolean") return false;
-  } else return false;
-
-  return true;
+  return Tracker.safeParse(potentialTracker).success;
 }
 
 /////////////////////////////////////////////////////////////////////

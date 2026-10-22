@@ -20,7 +20,7 @@ export const defaultTrackersState: TrackersState = {
 
   selectedItem: undefined,
   selectionTrackers: undefined,
-  selectionTrackersHidden: false,
-  sceneTrackers: [],
+  selectionTrackersHidden: undefined,
+  sceneTrackers: undefined,
   settings: defaultSettings,
 };

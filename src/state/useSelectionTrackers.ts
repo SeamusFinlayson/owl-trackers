@@ -47,7 +47,6 @@ function getDerivedState(
     const parseResult = SettingsZod.safeParse(
       roomMetadata[getPluginId("settings")],
     );
-    console.log(parseResult);
     if (parseResult.success) {
       derivedState.settings = { ...defaultSettings, ...parseResult.data };
     }
