@@ -2,12 +2,12 @@
 // Tracker types
 /////////////////////////////////////////////////////////////////////
 
-import { Tracker } from "./TrackerZod";
+import { Tracker, TrackerZod } from "./TrackerZod";
 
 export function isTracker(
   potentialTracker: unknown,
 ): potentialTracker is Tracker {
-  return Tracker.safeParse(potentialTracker).success;
+  return TrackerZod.safeParse(potentialTracker).success;
 }
 
 /////////////////////////////////////////////////////////////////////

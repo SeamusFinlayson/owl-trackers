@@ -3,6 +3,7 @@ import Editor from "../editor/Editor";
 import { useTrackersState } from "../state/useSelectionTrackers";
 import { TrackersUpdate, UpdateState } from "../state/helpers/updateState";
 import { EditorFallback } from "../editor/EditorFallback";
+import { getLocalTrackers, setLocalTrackers } from "../loaclStorageTrackers";
 
 export function App() {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -34,16 +35,32 @@ export function App() {
           sceneMetadata,
         }),
     );
+    if (update.trackers) setLocalTrackers(update.trackers);
   };
+
+  const localTrackers = getLocalTrackers();
 
   return (
     <Editor
       playerRole={playerRole}
       title={"Scene Trackers"}
       trackers={sceneTrackers}
-      autofillTrackers={[]}
       updateTrackers={updateTrackers}
       theme={theme}
+      actions={[
+        {
+          title: "Local Trackers",
+          buttons: [
+            {
+              text: "Insert",
+              onClick: localTrackers
+                ? () => updateTrackers({ trackers: localTrackers })
+                : () => {},
+              disabled: (localTrackers?.length ?? 0) < 1,
+            },
+          ],
+        },
+      ]}
     />
   );
 }

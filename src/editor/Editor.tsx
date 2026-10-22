@@ -29,25 +29,27 @@ import { TrackersUpdate } from "../state/helpers/updateState.ts";
 import { getTheme } from "../getTheme.ts";
 import { cn } from "../lib/utils.ts";
 import { Theme } from "@owlbear-rodeo/sdk";
-import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover.ts";
 import { Divider } from "../components/Divider.tsx";
 
 export default function Editor({
   trackers,
   trackersHidden,
-  autofillTrackers,
   title,
   playerRole,
   updateTrackers,
   theme,
+  actions,
 }: {
   trackers: Tracker[];
   trackersHidden?: boolean;
-  autofillTrackers: Tracker[];
   title: string;
   playerRole: "PLAYER" | "GM";
   updateTrackers: (update: TrackersUpdate) => void;
   theme: Theme;
+  actions?: {
+    title: string;
+    buttons: { text: string; onClick: () => void; disabled?: boolean }[];
+  }[];
 }): React.JSX.Element {
   const [editing, setEditing] = useState(false);
 
@@ -177,31 +179,30 @@ export default function Editor({
                 </DndContext>
               </div>
             ) : (
-              <div className="w-full space-y-4 p-4">
-                <Divider
-                  title="Scene Default Trackers"
-                  titleAlignment="CENTER"
-                />
-                <div className="flex justify-center gap-2">
-                  {autofillTrackers.length !== 0 && (
-                    <button
-                      className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 w-16 rounded-lg border-none py-2 text-center no-underline shadow"
-                      onClick={() => {
-                        updateTrackers({ trackers: autofillTrackers });
-                      }}
-                    >
-                      Insert
-                    </button>
-                  )}
-
-                  <button
-                    className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 w-16 rounded-lg border-none py-2 text-center no-underline shadow"
-                    onClick={openSceneTrackersPopover}
-                  >
-                    Edit
-                  </button>
-                </div>
-              </div>
+              actions &&
+              actions
+                .filter(
+                  (val) =>
+                    val.buttons.filter((val) => !val.disabled).length > 0,
+                )
+                .map((action) => (
+                  <div key={action.title} className="w-full space-y-4 p-4">
+                    <Divider title={action.title} titleAlignment="CENTER" />
+                    <div className="flex justify-center gap-2">
+                      {action.buttons
+                        .filter((val) => !val.disabled)
+                        .map((val) => (
+                          <button
+                            key={val.text}
+                            className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 w-16 rounded-lg border-none py-2 text-center no-underline shadow"
+                            onClick={val.onClick}
+                          >
+                            {val.text}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                ))
             )}
           </div>
         </div>

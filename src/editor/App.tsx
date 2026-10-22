@@ -4,6 +4,7 @@ import { useTrackersState } from "../state/useSelectionTrackers.ts";
 import { Item } from "@owlbear-rodeo/sdk";
 import { TrackersUpdate, UpdateState } from "../state/helpers/updateState.ts";
 import { EditorFallback } from "./EditorFallback.tsx";
+import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover.ts";
 
 export default function App(): React.JSX.Element {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -46,9 +47,26 @@ export default function App(): React.JSX.Element {
       title={selectedItem?.name ?? ""}
       trackers={selectionTrackers}
       trackersHidden={selectionTrackersHidden}
-      autofillTrackers={sceneTrackers}
       updateTrackers={updateTrackers}
       theme={theme}
+      actions={[
+        {
+          title: "Scene Default Trackers",
+          buttons: [
+            {
+              text: "Insert",
+              onClick: () => {
+                updateTrackers({ trackers: sceneTrackers });
+              },
+              disabled: sceneTrackers.length < 1,
+            },
+            {
+              text: "Edit",
+              onClick: openSceneTrackersPopover,
+            },
+          ],
+        },
+      ]}
     />
   );
 }

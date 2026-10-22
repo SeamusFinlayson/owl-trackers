@@ -7,32 +7,32 @@ const TrackerBaseZod = z.object({
   showOnMap: z.boolean().optional(),
   inlineMath: z.boolean().optional(),
 });
-const ValueTracker = z.object({
+const ValueTrackerZod = z.object({
   variant: z.literal("value"),
   value: z.number(),
   ...TrackerBaseZod.shape,
 });
-const BarTracker = z.object({
+const BarTrackerZod = z.object({
   variant: z.literal("value-max"),
   value: z.number(),
   max: z.number(),
   ...TrackerBaseZod.shape,
 });
-const CheckboxTracker = z.object({
+const CheckboxTrackerZod = z.object({
   variant: z.literal("checkbox"),
   checked: z.boolean(),
   ...TrackerBaseZod.shape,
 });
-const CounterTracker = z.object({
+const CounterTrackerZod = z.object({
   variant: z.literal("counter"),
   value: z.number(),
   ...TrackerBaseZod.shape,
 });
-export const Tracker = z.union([
-  ValueTracker,
-  BarTracker,
-  CheckboxTracker,
-  CounterTracker,
+export const TrackerZod = z.union([
+  ValueTrackerZod,
+  BarTrackerZod,
+  CheckboxTrackerZod,
+  CounterTrackerZod,
 ]);
 
-export type Tracker = z.infer<typeof Tracker>;
+export type Tracker = z.infer<typeof TrackerZod>;
