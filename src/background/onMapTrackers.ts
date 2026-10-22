@@ -25,16 +25,10 @@ import {
   MAX_TRACKER_COUNT,
 } from "../trackerHelpersBasic";
 import { BubblePosition } from "./trackerPositionHelper";
-import {
-  BAR_HEIGHT_METADATA_ID,
-  SEGMENTS_ENABLED_METADATA_ID,
-  TRACKERS_ABOVE_METADATA_ID,
-  VERTICAL_OFFSET_METADATA_ID,
-  readBooleanFromMetadata,
-  readNumberFromMetadata,
-} from "../sceneMetadataHelpers";
 import { getImageCenter } from "./mathHelpers";
 import { isSegmentSettings } from "../isSegmentSettings";
+import { SettingsZod } from "../state/SettingsZod";
+import { defaultSettings } from "../state/defaultTrackersState";
 
 let itemsLast: Image[] = []; // for item change checks
 const addItemsArray: Item[] = []; // for bulk addition or changing of items
@@ -56,7 +50,6 @@ export async function initOnMapTrackers() {
   OBR.scene.onReadyChange(async (isReady) => {
     if (isReady) {
       await getGlobalSettings();
-      await getSegmentSettings();
       await refreshAllTrackers();
       await startTrackerUpdates();
       setTimeout(() => {
@@ -70,7 +63,6 @@ export async function initOnMapTrackers() {
   const isReady = await OBR.scene.isReady();
   if (isReady) {
     await getGlobalSettings();
-    await getSegmentSettings();
     await refreshAllTrackers();
     await startTrackerUpdates();
     setTimeout(() => {
@@ -81,61 +73,46 @@ export async function initOnMapTrackers() {
 }
 
 /** returns true if global settings have changed */
-async function getGlobalSettings(sceneMetadata?: Metadata): Promise<boolean> {
-  // load settings from scene metadata if not passed to function
-  if (typeof sceneMetadata === "undefined") {
-    sceneMetadata = await OBR.scene.getMetadata();
+async function getGlobalSettings(roomMetadata?: Metadata): Promise<boolean> {
+  // load settings from room metadata if not passed to function
+  if (typeof roomMetadata === "undefined") {
+    roomMetadata = await OBR.room.getMetadata();
   }
 
-  const [
-    newVerticalOffset,
-    newTrackersAboveToken,
-    newBarHeightIsReduced,
-    newSegmentsEnabled,
-  ] = [
-    readNumberFromMetadata(sceneMetadata, VERTICAL_OFFSET_METADATA_ID),
-    readBooleanFromMetadata(sceneMetadata, TRACKERS_ABOVE_METADATA_ID),
-    readBooleanFromMetadata(sceneMetadata, BAR_HEIGHT_METADATA_ID),
-    readBooleanFromMetadata(sceneMetadata, SEGMENTS_ENABLED_METADATA_ID),
-  ];
+  const settingsData = SettingsZod.partial().parse(
+    roomMetadata[getPluginId("settings")],
+  );
+  const settings = { ...defaultSettings, ...settingsData };
 
-  const doRefresh =
-    newVerticalOffset !== verticalOffset ||
-    newTrackersAboveToken !== trackersAboveToken ||
-    newBarHeightIsReduced !== barHeightIsReduced ||
-    newSegmentsEnabled !== segmentsEnabled;
+  const settingsChange =
+    settings.verticalOffset !== verticalOffset ||
+    settings.trackersAboveToken !== trackersAboveToken ||
+    settings.barHeightIsReduced !== barHeightIsReduced ||
+    settings.segmentsEnabled !== segmentsEnabled;
 
-  verticalOffset = newVerticalOffset;
-  trackersAboveToken = newTrackersAboveToken;
-  barHeightIsReduced = newBarHeightIsReduced;
-  segmentsEnabled = newSegmentsEnabled;
+  verticalOffset = settings.verticalOffset;
+  trackersAboveToken = settings.trackersAboveToken;
+  barHeightIsReduced = settings.barHeightIsReduced;
+  segmentsEnabled = settings.segmentsEnabled;
 
-  return doRefresh;
-}
+  let segmentsChange = false;
 
-/** Returns true is segment settings have changed*/
-async function getSegmentSettings(sceneMetadata?: Metadata): Promise<boolean> {
-  // load settings from scene metadata if not passed to function
-  if (typeof sceneMetadata === "undefined") {
-    sceneMetadata = await OBR.scene.getMetadata();
-  }
-
-  let doRefresh = false;
-
-  const newSegmentSettings = sceneMetadata[getPluginId("segmentSettings")] as
-    | [string, number][]
-    | undefined;
+  const newSegmentSettings = roomMetadata[getPluginId("segmentSettings")] as
+    [string, number][] | undefined;
   if (isSegmentSettings(newSegmentSettings)) {
-    if (newSegmentSettings.length !== segmentSettings.size) doRefresh = true;
+    if (newSegmentSettings.length !== segmentSettings.size)
+      segmentsChange = true;
     for (const setting of newSegmentSettings) {
       if (
         !segmentSettings.has(setting[0]) ||
         segmentSettings.get(setting[0]) !== setting[1]
       )
-        doRefresh = true;
+        segmentsChange = true;
     }
     segmentSettings = new Map(newSegmentSettings);
   }
+
+  const doRefresh = settingsChange || segmentsChange;
 
   return doRefresh;
 }
@@ -183,12 +160,10 @@ async function startTrackerUpdates() {
     });
 
     // Handle Global settings changes
-    const unsubscribeFromSceneMetadata = OBR.scene.onMetadataChange(
+    const unsubscribeFromSceneMetadata = OBR.room.onMetadataChange(
       async (metadata) => {
         const globalSettingsChanged = await getGlobalSettings(metadata);
-        const segmentSettingsChanged = await getSegmentSettings(metadata);
-        if (globalSettingsChanged || segmentSettingsChanged)
-          refreshAllTrackers();
+        if (globalSettingsChanged) refreshAllTrackers();
       },
     );
 
@@ -254,12 +229,10 @@ function getChangedItems(items: Image[]): Image[] {
       s++; // Skip an index in itemsLast
       i--; // Reuse the index item in imagesFromCallback
       //check for scaling changes
-    } else if (
-      !(
-        itemsLast[i + s].scale.x === items[i].scale.x &&
-        itemsLast[i + s].scale.y === items[i].scale.y
-      )
-    ) {
+    } else if (!(
+      itemsLast[i + s].scale.x === items[i].scale.x &&
+      itemsLast[i + s].scale.y === items[i].scale.y
+    )) {
       // Bar text attachments must be deleted to prevent ghost selection highlight bug
       deleteItemsArray.push(
         ...Array(MAX_TRACKER_COUNT)

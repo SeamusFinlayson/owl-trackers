@@ -2,74 +2,12 @@
 // Tracker types
 /////////////////////////////////////////////////////////////////////
 
-export type Tracker = {
-  id: string;
-  color: number;
-  name?: string;
-  showOnMap?: boolean;
-  inlineMath?: boolean;
-} & (
-  | {
-      variant: "value";
-      value: number;
-    }
-  | {
-      variant: "value-max";
-      value: number;
-      max: number;
-    }
-  | {
-      variant: "checkbox";
-      checked: boolean;
-    }
-  | {
-      variant: "counter";
-      value: number;
-    }
-);
-
-export type TrackerVariant = "value" | "value-max" | "checkbox" | "counter";
+import { Tracker, TrackerZod } from "./TrackerZod";
 
 export function isTracker(
   potentialTracker: unknown,
 ): potentialTracker is Tracker {
-  const tracker = potentialTracker as Tracker;
-
-  if (tracker.id === undefined) return false;
-  if (typeof tracker.id !== "string") return false;
-
-  if (tracker.color === undefined) return false;
-  if (typeof tracker.color !== "number") return false;
-
-  if (tracker.name !== undefined && typeof tracker.name !== "string")
-    return false;
-
-  if (tracker.showOnMap !== undefined && typeof tracker.showOnMap !== "boolean")
-    return false;
-
-  if (
-    tracker.inlineMath !== undefined &&
-    typeof tracker.inlineMath !== "boolean"
-  )
-    return false;
-
-  if (tracker.variant === "value") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-  } else if (tracker.variant === "counter") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-  } else if (tracker.variant === "value-max") {
-    if (tracker.value === undefined) return false;
-    if (typeof tracker.value !== "number") return false;
-    if (tracker.max === undefined) return false;
-    if (typeof tracker.max !== "number") return false;
-  } else if (tracker.variant === "checkbox") {
-    if (tracker.checked === undefined) return false;
-    if (typeof tracker.checked !== "boolean") return false;
-  } else return false;
-
-  return true;
+  return TrackerZod.safeParse(potentialTracker).success;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -84,7 +22,10 @@ export const HIDDEN_METADATA_ID: string = "hidden";
 // Tracker creation
 /////////////////////////////////////////////////////////////////////
 
-export const createColor = (trackers: Tracker[], variant: TrackerVariant) => {
+export const createColor = (
+  trackers: Tracker[],
+  variant: Tracker["variant"],
+) => {
   const count = trackers.filter(
     (tracker) => tracker.variant === variant,
   ).length;
@@ -128,7 +69,7 @@ export const createBar = (trackers: Tracker[]): Tracker => {
   };
 };
 
-export const createCheckboxTracker = (trackers: Tracker[]): Tracker => {
+export const createCheckbox = (trackers: Tracker[]): Tracker => {
   return {
     id: createId(),
     variant: "checkbox",

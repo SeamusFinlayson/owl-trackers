@@ -1,42 +1,56 @@
-import OBR from "@owlbear-rodeo/sdk";
-import ReportBugButton from "../components/ReportBugButton.tsx";
-import { useOwlbearStore } from "../useOwlbearStore.ts";
-import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
+import OBR, { Metadata } from "@owlbear-rodeo/sdk";
 import { Action } from "./Action.tsx";
+import { useTrackersState } from "../state/useSelectionTrackers.ts";
+import { ThemeProvider } from "@mui/material";
+import { getTheme } from "../getTheme.ts";
+import { UpdateState } from "../state/helpers/updateState.ts";
+import { Settings } from "../state/SettingsZod.ts";
+import { cn } from "../lib/utils.ts";
+import ReportBugButton from "../components/ReportBugButton.tsx";
 import ActionHeader from "./ActionHeader.tsx";
-import { useSceneSettingsStoreSync } from "../useSceneSettingsStoreSync.ts";
+import HeightMatch from "../components/HeightMatch.tsx";
 
 export default function App(): React.JSX.Element {
-  useOwlbearStoreSync();
-  useSceneSettingsStoreSync();
+  const { trackersState, trackersStateDispatch } = useTrackersState();
 
-  const sceneReady = useOwlbearStore((state) => state.sceneReady);
-  const mode = useOwlbearStore((state) => state.themeMode);
+  if (trackersState.theme === undefined) return <></>;
 
-  if (sceneReady) {
-    return <Action></Action>;
-  } else {
-    OBR.action.setHeight(197);
-    return (
-      <div
-        className={
-          "h-screen " + "overflow-y-auto" + (mode === "DARK" ? " dark" : "")
-        }
-      >
-        <div>
-          {/* Header */}
-          <ActionHeader></ActionHeader>
-
-          <div className="flex w-full flex-col pt-3">
-            <h2 className="justify-self-start px-4 py-2 text-sm text-text-secondary dark:text-text-secondary-dark">
-              Open a scene to configure extension settings.
-            </h2>
-
-            {/* Report Bug button */}
-            <ReportBugButton></ReportBugButton>
-          </div>
-        </div>
-      </div>
+  const updateSettings = (modifiedSettings: Partial<Settings>) => {
+    const settings = { ...trackersState.settings, ...modifiedSettings };
+    UpdateState.roomMetadata(
+      { settings },
+      trackersState.roomMetadata,
+      (roomMetadata: Metadata) =>
+        trackersStateDispatch({ type: "handleRoomMetadata", roomMetadata }),
     );
-  }
+  };
+
+  return (
+    <ThemeProvider theme={getTheme(trackersState.theme)}>
+      <div
+        className={cn("h-screen overflow-y-auto", {
+          dark: trackersState.theme.mode === "DARK",
+        })}
+      >
+        <HeightMatch setHeight={(height) => OBR.action.setHeight(height)}>
+          {trackersState.playerRole === "GM" ? (
+            <Action
+              items={trackersState.items}
+              roomMetadata={trackersState.roomMetadata}
+              settings={trackersState.settings}
+              updateSettings={updateSettings}
+            />
+          ) : (
+            <div>
+              <ActionHeader border />
+              <h2 className="text-text-secondary dark:text-text-secondary-dark justify-self-start px-4 py-3 text-sm">
+                Must have GM access to configure settings.
+              </h2>
+              <ReportBugButton />
+            </div>
+          )}
+        </HeightMatch>
+      </div>
+    </ThemeProvider>
+  );
 }

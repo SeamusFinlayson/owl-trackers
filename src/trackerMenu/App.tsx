@@ -1,42 +1,52 @@
-import { useEffect, useState } from "react";
-import { useOwlbearStore } from "../useOwlbearStore.ts";
-import { useOwlbearStoreSync } from "../useOwlbearStoreSync.ts";
 import "../index.css";
 import TrackerMenu from "./TrackerMenu.tsx";
-import { Tracker } from "../trackerHelpersBasic.ts";
-import { useTrackerStore } from "../useTrackerStore.ts";
-import { writeTrackersToSelection } from "../trackerHelpersItem.ts";
+import { useTrackersState } from "../state/useSelectionTrackers";
+import { ThemeProvider } from "@mui/material";
+import { getTheme } from "../getTheme.ts";
+import { Item } from "@owlbear-rodeo/sdk";
+import { TrackersUpdate, UpdateState } from "../state/helpers/updateState.ts";
 
-export default function App({
-  initialMode,
-  initialRole,
-  initialSceneTrackers,
-}: {
-  initialMode: "DARK" | "LIGHT";
-  initialRole: "PLAYER" | "GM";
-  initialSceneTrackers: Tracker[];
-}): React.JSX.Element {
-  useOwlbearStoreSync();
+export default function App(): React.JSX.Element {
+  const { trackersState, trackersStateDispatch } = useTrackersState();
 
-  const setRole = useOwlbearStore((state) => state.setRole);
-  const setMode = useOwlbearStore((state) => state.setThemeMode);
+  const playerRole = trackersState.playerRole;
+  const selectedItem = trackersState.selectedItem;
+  const selectionTrackers = trackersState.selectionTrackers;
+  const selectionTrackersHidden = trackersState.selectionTrackersHidden;
+  const sceneTrackers = trackersState.sceneTrackers;
+  const theme = trackersState.theme;
 
-  const setWriteToSaveLocation = useTrackerStore(
-    (state) => state.setWriteToSaveLocation,
-  );
+  if (playerRole === undefined) return <></>;
+  if (selectedItem === undefined) return <></>;
+  if (selectionTrackers === undefined) return <></>;
+  if (selectionTrackersHidden === undefined) return <></>;
+  if (sceneTrackers === undefined) return <></>;
+  if (theme === undefined) return <></>;
 
-  // Prevent flash on startup
-  const [initDone, setInitDone] = useState(false);
-  useEffect(() => {
-    setMode(initialMode);
-    setRole(initialRole);
-    setWriteToSaveLocation(writeTrackersToSelection);
-    setInitDone(true);
-  }, []);
+  const updateTrackers = (update: TrackersUpdate) => {
+    const updates = [{ itemId: selectedItem.id, ...update }];
 
-  if (!initDone) return <></>;
+    UpdateState.items(updates, trackersState.items, (items: Item[]) =>
+      trackersStateDispatch({
+        type: "handleItemsChange",
+        items,
+      }),
+    );
+  };
 
   return (
-    <TrackerMenu initialSceneTrackers={initialSceneTrackers}></TrackerMenu>
+    <div
+      className={`${theme.mode === "DARK" ? "dark" : ""} h-screen w-screen overflow-y-auto`}
+    >
+      <ThemeProvider theme={getTheme(theme)}>
+        <TrackerMenu
+          playerRole={playerRole}
+          selectionTrackers={selectionTrackers}
+          selectionTrackersHidden={selectionTrackersHidden}
+          sceneTrackers={sceneTrackers}
+          updateTrackers={updateTrackers}
+        />
+      </ThemeProvider>
+    </div>
   );
 }

@@ -12,8 +12,7 @@ import OnMap from "../icons/OnMap";
 import SimpleMinusIcon from "../icons/SimpleMinusIcon";
 import SimplePlusIcon from "../icons/SimplePlusIcon";
 import UncheckedCircle from "../icons/UncheckedCircle";
-import { Tracker, TrackerVariant } from "../trackerHelpersBasic";
-import { useTrackerStore } from "../useTrackerStore";
+import { Tracker } from "../TrackerZod";
 import IconButton from "../components/IconButton";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
@@ -23,9 +22,20 @@ import { useState } from "react";
 export default function TrackerCard({
   editing,
   tracker,
+  updateTracker,
+  deleteTracker,
+  toggleShowOnMap,
+  toggleInlineMath,
 }: {
   editing: boolean;
   tracker: Tracker;
+  updateTracker: (
+    field: "value" | "max" | "name" | "color" | "checked",
+    content: string | number | boolean,
+  ) => void;
+  deleteTracker: () => void;
+  toggleShowOnMap: () => void;
+  toggleInlineMath: () => void;
 }): React.JSX.Element {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: tracker.id });
@@ -35,13 +45,6 @@ export default function TrackerCard({
     transition,
   };
 
-  const deleteTracker = useTrackerStore((state) => state.deleteTracker);
-  const updateTrackerField = useTrackerStore(
-    (state) => state.updateTrackerField,
-  );
-  const toggleShowOnMap = useTrackerStore((state) => state.toggleShowOnMap);
-  const toggleInlineMath = useTrackerStore((state) => state.toggleInlineMath);
-
   const [dragActive, setDragActive] = useState(false);
   const [dragHover, setDragHover] = useState(false);
 
@@ -50,7 +53,7 @@ export default function TrackerCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="relative flex cursor-default overflow-clip rounded-md bg-paper drop-shadow-sm dark:bg-paper-dark"
+      className="bg-paper dark:bg-paper-dark relative flex cursor-default overflow-clip rounded-md drop-shadow-xs"
       tabIndex={-1}
     >
       <div
@@ -74,10 +77,10 @@ export default function TrackerCard({
               >
                 <DragIndicatorIcon
                   className={
-                    "rotate-90 fill-text-secondary dark:fill-text-primary-dark"
+                    "fill-text-secondary dark:fill-text-primary-dark rotate-90"
                   }
                 />
-                <div className="text-xs text-text-primary dark:text-text-primary-dark">
+                <div className="text-text-primary dark:text-text-primary-dark text-xs">
                   {tracker.name !== undefined && tracker.name.trim() !== ""
                     ? tracker.name
                     : convertVariantToLabel(tracker.variant)}
@@ -86,12 +89,10 @@ export default function TrackerCard({
             </Tooltip>
           </div>
         ) : (
-          <div className="pl-2 pt-1">
+          <div className="pt-1 pl-2">
             <NameInput
               value={tracker.name !== undefined ? tracker.name : ""}
-              onUserConfirm={(target) =>
-                updateTrackerField(tracker.id, "name", target.value)
-              }
+              onUserConfirm={(target) => updateTracker("name", target.value)}
             />
           </div>
         )}
@@ -100,9 +101,8 @@ export default function TrackerCard({
           <div className="flex flex-col gap-y-2 p-2">
             <div className="flex justify-around">
               <ColorPicker
-                setColorNumber={(color) =>
-                  updateTrackerField(tracker.id, "color", color)
-                }
+                colorNumber={tracker.color}
+                setColorNumber={(color) => updateTracker("color", color)}
               />
               <Tooltip
                 placement="bottom"
@@ -112,7 +112,7 @@ export default function TrackerCard({
               >
                 <IconButton
                   Icon={tracker.showOnMap !== false ? OnMap : NotOnMap}
-                  onClick={() => toggleShowOnMap(tracker.id)}
+                  onClick={() => toggleShowOnMap()}
                 />
               </Tooltip>
               <Tooltip
@@ -125,14 +125,16 @@ export default function TrackerCard({
               >
                 <IconButton
                   Icon={tracker.inlineMath !== false ? MathIcon : NoMathIcon}
-                  onClick={() => toggleInlineMath(tracker.id)}
+                  onClick={() => toggleInlineMath()}
                 />
               </Tooltip>
             </div>
             <Button
               fullWidth
+              size="small"
               variant="outlined"
-              onClick={() => deleteTracker(tracker.id)}
+              color={"info"}
+              onClick={() => deleteTracker()}
             >
               Delete
             </Button>
@@ -143,26 +145,20 @@ export default function TrackerCard({
               <TrackerInput
                 key={tracker.id}
                 value={tracker.value.toString()}
-                onConfirm={(content) =>
-                  updateTrackerField(tracker.id, "value", content)
-                }
+                onConfirm={(content) => updateTracker("value", content)}
                 previousHint
               />
             ) : tracker.variant === "value-max" ? (
               <div className="flex gap-2" key={tracker.id}>
                 <TrackerInput
                   value={tracker.value.toString()}
-                  onConfirm={(content) =>
-                    updateTrackerField(tracker.id, "value", content)
-                  }
+                  onConfirm={(content) => updateTracker("value", content)}
                   previousHint
                 />
                 <div>/</div>
                 <TrackerInput
                   value={tracker.max.toString()}
-                  onConfirm={(content) =>
-                    updateTrackerField(tracker.id, "max", content)
-                  }
+                  onConfirm={(content) => updateTracker("max", content)}
                   previousHint
                 />
               </div>
@@ -170,9 +166,7 @@ export default function TrackerCard({
               <div key={tracker.id} className="pb-2">
                 <IconButton
                   Icon={tracker.checked ? CheckedCircle : UncheckedCircle}
-                  onClick={() =>
-                    updateTrackerField(tracker.id, "checked", !tracker.checked)
-                  }
+                  onClick={() => updateTracker("checked", !tracker.checked)}
                 />
               </div>
             ) : (
@@ -181,8 +175,7 @@ export default function TrackerCard({
                   <IconButton
                     Icon={SimpleMinusIcon}
                     onClick={() =>
-                      updateTrackerField(
-                        tracker.id,
+                      updateTracker(
                         "value",
                         `=${(tracker.value - 1).toString()}`,
                       )
@@ -192,9 +185,9 @@ export default function TrackerCard({
                 <PartiallyControlledInput
                   parentValue={tracker.value.toString()}
                   onUserConfirm={(target) =>
-                    updateTrackerField(tracker.id, "value", target.value)
+                    updateTracker("value", target.value)
                   }
-                  className="w-full shrink bg-transparent text-center outline-none"
+                  className="w-full shrink bg-transparent text-center outline-hidden"
                   clearContentOnFocus
                 />
 
@@ -202,8 +195,7 @@ export default function TrackerCard({
                   <IconButton
                     Icon={SimplePlusIcon}
                     onClick={() =>
-                      updateTrackerField(
-                        tracker.id,
+                      updateTracker(
                         "value",
                         `=${(tracker.value + 1).toString()}`,
                       )
@@ -219,7 +211,7 @@ export default function TrackerCard({
   );
 }
 
-function convertVariantToLabel(variant: TrackerVariant) {
+function convertVariantToLabel(variant: Tracker["variant"]) {
   switch (variant) {
     case "checkbox":
       return "Unnamed Checkbox";

@@ -1,17 +1,19 @@
 import React from "react";
-import { getBackgroundColor } from "../colorHelpers";
+import { getColor } from "../colorHelpers";
 import { Popover, Tooltip } from "@mui/material";
 import IconButton from "./IconButton";
 import Palette from "../icons/Palette";
-import { useOwlbearStore } from "../useOwlbearStore";
 import { cn } from "../lib/utils";
+import { useTheme } from "@mui/material/styles";
 
 export default function ColorPicker({
+  colorNumber,
   setColorNumber,
 }: {
+  colorNumber: number;
   setColorNumber: (color: number) => void;
 }): React.JSX.Element {
-  const mode = useOwlbearStore((state) => state.themeMode);
+  const mode = useTheme().palette.mode;
 
   const colorButtons: React.JSX.Element[] = [];
   for (let i = 0; i < 9; i++) {
@@ -21,18 +23,18 @@ export default function ColorPicker({
         onClick={() => {
           setColorNumber(i);
         }}
-        className="group flex size-[34px] items-center justify-center outline-none"
+        className="group grid size-[34px] place-items-center outline-hidden"
       >
         <div
-          className={cn(
-            "h-[24px] w-[24px] rounded-full opacity-90 duration-100 group-hover:h-[32px] group-hover:w-[32px] group-focus-visible:h-[32px] group-focus-visible:w-[32px]",
-            getBackgroundColor(i),
-          )}
-        />
+          data-show={colorNumber === i}
+          className="border-text-secondary dark:border-text-primary-dark z-50 grid size-4 scale-0 place-items-center rounded-full border-2 duration-50 data-[show=true]:scale-100"
+        >
+          <div className="bg-text-secondary dark:bg-text-primary-dark size-2 rounded-full" />
+        </div>
         <div
+          style={{ backgroundColor: getColor(i) }}
           className={cn(
-            "absolute h-[24px] w-[24px] rounded-full  duration-100 group-hover:h-[32px] group-hover:w-[32px] group-focus-visible:h-[32px] group-focus-visible:w-[32px]",
-            getBackgroundColor(i),
+            "absolute size-[24px] rounded-full duration-100 group-hover:scale-125 group-focus-visible:scale-150",
           )}
         />
       </button>,
@@ -73,7 +75,7 @@ export default function ColorPicker({
         <div
           className={cn(
             "grid size-[120px] grid-cols-3 place-items-center p-1",
-            { dark: mode === "DARK" },
+            { dark: mode === "dark" },
           )}
         >
           {colorButtons}

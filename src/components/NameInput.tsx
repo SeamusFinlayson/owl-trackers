@@ -10,7 +10,7 @@ export default function NameInput({
 }): React.JSX.Element {
   return (
     <PartiallyControlledInput
-      className="w-full bg-transparent text-sm text-text-primary placeholder-text-secondary outline-none duration-100 dark:text-text-primary-dark dark:placeholder-text-secondary-dark"
+      className="w-full bg-transparent text-sm text-text-primary placeholder-text-secondary outline-hidden duration-100 dark:text-text-primary-dark dark:placeholder-text-secondary-dark"
       placeholder="Name"
       parentValue={value}
       onUserConfirm={onUserConfirm}
