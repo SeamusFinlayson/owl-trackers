@@ -1,10 +1,11 @@
 import "../index.css";
 import Editor from "./Editor.tsx";
 import { useTrackersState } from "../state/useSelectionTrackers.ts";
-import { Item } from "@owlbear-rodeo/sdk";
+import OBR, { Item } from "@owlbear-rodeo/sdk";
 import { TrackersUpdate, UpdateState } from "../state/helpers/updateState.ts";
 import { EditorFallback } from "./EditorFallback.tsx";
 import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover.ts";
+import { getPluginId } from "../getPluginId.ts";
 
 export default function App(): React.JSX.Element {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -18,16 +19,33 @@ export default function App(): React.JSX.Element {
 
   if (theme === undefined) return <></>;
 
-  let fallback = <EditorFallback theme={theme} />;
+  let fallback = (
+    <EditorFallback
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("editor"))}
+    />
+  );
   if (playerRole === undefined) return fallback;
   if (selectionTrackers === undefined) return fallback;
   if (selectionTrackersHidden === undefined) return fallback;
   if (sceneTrackers === undefined) return fallback;
 
-  fallback = <EditorFallback message="Could not find token." theme={theme} />;
+  fallback = (
+    <EditorFallback
+      message="Could not find token."
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("editor"))}
+    />
+  );
   if (selectedItem === undefined) return fallback;
 
-  fallback = <EditorFallback message="GM Access Required" theme={theme} />;
+  fallback = (
+    <EditorFallback
+      message="GM Access Required"
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("editor"))}
+    />
+  );
   if (playerRole !== "GM" && selectionTrackersHidden) return fallback;
 
   const updateTrackers = (update: TrackersUpdate) => {

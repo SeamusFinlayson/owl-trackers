@@ -1,16 +1,17 @@
 import { Button, ThemeProvider } from "@mui/material";
-import OBR, { Theme } from "@owlbear-rodeo/sdk";
+import { Theme } from "@owlbear-rodeo/sdk";
 import { getTheme } from "../getTheme";
 import { useEffect, useState } from "react";
 import { cn } from "../lib/utils";
-import { getPluginId } from "../getPluginId";
 
 export function EditorFallback({
   theme,
   message = "Loading...",
+  close,
 }: {
   theme: Theme;
   message?: string;
+  close: () => void;
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -32,11 +33,7 @@ export function EditorFallback({
             </div>
             <div className="grow" />
             <div className="flex w-full p-4">
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => OBR.popover.close(getPluginId("editor"))}
-              >
+              <Button fullWidth variant="outlined" onClick={close}>
                 Close
               </Button>
             </div>

@@ -1,9 +1,10 @@
-import { Metadata } from "@owlbear-rodeo/sdk";
+import OBR, { Metadata } from "@owlbear-rodeo/sdk";
 import Editor from "../editor/Editor";
 import { useTrackersState } from "../state/useSelectionTrackers";
 import { TrackersUpdate, UpdateState } from "../state/helpers/updateState";
 import { EditorFallback } from "../editor/EditorFallback";
 import { getLocalTrackers, setLocalTrackers } from "../loaclStorageTrackers";
+import { getPluginId } from "../getPluginId";
 
 export function App() {
   const { trackersState, trackersStateDispatch } = useTrackersState();
@@ -15,14 +16,31 @@ export function App() {
 
   if (theme === undefined) return <></>;
 
-  let fallback = <EditorFallback theme={theme} />;
+  let fallback = (
+    <EditorFallback
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("scene-editor"))}
+    />
+  );
   if (playerRole === undefined) return fallback;
   if (sceneTrackers === undefined) return fallback;
 
-  fallback = <EditorFallback message="Could not find scene." theme={theme} />;
+  fallback = (
+    <EditorFallback
+      message="Could not find scene."
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("scene-editor"))}
+    />
+  );
   if (!sceneIsReady) return fallback;
 
-  fallback = <EditorFallback message="GM Access Required" theme={theme} />;
+  fallback = (
+    <EditorFallback
+      message="GM Access Required"
+      theme={theme}
+      close={() => OBR.popover.close(getPluginId("scene-editor"))}
+    />
+  );
   if (playerRole !== "GM") return fallback;
 
   const updateTrackers = (update: TrackersUpdate) => {
