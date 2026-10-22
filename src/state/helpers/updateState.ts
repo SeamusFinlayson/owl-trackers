@@ -6,6 +6,7 @@ import {
 } from "../../trackerHelpersBasic";
 import { Tracker } from "../../TrackerZod";
 import { Settings } from "../SettingsZod";
+import { debouncerFactory } from "./debouncerFactory";
 
 export type TrackersUpdate = {
   trackers?: Tracker[];
@@ -20,6 +21,10 @@ export type SettingsUpdate = {
   settings?: Settings;
 };
 
+const itemsDebouncer = debouncerFactory(200);
+const sceneMetadataDebouncer = debouncerFactory(200);
+const roomMetadataDebouncer = debouncerFactory(200);
+
 export const UpdateState = {
   items: (
     updates: ItemTrackersUpdate[],
@@ -28,16 +33,18 @@ export const UpdateState = {
   ) => {
     const itemIds = updates.map((update) => update.itemId);
 
-    OBR.scene.items.updateItems(itemIds, (items) => {
-      items.forEach((item) => {
-        const update = updates.find((update) => update.itemId === item.id);
-        if (!update) throw new Error("Could not find item.");
-        if ("trackers" in update)
-          item.metadata[getPluginId(TRACKER_METADATA_ID)] = update.trackers;
-        if ("hidden" in update)
-          item.metadata[getPluginId(HIDDEN_METADATA_ID)] = update.hidden;
+    const sendUpdate = () =>
+      OBR.scene.items.updateItems(itemIds, (items) => {
+        items.forEach((item) => {
+          const update = updates.find((update) => update.itemId === item.id);
+          if (!update) throw new Error("Could not find item.");
+          if ("trackers" in update)
+            item.metadata[getPluginId(TRACKER_METADATA_ID)] = update.trackers;
+          if ("hidden" in update)
+            item.metadata[getPluginId(HIDDEN_METADATA_ID)] = update.hidden;
+        });
       });
-    });
+    itemsDebouncer.debounce(sendUpdate);
 
     updateItems(
       items.map((item) => {
@@ -65,7 +72,9 @@ export const UpdateState = {
     if ("hidden" in update)
       newMetadata[getPluginId(HIDDEN_METADATA_ID)] = update.hidden;
 
-    OBR.scene.setMetadata(newMetadata);
+    const sendUpdate = () => OBR.scene.setMetadata(newMetadata);
+    sceneMetadataDebouncer.debounce(sendUpdate);
+
     updateMetadata(newMetadata);
   },
 
@@ -79,7 +88,9 @@ export const UpdateState = {
     if ("settings" in update)
       newMetadata[getPluginId("settings")] = update.settings;
 
-    OBR.room.setMetadata(newMetadata);
+    const sendUpdate = () => OBR.room.setMetadata(newMetadata);
+    roomMetadataDebouncer.debounce(sendUpdate);
+
     updateMetadata(newMetadata);
   },
 };
