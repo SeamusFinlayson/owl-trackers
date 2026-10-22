@@ -63,6 +63,7 @@ export default function AddTrackerButton({
         <MenuList dense={dense} disablePadding>
           <MenuItem
             onClick={() => {
+              handleClose();
               const { trackers: newTrackers, changed } =
                 ModifyTrackers.create.checkbox(trackers);
               if (!changed) return;
@@ -73,6 +74,7 @@ export default function AddTrackerButton({
           </MenuItem>
           <MenuItem
             onClick={() => {
+              handleClose();
               const { trackers: newTrackers, changed } =
                 ModifyTrackers.create.bubble(trackers);
               if (!changed) return;
@@ -83,6 +85,7 @@ export default function AddTrackerButton({
           </MenuItem>
           <MenuItem
             onClick={() => {
+              handleClose();
               const { trackers: newTrackers, changed } =
                 ModifyTrackers.create.counter(trackers);
               if (!changed) return;
@@ -93,6 +96,7 @@ export default function AddTrackerButton({
           </MenuItem>
           <MenuItem
             onClick={() => {
+              handleClose();
               const { trackers: newTrackers, changed } =
                 ModifyTrackers.create.bar(trackers);
               if (!changed) return;

@@ -36,7 +36,7 @@ export default function App(): React.JSX.Element {
 
   return (
     <div
-      className={`${theme.mode === "DARK" ? "dark" : ""} h-screen overflow-y-auto`}
+      className={`${theme.mode === "DARK" ? "dark" : ""} h-screen w-screen overflow-y-auto`}
     >
       <ThemeProvider theme={getTheme(theme)}>
         <TrackerMenu

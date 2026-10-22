@@ -29,6 +29,8 @@ import { TrackersUpdate } from "../state/helpers/updateState.ts";
 import { getTheme } from "../getTheme.ts";
 import { cn } from "../lib/utils.ts";
 import { Theme } from "@owlbear-rodeo/sdk";
+import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover.ts";
+import { Divider } from "../components/Divider.tsx";
 
 export default function Editor({
   trackers,
@@ -174,18 +176,31 @@ export default function Editor({
                   </SortableContext>
                 </DndContext>
               </div>
-            ) : autofillTrackers.length !== 0 ? (
-              <div className="flex justify-center">
-                <button
-                  className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 mt-3 rounded-lg border-none p-[6px] text-center no-underline shadow"
-                  onClick={() => updateTrackers({ trackers: autofillTrackers })}
-                >
-                  Use scene trackers
-                </button>
-              </div>
             ) : (
-              <div className="text-text-secondary dark:text-text-secondary-dark mt-2 rounded-lg border-none p-[6px] text-center no-underline">
-                Scene trackers not set
+              <div className="w-full space-y-4 p-4">
+                <Divider
+                  title="Scene Default Trackers"
+                  titleAlignment="CENTER"
+                />
+                <div className="flex justify-center gap-2">
+                  {autofillTrackers.length !== 0 && (
+                    <button
+                      className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 w-16 rounded-lg border-none py-2 text-center no-underline shadow"
+                      onClick={() => {
+                        updateTrackers({ trackers: autofillTrackers });
+                      }}
+                    >
+                      Insert
+                    </button>
+                  )}
+
+                  <button
+                    className="bg-paper/90 text-text-primary hover:bg-paper/55 dark:bg-paper-dark/70 dark:text-text-primary-dark dark:hover:bg-paper-dark/50 w-16 rounded-lg border-none py-2 text-center no-underline shadow"
+                    onClick={openSceneTrackersPopover}
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
             )}
           </div>

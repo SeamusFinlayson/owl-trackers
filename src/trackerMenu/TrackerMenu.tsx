@@ -15,6 +15,8 @@ import CounterTrackerInput from "../components/CounterTrackerInput";
 import { TrackersState } from "../state/TrackersStateType";
 import { ModifyTrackers } from "../state/helpers/modifyTrackers";
 import { TrackersUpdate } from "../state/helpers/updateState";
+import { openSceneTrackersPopover } from "../action/openSceneTrackersPopover";
+import { Divider } from "../components/Divider";
 
 export default function TrackerMenu({
   playerRole,
@@ -167,18 +169,28 @@ export default function TrackerMenu({
         <div className="flex flex-wrap justify-center gap-x-2 gap-y-1 rounded-xl bg-white/0">
           {selectionTrackers.map((tracker) => generateInput(tracker))}
         </div>
-      ) : sceneTrackers.length !== 0 ? (
-        <button
-          className="text-text-primary dark:text-text-primary-dark self-center justify-self-center rounded-lg border-none bg-white/30 p-[6px] text-center no-underline hover:bg-white/20 dark:bg-black/15 dark:hover:bg-black/35"
-          onClick={() => {
-            updateTrackers({ trackers: sceneTrackers });
-          }}
-        >
-          Use scene trackers
-        </button>
       ) : (
-        <div className="text-text-primary dark:text-text-primary-dark self-center justify-self-center rounded-lg border-none p-[6px] text-center no-underline">
-          Scene trackers not set
+        <div className="w-full space-y-2">
+          <Divider title="Scene Default Trackers" titleAlignment="CENTER" />
+          <div className="flex justify-center gap-2">
+            {sceneTrackers.length !== 0 && (
+              <button
+                className="text-text-primary dark:text-text-primary-dark w-16 self-center justify-self-center rounded-lg border-none bg-white/30 py-2 text-center no-underline hover:bg-white/20 dark:bg-black/15 dark:hover:bg-black/35"
+                onClick={() => {
+                  updateTrackers({ trackers: sceneTrackers });
+                }}
+              >
+                Insert
+              </button>
+            )}
+
+            <button
+              className="text-text-primary dark:text-text-primary-dark w-16 self-center justify-self-center rounded-lg border-none bg-white/30 py-2 text-center no-underline hover:bg-white/20 dark:bg-black/15 dark:hover:bg-black/35"
+              onClick={openSceneTrackersPopover}
+            >
+              Edit
+            </button>
+          </div>
         </div>
       )}
     </div>

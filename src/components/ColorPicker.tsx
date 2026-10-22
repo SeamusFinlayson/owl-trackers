@@ -1,5 +1,5 @@
 import React from "react";
-import { getBackgroundColor, getColor } from "../colorHelpers";
+import { getColor } from "../colorHelpers";
 import { Popover, Tooltip } from "@mui/material";
 import IconButton from "./IconButton";
 import Palette from "../icons/Palette";

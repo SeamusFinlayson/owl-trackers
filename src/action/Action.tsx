@@ -1,6 +1,5 @@
 import IconButton from "../components/IconButton";
-import OBR, { Item, Metadata } from "@owlbear-rodeo/sdk";
-import { getPluginId } from "../getPluginId";
+import { Item, Metadata } from "@owlbear-rodeo/sdk";
 import ToggleButton from "../components/ToggleButton";
 import Input from "../components/Input";
 import ActionHeader from "./ActionHeader";
@@ -14,6 +13,8 @@ import OpenInNewIcon from "../icons/OpenInNewIcon";
 import { Settings } from "../state/SettingsZod";
 import { getTrackersFromItem } from "../trackerHelpersItem";
 import { getTrackersFromSceneMetadata } from "../trackerHelpersScene";
+import { openSceneTrackersPopover } from "./openSceneTrackersPopover";
+import { Divider } from "../components/Divider";
 
 const getTrackerBarNames = (items: Item[], metadata: Metadata) => {
   const trackerBarNames = new Set<string>();
@@ -61,12 +62,8 @@ export function Action({
     <div>
       <ActionHeader />
 
-      <div className="mx-4 flex items-center gap-2 pt-0 pb-2">
-        <div className="text-text-secondary dark:text-text-secondary-dark text-xs font-semibold">
-          Scene
-        </div>
-
-        <hr className="border-text-primary dark:border-text-primary-dark/10 my-0 grow" />
+      <div className="mx-4 pb-2">
+        <Divider title="Scene" />
       </div>
 
       {/* Settings */}
@@ -76,33 +73,11 @@ export function Action({
           <h2 className="text-text-primary dark:text-text-primary-dark justify-self-start text-sm">
             Default trackers
           </h2>
-          <IconButton
-            Icon={OpenInNewIcon}
-            onClick={() =>
-              OBR.popover.open({
-                id: getPluginId("scene-editor"),
-                url: "/src/sceneEditor/sceneEditor.html",
-                height: 550,
-                width: 430,
-                anchorOrigin: {
-                  horizontal: "CENTER",
-                  vertical: "CENTER",
-                },
-                transformOrigin: {
-                  horizontal: "CENTER",
-                  vertical: "CENTER",
-                },
-              })
-            }
-          />
+          <IconButton Icon={OpenInNewIcon} onClick={openSceneTrackersPopover} />
         </div>
 
-        <div className="mx-4 flex items-center gap-2 pt-3 pb-2">
-          <div className="text-text-secondary dark:text-text-secondary-dark text-xs font-semibold">
-            Room
-          </div>
-
-          <hr className="border-text-primary dark:border-text-primary-dark/10 my-0 grow" />
+        <div className="mx-4 pt-3 pb-2">
+          <Divider title="Room" />
         </div>
 
         <div className="grid w-full auto-rows-fr grid-cols-[auto_50px] items-center justify-items-center gap-x-1 gap-y-1 px-4">
