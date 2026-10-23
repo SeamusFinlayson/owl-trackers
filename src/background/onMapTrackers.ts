@@ -79,10 +79,10 @@ async function getGlobalSettings(roomMetadata?: Metadata): Promise<boolean> {
     roomMetadata = await OBR.room.getMetadata();
   }
 
-  const settingsData = SettingsZod.partial().parse(
+  const settingsData = SettingsZod.partial().safeParse(
     roomMetadata[getPluginId("settings")],
   );
-  const settings = { ...defaultSettings, ...settingsData };
+  const settings = { ...defaultSettings, ...settingsData.data };
 
   const settingsChange =
     settings.verticalOffset !== verticalOffset ||
