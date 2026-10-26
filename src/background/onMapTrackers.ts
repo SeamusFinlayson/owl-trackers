@@ -26,7 +26,6 @@ import {
 } from "../trackerHelpersBasic";
 import { BubblePosition } from "./trackerPositionHelper";
 import { getImageCenter } from "./mathHelpers";
-import { isSegmentSettings } from "../isSegmentSettings";
 import { SettingsZod } from "../state/SettingsZod";
 import { defaultSettings } from "../state/defaultTrackersState";
 
@@ -97,20 +96,16 @@ async function getGlobalSettings(roomMetadata?: Metadata): Promise<boolean> {
 
   let segmentsChange = false;
 
-  const newSegmentSettings = roomMetadata[getPluginId("segmentSettings")] as
-    [string, number][] | undefined;
-  if (isSegmentSettings(newSegmentSettings)) {
-    if (newSegmentSettings.length !== segmentSettings.size)
+  const newSegmentSettings = settings.segmentSettings;
+  if (newSegmentSettings.length !== segmentSettings.size) segmentsChange = true;
+  for (const setting of newSegmentSettings) {
+    if (
+      !segmentSettings.has(setting[0]) ||
+      segmentSettings.get(setting[0]) !== setting[1]
+    )
       segmentsChange = true;
-    for (const setting of newSegmentSettings) {
-      if (
-        !segmentSettings.has(setting[0]) ||
-        segmentSettings.get(setting[0]) !== setting[1]
-      )
-        segmentsChange = true;
-    }
-    segmentSettings = new Map(newSegmentSettings);
   }
+  segmentSettings = new Map(newSegmentSettings);
 
   const doRefresh = settingsChange || segmentsChange;
 
