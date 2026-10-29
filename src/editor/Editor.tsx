@@ -31,6 +31,7 @@ import { Theme } from "@owlbear-rodeo/sdk";
 import { Divider } from "../components/Divider.tsx";
 import PartiallyControlledInput from "../components/PartiallyControlledInput.tsx";
 import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from "../icons/SaveIcon.tsx";
 
 export default function Editor({
   trackers,
@@ -41,6 +42,7 @@ export default function Editor({
   updateTrackers,
   theme,
   actions,
+  onSave,
 }: {
   trackers: Tracker[];
   trackersHidden?: boolean;
@@ -53,6 +55,7 @@ export default function Editor({
     title: string;
     buttons: { text: string; onClick: () => void; disabled?: boolean }[];
   }[];
+  onSave?: () => void;
 }): React.JSX.Element {
   const [editing, setEditing] = useState(false);
 
@@ -82,6 +85,15 @@ export default function Editor({
               </div>
             )}
             <div className="flex gap-2 p-1">
+              {onSave && (
+                <Tooltip title={"Save to Browser"} placement="bottom">
+                  <IconButton
+                    className="size-full h-8 rounded-xl bg-black/5 dark:bg-white/5"
+                    Icon={SaveIcon}
+                    onClick={onSave}
+                  />
+                </Tooltip>
+              )}
               {playerRole === "GM" && trackersHidden !== undefined && (
                 <Tooltip
                   title={trackersHidden ? "Show Trackers" : "Hide Trackers"}

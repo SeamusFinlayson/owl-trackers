@@ -5,9 +5,11 @@ import { TrackersUpdate, UpdateState } from "../state/helpers/updateState";
 import { EditorFallback } from "../editor/EditorFallback";
 import { getLocalTrackers, setLocalTrackers } from "../loaclStorageTrackers";
 import { getPluginId } from "../getPluginId";
+import { useState } from "react";
 
 export function App() {
   const { trackersState, trackersStateDispatch } = useTrackersState();
+  const [browserTrackers, setBrowserTrackers] = useState(getLocalTrackers());
 
   const playerRole = trackersState.playerRole;
   const sceneIsReady = trackersState.sceneIsReady;
@@ -53,10 +55,7 @@ export function App() {
           sceneMetadata,
         }),
     );
-    if (update.trackers) setLocalTrackers(update.trackers);
   };
-
-  const localTrackers = getLocalTrackers();
 
   return (
     <Editor
@@ -67,18 +66,22 @@ export function App() {
       theme={theme}
       actions={[
         {
-          title: "Local Trackers",
+          title: "Browser Trackers",
           buttons: [
             {
               text: "Insert",
-              onClick: localTrackers
-                ? () => updateTrackers({ trackers: localTrackers })
+              onClick: browserTrackers
+                ? () => updateTrackers({ trackers: browserTrackers })
                 : () => {},
-              disabled: (localTrackers?.length ?? 0) < 1,
+              disabled: (browserTrackers?.length ?? 0) < 1,
             },
           ],
         },
       ]}
+      onSave={() => {
+        setLocalTrackers(sceneTrackers);
+        setBrowserTrackers(sceneTrackers);
+      }}
     />
   );
 }
